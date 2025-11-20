@@ -1,0 +1,51 @@
+services:
+  funding-postgres:
+    image: postgres:17-alpine
+    container_name: funding-postgres
+    environment:
+      POSTGRES_DB: funding_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+      TZ: Asia/Seoul
+    ports:
+      - "5434:5432"
+    volumes:
+      - funding-postgres-data:/var/lib/postgresql/data
+    networks:
+      - funding-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d funding_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  funding-service:
+    build:
+      context: ..
+      dockerfile: funding/Dockerfile
+    container_name: funding-service
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      USER_SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5434/funding_db
+      USER_SPRING_DATASOURCE_USERNAME: user
+      USER_SPRING_DATASOURCE_PASSWORD: 1234
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+    ports:
+      - "18082:18082"
+    depends_on:
+      funding-postgres:
+        condition: service_healthy
+    networks:
+      - funding-network
+    restart: unless-stopped
+
+volumes:
+  funding-postgres-data:
+    driver: local
+
+networks:
+  funding-network:
+    driver: bridge
+  msa-network:
+    external: true

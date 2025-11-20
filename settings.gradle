@@ -1,0 +1,9 @@
+rootProject.name = 'encore'
+
+include 'user'
+include 'funding'
+include 'payment'
+include 'project'
+include 'reward'
+include 'gateway'
+include 'discovery'

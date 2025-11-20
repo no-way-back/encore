@@ -1,0 +1,11 @@
+services:
+  reward-service:
+    build:
+      context: ..
+      dockerfile: reward/Dockerfile
+    container_name: reward-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "18083:18083"
+    restart: unless-stopped

@@ -1,0 +1,51 @@
+services:
+  reward-postgres:
+    image: postgres:17-alpine
+    container_name: reward-postgres
+    environment:
+      POSTGRES_DB: reward_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+      TZ: Asia/Seoul
+    ports:
+      - "5433:5432"
+    volumes:
+      - reward-postgres-data:/var/lib/postgresql/data
+    networks:
+      - reward-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d reward_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  reward-service:
+    build:
+      context: ..
+      dockerfile: reward/Dockerfile
+    container_name: reward-service
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      USER_SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/reward_db
+      USER_SPRING_DATASOURCE_USERNAME: user
+      USER_SPRING_DATASOURCE_PASSWORD: 1234
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+    ports:
+      - "18083:18083"
+    depends_on:
+      reward-postgres:
+        condition: service_healthy
+    networks:
+      - reward-network
+    restart: unless-stopped
+
+volumes:
+  reward-postgres-data:
+    driver: local
+
+networks:
+  reward-network:
+    driver: bridge
+  msa-network:
+    external: true

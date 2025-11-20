@@ -1,0 +1,11 @@
+services:
+  payment-service:
+    build:
+      context: ..
+      dockerfile: payment/Dockerfile
+    container_name: payment-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "18084:18084"
+    restart: unless-stopped

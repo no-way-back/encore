@@ -1,0 +1,51 @@
+services:
+  payment-postgres:
+    image: postgres:17-alpine
+    container_name: payment-postgres
+    environment:
+      POSTGRES_DB: payment_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+      TZ: Asia/Seoul
+    ports:
+      - "5434:5434"
+    volumes:
+      - payment-postgres-data:/var/lib/postgresql/data
+    networks:
+      - payment-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d payment_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payment-service:
+    build:
+      context: ..
+      dockerfile: payment/Dockerfile
+    container_name: payment-service
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      USER_SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5434/payment_db
+      USER_SPRING_DATASOURCE_USERNAME: user
+      USER_SPRING_DATASOURCE_PASSWORD: 1234
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+    ports:
+      - "18084:18084"
+    depends_on:
+      payment-postgres:
+        condition: service_healthy
+    networks:
+      - payment-network
+    restart: unless-stopped
+
+volumes:
+  payment-postgres-data:
+    driver: local
+
+networks:
+  payment-network:
+    driver: bridge
+  msa-network:
+    external: true

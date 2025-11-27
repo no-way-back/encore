@@ -71,6 +71,7 @@ public class Payment extends BaseEntity {
     }
 
     /* Business Methods */
+
     public void changeStatus(PaymentStatus newStatus) {
         if (!this.status.canTransitionTo(newStatus)) {
             throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_PAYMENT_STATUS_TRANSITION);

@@ -2,6 +2,7 @@ package com.nowayback.project.domain.projectDraft.entity;
 
 import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
 import com.nowayback.project.domain.exception.ProjectDomainException;
+import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "p_project_story_draft")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProjectStoryDraft {
+public class ProjectStoryDraft extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -3,6 +3,7 @@ package com.nowayback.project.domain.projectDraft.entity;
 import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
 import com.nowayback.project.domain.exception.ProjectDomainException;
 import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
+import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "p_project_draft")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProjectDraft {
+public class ProjectDraft extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

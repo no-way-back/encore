@@ -3,6 +3,7 @@ package com.nowayback.project.domain.project.entity;
 import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
 import com.nowayback.project.domain.exception.ProjectDomainException;
 import com.nowayback.project.domain.project.vo.ProjectStatus;
+import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "p_project")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Project {
+public class Project extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

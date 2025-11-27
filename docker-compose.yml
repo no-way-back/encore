@@ -33,7 +33,7 @@ services:
       retries: 5
 
   kafka:
-    image: confluentinc/cp-kafka:7.7.1  # Kafka 3.8.x 포함
+    image: confluentinc/cp-kafka:7.8.5  # Kafka 3.8.x 포함
     container_name: msa-kafka
     ports:
       - "9092:9092"

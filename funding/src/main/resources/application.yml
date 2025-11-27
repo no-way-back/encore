@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: funding-service
+  profiles:
+    active: local

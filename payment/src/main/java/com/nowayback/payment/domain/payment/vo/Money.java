@@ -22,7 +22,7 @@ public class Money {
 
     public static Money of(long amount) {
         if (amount < 0) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_MONEY_VALUE);
+            throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_PAYMENT_MONEY_VALUE);
         }
         return new Money(amount);
     }

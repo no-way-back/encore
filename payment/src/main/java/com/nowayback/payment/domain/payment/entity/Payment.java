@@ -107,7 +107,7 @@ public class Payment extends BaseEntity {
 
     private static void validateAmount(Money amount) {
         if (amount == null) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_MONEY_OBJECT);
+            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_PAYMENT_MONEY_OBJECT);
         }
     }
 

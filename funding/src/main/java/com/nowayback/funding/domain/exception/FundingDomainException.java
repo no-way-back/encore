@@ -1,4 +1,4 @@
-package com.nowayback.funding.domain.funding.exception;
+package com.nowayback.funding.domain.exception;
 
 import com.nowayback.funding.presentation.exception.ErrorCode;
 import com.nowayback.funding.presentation.exception.FundingException;

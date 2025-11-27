@@ -1,4 +1,4 @@
-package com.nowayback.funding.domain;
+package com.nowayback.funding.domain.shared;
 
 import java.time.LocalDateTime;
 

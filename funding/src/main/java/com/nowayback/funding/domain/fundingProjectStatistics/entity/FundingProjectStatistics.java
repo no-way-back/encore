@@ -3,7 +3,7 @@ package com.nowayback.funding.domain.fundingProjectStatistics.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.nowayback.funding.domain.BaseEntity;
+import com.nowayback.funding.domain.shared.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

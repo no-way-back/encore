@@ -1,10 +1,10 @@
-package com.nowayback.funding.domain.funding.exception;
+package com.nowayback.funding.application.exception;
 
 import org.springframework.http.HttpStatus;
 
 import com.nowayback.funding.presentation.exception.ErrorCode;
 
-public enum FundingDomainErrorCode implements ErrorCode {
+public enum FundingApplicationErrorCode implements ErrorCode {
 
 	;
 
@@ -12,7 +12,7 @@ public enum FundingDomainErrorCode implements ErrorCode {
 	private final String message;
 	private final HttpStatus status;
 
-	FundingDomainErrorCode(String code, String message, HttpStatus status) {
+	FundingApplicationErrorCode(String code, String message, HttpStatus status) {
 		this.code = code;
 		this.message = message;
 		this.status = status;

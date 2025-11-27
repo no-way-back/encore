@@ -52,9 +52,7 @@ class UserTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> {
-                User.create(USERNAME, ENCODED_PASSWORD, EMAIL, NICKNAME, UserRole.MASTER);
-            })
+            assertThatThrownBy(() -> User.create(USERNAME, ENCODED_PASSWORD, EMAIL, NICKNAME, UserRole.MASTER))
                     .isInstanceOf(UserDomainException.class)
                     .hasMessage(UserDomainErrorCode.INVALID_USER_ROLE_FOR_CREATION.getMessage());
         }
@@ -87,9 +85,7 @@ class UserTest {
 
             /* when */
             /* then */
-            assertThatThrownBy(() -> {
-                user.changeStatus(newStatus);
-            })
+            assertThatThrownBy(() -> user.changeStatus(newStatus))
                     .isInstanceOf(UserDomainException.class)
                     .hasMessage(UserDomainErrorCode.INVALID_USER_STATUS_TRANSITION.getMessage());
         }
@@ -209,9 +205,7 @@ class UserTest {
 
             /* when */
             /* then */
-            assertThatThrownBy(() -> {
-                user.deactivate(USER_UUID);
-            })
+            assertThatThrownBy(() -> user.deactivate(USER_UUID))
                     .isInstanceOf(UserDomainException.class)
                     .hasMessage(UserDomainErrorCode.USER_ALREADY_DEACTIVATED.getMessage());
         }

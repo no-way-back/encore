@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -77,5 +78,43 @@ public class ProjectDraft extends BaseEntity {
             && fundingDraft.isCompleted()
             && settlementDraft.isCompleted()
             && rewardDrafts.stream().allMatch(rewardDraft -> rewardDraft.isCompleted());
+    }
+
+    public void updateStoryDraft(
+        String title,
+        String summary,
+        String category,
+        String thumbnailUrl,
+        String contentJson
+    ) {
+        if (this.storyDraft == null) {
+            this.storyDraft = ProjectStoryDraft.create();
+        }
+        this.storyDraft.update(title, summary, category, thumbnailUrl, contentJson);
+    }
+
+    public void updateFundingDraft(
+        Long goalAmount,
+        LocalDate fundingStartDate,
+        LocalDate fundingEndDate
+    ) {
+        if (this.fundingDraft == null) {
+            this.fundingDraft = ProjectFundingDraft.create();
+        }
+
+        this.fundingDraft.update(goalAmount, fundingStartDate, fundingEndDate);
+    }
+
+    public void updateSettlementDraft(
+        String businessNumber,
+        String accountBank,
+        String accountNumber,
+        String accountHolder
+    ) {
+        if (this.settlementDraft == null) {
+            this.settlementDraft = ProjectSettlementDraft.create();
+        }
+
+        this.settlementDraft.update(businessNumber, accountBank, accountNumber, accountHolder);
     }
 }

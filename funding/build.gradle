@@ -46,6 +46,9 @@ dependencies {
     // Open feign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    // Apache HttpClient 5
+    implementation 'io.github.openfeign:feign-hc5:13.1'
+
     // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 

@@ -52,13 +52,13 @@ public class User extends BaseEntity {
     }
 
     /* Factory Method */
-    public static User createUser(String username, String password, String email, String nickname, UserRole role) {
+    public static User create(String username, String password, String email, String nickname, UserRole role) {
         validateCreatableRole(role);
         UserStatus initialStatus = role.getInitialStatus();
         return new User(username, password, email, nickname, role, initialStatus);
     }
 
-    public static void validateCreatableRole(UserRole role) {
+    private static void validateCreatableRole(UserRole role) {
         if (!role.canBeCreatedDirectly()) {
             throw new UserDomainException(UserDomainErrorCode.INVALID_USER_ROLE_FOR_CREATION);
         }
@@ -83,6 +83,9 @@ public class User extends BaseEntity {
     }
 
     public void deactivate(UUID deletedBy) {
+        if (this.status == UserStatus.DEACTIVATED) {
+            throw new UserDomainException(UserDomainErrorCode.USER_ALREADY_DEACTIVATED);
+        }
         softDelete(deletedBy);
         changeStatus(UserStatus.DEACTIVATED);
     }

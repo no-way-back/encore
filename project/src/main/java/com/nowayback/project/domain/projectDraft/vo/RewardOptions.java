@@ -8,8 +8,6 @@ import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @Embeddable
 public class RewardOptions {
@@ -18,7 +16,7 @@ public class RewardOptions {
     }
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "reward_draft_id")
+    @JoinColumn(name = "project_reward_draft_id")
     private List<ProjectRewardOptionDraft> optionDrafts = new ArrayList<>();
 
     public List<ProjectRewardOptionDraft> asReadOnly() {

@@ -39,6 +39,9 @@ public enum ProjectErrorCode {
     INVALID_STORY_CONTENT("PROJECT1032", "본문 JSON은 공백일 수 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_STORY_DRAFT_SUBMISSION("PROJECT1033", "스토리 정보가 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
 
+    PROJECT_DRAFT_NOT_FOUND("PROJECT2001", "프로젝트 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    INVALID_PROJECT_DRAFT_STATUS("PROJECT2002", "프로젝트 드래프트를 업데이트 할 수 없습니다.", HttpStatus.CONFLICT)
     ;
 
     private final String code;

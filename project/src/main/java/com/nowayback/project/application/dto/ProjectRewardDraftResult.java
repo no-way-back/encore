@@ -3,8 +3,6 @@ package com.nowayback.project.application.dto;
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectRewardDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectRewardOptionDraft;
-import com.nowayback.project.domain.projectDraft.vo.RewardPrice;
-import jakarta.persistence.Column;
 import java.util.List;
 import java.util.UUID;
 

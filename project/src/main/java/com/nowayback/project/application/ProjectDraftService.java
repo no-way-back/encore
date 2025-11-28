@@ -8,11 +8,15 @@ import com.nowayback.project.application.dto.ProjectFundingDraftResult;
 import com.nowayback.project.application.dto.ProjectRewardDraftResult;
 import com.nowayback.project.application.dto.ProjectSettlementDraftResult;
 import com.nowayback.project.application.dto.ProjectStoryDraftResult;
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
+import com.nowayback.project.domain.projectDraft.entity.ProjectFundingDraft;
+import com.nowayback.project.domain.projectDraft.entity.ProjectRewardDraft;
+import com.nowayback.project.domain.projectDraft.entity.ProjectSettlementDraft;
+import com.nowayback.project.domain.projectDraft.entity.ProjectStoryDraft;
 import com.nowayback.project.domain.projectDraft.repository.ProjectDraftRepository;
-import com.nowayback.project.domain.projectDraft.spec.RewardDraftSpec;
 import com.nowayback.project.domain.projectDraft.spec.RewardOptionSpec;
-import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
 import com.nowayback.project.domain.projectDraft.vo.RewardPrice;
 import java.util.List;
 import java.util.UUID;
@@ -29,15 +33,22 @@ public class ProjectDraftService {
     @Transactional
     public UUID createProjectDraft(UUID userId) {
         ProjectDraft projectDraft = ProjectDraft.create(userId);
-
         return projectDraftRepository.save(projectDraft).getId();
     }
 
     @Transactional
     public ProjectStoryDraftResult saveStoryDraft(SaveStoryDraftCommand command) {
-        ProjectDraft projectDraft = findUpdateAbleDraftOrThrow(command.projectDraftId());
+        ProjectDraft projectDraft = findProjectDraftOrThrow(command.projectDraftId());
 
-        projectDraft.updateStoryDraft(
+        projectDraft.ensureUpdatable();
+
+        ProjectStoryDraft story = projectDraft.getStoryDraft();
+        if (story == null) {
+            story = ProjectStoryDraft.create();
+            projectDraft.assignStoryDraft(story);
+        }
+
+        story.update(
             command.title(),
             command.summary(),
             command.category(),
@@ -50,9 +61,17 @@ public class ProjectDraftService {
 
     @Transactional
     public ProjectFundingDraftResult saveFundingDraft(SaveFundingDraftCommand command) {
-        ProjectDraft projectDraft = findUpdateAbleDraftOrThrow(command.projectDraftId());
+        ProjectDraft projectDraft = findProjectDraftOrThrow(command.projectDraftId());
 
-        projectDraft.updateFundingDraft(
+        projectDraft.ensureUpdatable();
+
+        ProjectFundingDraft funding = projectDraft.getFundingDraft();
+        if (funding == null) {
+            funding = ProjectFundingDraft.create();
+            projectDraft.assignFundingDraft(funding);
+        }
+
+        funding.update(
             command.goalAmount(),
             command.fundingStartDate(),
             command.fundingEndDate()
@@ -63,9 +82,17 @@ public class ProjectDraftService {
 
     @Transactional
     public ProjectSettlementDraftResult saveSettlementDraft(SaveSettlementDraftCommand command) {
-        ProjectDraft projectDraft = findUpdateAbleDraftOrThrow(command.projectDraftId());
+        ProjectDraft projectDraft = findProjectDraftOrThrow(command.projectDraftId());
 
-        projectDraft.updateSettlementDraft(
+        projectDraft.ensureUpdatable();
+
+        ProjectSettlementDraft settlement = projectDraft.getSettlementDraft();
+        if (settlement == null) {
+            settlement = ProjectSettlementDraft.create();
+            projectDraft.assignSettlementDraft(settlement);
+        }
+
+        settlement.update(
             command.businessNumber(),
             command.accountBank(),
             command.accountNumber(),
@@ -77,39 +104,41 @@ public class ProjectDraftService {
 
     @Transactional
     public ProjectRewardDraftResult saveRewardDraft(SaveRewardDraftCommand command) {
-        ProjectDraft projectDraft = findUpdateAbleDraftOrThrow(command.projectDraftId());
+        ProjectDraft projectDraft = findProjectDraftOrThrow(command.projectDraftId());
 
-        projectDraft.updateRewardDraft(getRewardDraftSpec(command));
+        projectDraft.ensureUpdatable();
+
+        List<ProjectRewardDraft> drafts =
+            command.saveRewardCommands().stream().map(spec -> {
+                ProjectRewardDraft draft = ProjectRewardDraft.create();
+                draft.update(
+                    spec.title(),
+                    new RewardPrice(
+                        spec.price(),
+                        spec.shippingFee(),
+                        spec.freeShippingAmount()
+                    ),
+                    spec.limitCount(),
+                    spec.purchaseLimitPerPerson(),
+                    spec.rewardOptionCommands().stream()
+                        .map(opt -> new RewardOptionSpec(
+                            opt.additionalPrice(),
+                            opt.stockQuantity(),
+                            opt.displayOrder()
+                        ))
+                        .toList()
+                );
+                return draft;
+            }).toList();
+
+        projectDraft.replaceRewardDrafts(drafts);
 
         return ProjectRewardDraftResult.of(projectDraft);
     }
 
-    private ProjectDraft findUpdateAbleDraftOrThrow(UUID projectDraftId) {
-        return projectDraftRepository.findByIdAndStatus(
-            projectDraftId,
-            ProjectDraftStatus.DRAFT
-        ).orElseThrow(() -> new IllegalArgumentException());
+    private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {
+        return projectDraftRepository.findById(projectDraftId)
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_DRAFT_NOT_FOUND));
     }
 
-    private List<RewardDraftSpec> getRewardDraftSpec(SaveRewardDraftCommand command) {
-        return command.saveRewardCommands().stream()
-            .map(spec -> new RewardDraftSpec(
-                spec.title(),
-                new RewardPrice(
-                    spec.price(),
-                    spec.shippingFee(),
-                    spec.freeShippingAmount()
-                ),
-                spec.limitCount(),
-                spec.purchaseLimitPerPerson(),
-                spec.rewardOptionCommands().stream()
-                    .map(opt -> new RewardOptionSpec(
-                        opt.additionalPrice(),
-                        opt.stockQuantity(),
-                        opt.displayOrder()
-                    ))
-                    .toList()
-            ))
-            .toList();
-    }
 }

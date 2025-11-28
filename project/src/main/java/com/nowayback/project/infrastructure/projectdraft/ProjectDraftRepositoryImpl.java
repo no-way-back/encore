@@ -2,7 +2,6 @@ package com.nowayback.project.infrastructure.projectdraft;
 
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
 import com.nowayback.project.domain.projectDraft.repository.ProjectDraftRepository;
-import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ public class ProjectDraftRepositoryImpl implements ProjectDraftRepository {
     }
 
     @Override
-    public Optional<ProjectDraft> findByIdAndStatus(UUID projectDraftId, ProjectDraftStatus draft) {
-        return projectDraftJpaRepository.findByIdAndStatus(projectDraftId, draft);
+    public Optional<ProjectDraft> findById(UUID projectDraftId) {
+        return projectDraftJpaRepository.findById(projectDraftId);
     }
 }

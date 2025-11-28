@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: reward-service
+  profiles:
+    active: local

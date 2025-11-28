@@ -1,0 +1,33 @@
+server:
+  port: 18083
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reward_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    open-in-view: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: reward-service-group-local
+    producer:
+      acks: all
+
+logging:
+  level:
+    root: INFO
+    com.nowayback.reward: DEBUG
+    org.springframework.kafka: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

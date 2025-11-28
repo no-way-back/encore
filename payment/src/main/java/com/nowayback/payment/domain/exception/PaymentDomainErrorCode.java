@@ -52,6 +52,8 @@ public enum PaymentDomainErrorCode implements PaymentErrorCode {
     NULL_PROJECT_ID_OBJECT("SETTLEMENT1008", "프로젝트 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_SETTLEMENT_TOTAL_AMOUNT_OBJECT("SETTLEMENT1009", "정산 총액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_SETTLEMENT_ACCOUNT_INFO_OBJECT("SETTLEMENT1010", "정산 계좌 정보 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    INVALID_SETTLEMENT_STATUS_TRANSITION("SETTLEMENT1011", "유효하지 않은 정산 상태 전환입니다.", HttpStatus.BAD_REQUEST),
     ;
 
     private final String code;

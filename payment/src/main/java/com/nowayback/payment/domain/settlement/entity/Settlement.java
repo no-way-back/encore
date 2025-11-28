@@ -86,13 +86,23 @@ public class Settlement extends BaseEntity {
     /* Business Method */
 
     public void complete() {
-        this.status = SettlementStatus.COMPLETED;
+        SettlementStatus status = SettlementStatus.COMPLETED;
+        validateStatus(status);
+        this.status = status;
         this.completedAt = LocalDateTime.now();
     }
 
     public void fail() {
-        this.status = SettlementStatus.FAILED;
+        SettlementStatus status = SettlementStatus.FAILED;
+        validateStatus(status);
+        this.status = status;
         this.failedAt = LocalDateTime.now();
+    }
+
+    private void validateStatus(SettlementStatus newStatus) {
+        if (!this.status.canTransitionTo(newStatus)) {
+            throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_SETTLEMENT_STATUS_TRANSITION);
+        }
     }
 
     /* Validation Methods */

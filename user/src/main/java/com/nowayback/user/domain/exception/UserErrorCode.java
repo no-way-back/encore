@@ -1,9 +1,10 @@
 package com.nowayback.user.domain.exception;
 
-import com.nowayback.user.presentation.exception.UserErrorCode;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public enum UserDomainErrorCode implements UserErrorCode {
+@Getter
+public enum UserErrorCode {
 
     INVALID_USER_ROLE_FOR_CREATION("USER1001", "해당 역할의 사용자는 직접 생성할 수 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_USER_ROLE_FOR_APPROVAL("USER1002", "해당 역할의 사용자는 승인할 수 없습니다.", HttpStatus.BAD_REQUEST),
@@ -16,25 +17,9 @@ public enum UserDomainErrorCode implements UserErrorCode {
     private final String message;
     private final HttpStatus httpStatus;
 
-    UserDomainErrorCode(String code, String message, HttpStatus httpStatus) {
+    UserErrorCode(String code, String message, HttpStatus httpStatus) {
         this.code = code;
         this.message = message;
         this.httpStatus = httpStatus;
-    }
-
-
-    @Override
-    public String getCode() {
-        return code;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    @Override
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
     }
 }

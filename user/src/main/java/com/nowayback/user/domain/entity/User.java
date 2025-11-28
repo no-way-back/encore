@@ -1,8 +1,8 @@
 package com.nowayback.user.domain.entity;
 
 import com.nowayback.user.domain.BaseEntity;
-import com.nowayback.user.domain.exception.UserDomainErrorCode;
-import com.nowayback.user.domain.exception.UserDomainException;
+import com.nowayback.user.domain.exception.UserErrorCode;
+import com.nowayback.user.domain.exception.UserException;
 import com.nowayback.user.domain.vo.UserRole;
 import com.nowayback.user.domain.vo.UserStatus;
 import jakarta.persistence.*;
@@ -60,23 +60,23 @@ public class User extends BaseEntity {
 
     private static void validateCreatableRole(UserRole role) {
         if (!role.canBeCreatedDirectly()) {
-            throw new UserDomainException(UserDomainErrorCode.INVALID_USER_ROLE_FOR_CREATION);
+            throw new UserException(UserErrorCode.INVALID_USER_ROLE_FOR_CREATION);
         }
     }
 
     /* Business Methods */
     public void changeStatus(UserStatus newStatus) {
         if (!this.status.canTransitionTo(newStatus)) {
-            throw new UserDomainException(UserDomainErrorCode.INVALID_USER_STATUS_TRANSITION);
+            throw new UserException(UserErrorCode.INVALID_USER_STATUS_TRANSITION);
         }
         this.status = newStatus;
     }
 
     public void approve() {
         if (this.role != UserRole.ADMIN) {
-            throw new UserDomainException(UserDomainErrorCode.INVALID_USER_ROLE_FOR_APPROVAL);
+            throw new UserException(UserErrorCode.INVALID_USER_ROLE_FOR_APPROVAL);
         } else if (this.status != UserStatus.PENDING) {
-            throw new UserDomainException(UserDomainErrorCode.INVALID_USER_STATUS_FOR_APPROVAL);
+            throw new UserException(UserErrorCode.INVALID_USER_STATUS_FOR_APPROVAL);
         } else {
             changeStatus(UserStatus.ACTIVE);
         }
@@ -84,7 +84,7 @@ public class User extends BaseEntity {
 
     public void deactivate(UUID deletedBy) {
         if (this.status == UserStatus.DEACTIVATED) {
-            throw new UserDomainException(UserDomainErrorCode.USER_ALREADY_DEACTIVATED);
+            throw new UserException(UserErrorCode.USER_ALREADY_DEACTIVATED);
         }
         softDelete(deletedBy);
         changeStatus(UserStatus.DEACTIVATED);

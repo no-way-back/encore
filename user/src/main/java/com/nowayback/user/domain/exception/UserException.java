@@ -1,4 +1,4 @@
-package com.nowayback.user.presentation.exception;
+package com.nowayback.user.domain.exception;
 
 import lombok.Getter;
 

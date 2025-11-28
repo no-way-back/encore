@@ -34,7 +34,7 @@ public class KafkaConfig {
 
     /**
      * Kafka Producer 설정
-     * - JSON 직렬화, 멱등성, 재시도, 전송 보장 설정
+     * - JSON 직렬화, 전송 보장, 재시도 횟수, 멱등성 설정
      */
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
@@ -52,7 +52,7 @@ public class KafkaConfig {
 
     /**
      * Kafka Consumer 설정
-     * - JSON 역직렬화, 수동 커밋, 인스턴스 그룹화, 오프셋 설정
+     * -  인스턴스 그룹화, JSON 역직렬화, 오프셋 설정, 수동 커밋
      */
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {

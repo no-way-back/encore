@@ -33,7 +33,7 @@ public class ProjectDraftController {
 
     private final ProjectDraftService projectDraftService;
 
-    @PostMapping("/projects/drafts")
+    @PostMapping("/project-drafts")
     public ResponseEntity<ProjectDraftCreateResponse> createProjectDraft() {
         //TODO
         UUID userId = UUID.randomUUID();
@@ -43,7 +43,7 @@ public class ProjectDraftController {
         return ResponseEntity.ok(ProjectDraftCreateResponse.of(projectDraftId));
     }
 
-    @PatchMapping("/projects/drafts/{draftId}/stores")
+    @PatchMapping("/project-drafts/{draftId}/stores")
     public ResponseEntity<ProjectStoryDraftResponse> saveProjectStoryDraft(
         @PathVariable("draftId") UUID draftId,
         @RequestBody SaveProjectStoryDraftRequest request
@@ -58,7 +58,7 @@ public class ProjectDraftController {
         return ResponseEntity.ok(ProjectStoryDraftResponse.from(result));
     }
 
-    @PatchMapping("/projects/drafts/{draftId}/fundings")
+    @PatchMapping("/project-drafts/{draftId}/fundings")
     public ResponseEntity<ProjectFundingDraftResponse> saveProjectFundingDraft(
         @PathVariable("draftId") UUID draftId,
         @RequestBody SaveProjectFundingDraftRequest request
@@ -73,7 +73,7 @@ public class ProjectDraftController {
         return ResponseEntity.ok(ProjectFundingDraftResponse.from(result));
     }
 
-    @PatchMapping("/projects/drafts/{draftId}/settlements")
+    @PatchMapping("/project-drafts/{draftId}/settlements")
     public ResponseEntity<ProjectSettlementDraftResponse> saveProjectSettlementDraft(
         @PathVariable("draftId") UUID draftId,
         @RequestBody SaveProjectSettlementDraft request
@@ -88,7 +88,7 @@ public class ProjectDraftController {
         return ResponseEntity.ok(ProjectSettlementDraftResponse.from(result));
     }
 
-    @PatchMapping("/projects/drafts/{projectDraftId}/rewards")
+    @PatchMapping("/project-drafts/{projectDraftId}/rewards")
     public ResponseEntity<ProjectRewardDraftResponse> saveRewardDraft(
         @PathVariable UUID projectDraftId,
         @RequestBody SaveRewardDraftRequest request

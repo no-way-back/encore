@@ -1,9 +1,10 @@
 package com.nowayback.funding.infrastucture.config;
 
+import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
+
 import org.springframework.http.HttpStatus;
 
-import com.nowayback.funding.infrastucture.exception.InfrastructureErrorCode;
-import com.nowayback.funding.infrastucture.exception.InfrastructureException;
+import com.nowayback.funding.domain.exception.FundingException;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;
@@ -38,18 +39,18 @@ public class FeignErrorDecoder implements ErrorDecoder {
 	 */
 	private Exception handleRewardServiceError(HttpStatus httpStatus) {
 		if (httpStatus == null) {
-			return new InfrastructureException(InfrastructureErrorCode.REWARD_SERVICE_UNAVAILABLE);
+			return new FundingException(REWARD_SERVICE_UNAVAILABLE);
 		}
 
 		return switch (httpStatus) {
 			case BAD_REQUEST ->
-				new InfrastructureException(InfrastructureErrorCode.REWARD_BAD_REQUEST);
+				new FundingException(REWARD_BAD_REQUEST);
 			case CONFLICT ->
-				new InfrastructureException(InfrastructureErrorCode.REWARD_CONFLICT);
+				new FundingException(REWARD_CONFLICT);
 			case SERVICE_UNAVAILABLE, BAD_GATEWAY ->
-				new InfrastructureException(InfrastructureErrorCode.REWARD_SERVICE_UNAVAILABLE);
+				new FundingException(REWARD_SERVICE_UNAVAILABLE);
 			default ->
-				new InfrastructureException(InfrastructureErrorCode.EXTERNAL_SERVICE_ERROR);
+				new FundingException(EXTERNAL_SERVICE_ERROR);
 		};
 	}
 
@@ -58,18 +59,18 @@ public class FeignErrorDecoder implements ErrorDecoder {
 	 */
 	private Exception handlePaymentServiceError(HttpStatus httpStatus) {
 		if (httpStatus == null) {
-			return new InfrastructureException(InfrastructureErrorCode.PAYMENT_SERVICE_UNAVAILABLE);
+			return new FundingException(PAYMENT_SERVICE_UNAVAILABLE);
 		}
 
 		return switch (httpStatus) {
 			case BAD_REQUEST ->
-				new InfrastructureException(InfrastructureErrorCode.PAYMENT_BAD_REQUEST);
+				new FundingException(PAYMENT_BAD_REQUEST);
 			case CONFLICT, UNPROCESSABLE_ENTITY ->
-				new InfrastructureException(InfrastructureErrorCode.PAYMENT_FAILED);
+				new FundingException(PAYMENT_FAILED);
 			case SERVICE_UNAVAILABLE, BAD_GATEWAY ->
-				new InfrastructureException(InfrastructureErrorCode.PAYMENT_SERVICE_UNAVAILABLE);
+				new FundingException(PAYMENT_SERVICE_UNAVAILABLE);
 			default ->
-				new InfrastructureException(InfrastructureErrorCode.EXTERNAL_SERVICE_ERROR);
+				new FundingException(EXTERNAL_SERVICE_ERROR);
 		};
 	}
 
@@ -78,14 +79,14 @@ public class FeignErrorDecoder implements ErrorDecoder {
 	 */
 	private Exception handleCommonError(HttpStatus httpStatus) {
 		if (httpStatus == null) {
-			return new InfrastructureException(InfrastructureErrorCode.EXTERNAL_SERVICE_ERROR);
+			return new FundingException(EXTERNAL_SERVICE_ERROR);
 		}
 
 		return switch (httpStatus) {
 			case GATEWAY_TIMEOUT, REQUEST_TIMEOUT ->
-				new InfrastructureException(InfrastructureErrorCode.EXTERNAL_SERVICE_TIMEOUT);
+				new FundingException(EXTERNAL_SERVICE_TIMEOUT);
 			case SERVICE_UNAVAILABLE, BAD_GATEWAY ->
-				new InfrastructureException(InfrastructureErrorCode.EXTERNAL_SERVICE_ERROR);
+				new FundingException(EXTERNAL_SERVICE_ERROR);
 			default -> defaultErrorDecoder.decode("default", null);
 		};
 	}

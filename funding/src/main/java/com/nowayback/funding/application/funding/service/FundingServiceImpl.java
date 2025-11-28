@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nowayback.funding.application.client.payment.PaymentClient;
 import com.nowayback.funding.application.client.payment.dto.request.ProcessPaymentRequest;
@@ -24,7 +25,6 @@ import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
 import com.nowayback.funding.domain.funding.repository.OutboxRepository;
-import com.nowayback.funding.infrastucture.exception.InfrastructureException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +43,7 @@ public class FundingServiceImpl implements FundingService {
 	private final ApplicationEventPublisher eventPublisher;
 
 	@Override
+	@Transactional
 	public FundingResult createFunding(CreateFundingCommand command) {
 
 		log.info("펀딩 시작 - projectId: {}, userId: {}, amount: {}",
@@ -87,7 +88,7 @@ public class FundingServiceImpl implements FundingService {
 			fundingProjectStatisticsService.updateFundingStatusRate(command);
 
 			return FundingResult.success(funding.getId());
-		} catch (InfrastructureException e) {
+		} catch (FundingException e) {
 			log.error("외부 서비스 호출 실패 - funding: {}, error: {}", funding.getId(), e.getMessage(), e);
 
 			handleFundingFailure(funding, reservationId, e.getMessage());

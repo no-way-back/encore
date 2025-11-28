@@ -90,6 +90,10 @@ public class Outbox {
 		this.publishedAt = LocalDateTime.now();
 	}
 
+	public void incrementRetryCount() {
+		this.retryCount += 1;
+	}
+
 	private static String toJson(Object obj) {
 		try {
 			return new ObjectMapper().writeValueAsString(obj);

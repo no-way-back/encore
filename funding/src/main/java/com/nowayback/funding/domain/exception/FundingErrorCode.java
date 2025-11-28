@@ -10,6 +10,8 @@ public enum FundingErrorCode implements ErrorCode {
 	// ================= Domain Errors =================
 	INVALID_STATUS_TRANSITION("FD-DOM-001", "잘못된 상태 전환입니다.", HttpStatus.CONFLICT),
 	INVALID_AMOUNT("FD-DOM-002", "유효하지 않은 금액입니다.", HttpStatus.BAD_REQUEST),
+	INSUFFICIENT_CURRENT_AMOUNT("FD-DOM-004", "현재 모금액이 부족하여 차감할 수 없습니다.", HttpStatus.CONFLICT),
+	NO_PARTICIPANTS_TO_DECREASE("FD-DOM-005", "참여자가 없어 차감할 수 없습니다.", HttpStatus.CONFLICT),
 	CANNOT_CANCEL_NON_COMPLETED("FD-DOM-003", "완료된 펀딩만 취소할 수 있습니다.", HttpStatus.CONFLICT),
 
 	// ================= Application Errors =================
@@ -18,6 +20,7 @@ public enum FundingErrorCode implements ErrorCode {
 	REWARD_DECREASE_FAILED("FD-APP-003", "리워드 재고 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	PAYMENT_PROCESS_FAILED("FD-APP-004", "결제 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	OUTBOX_EVENT_NOT_FOUND("FD-OUT-001", "해당 Outbox 이벤트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	PROJECT_NOT_FOUND("FD-APP-005", "존재하지 않는 프로젝트입니다.", HttpStatus.NOT_FOUND),
 
 	// ================= Infrastructure / External Errors =================
 	REWARD_SERVICE_UNAVAILABLE("FD-INF-001", "티켓 서비스에 연결할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE),

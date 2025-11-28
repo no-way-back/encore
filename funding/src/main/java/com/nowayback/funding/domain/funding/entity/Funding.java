@@ -46,7 +46,7 @@ public class Funding extends BaseEntity {
 	private FundingStatus status;
 
 	@Column(name = "payment_id")
-	private Long paymentId;
+	private UUID paymentId;
 
 	@Column(name = "fail_reason")
 	private String failReason;

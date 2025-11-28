@@ -1,9 +1,12 @@
 package com.nowayback.reward.domain.reward.vo;
 
+import com.nowayback.reward.domain.exception.RewardException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 
 @Embeddable
 @Getter
@@ -27,12 +30,10 @@ public class Money {
 
     private void validateAmount(Integer amount) {
         if (amount == null) {
-            throw new IllegalArgumentException("금액을 입력해주세요.");
+            throw new RewardException(INVALID_MONEY_AMOUNT);
         }
         if (amount < 0) {
-            throw new IllegalArgumentException(
-                    String.format("금액은 0원 이상이어야 합니다. (입력값: %d원)", amount)
-            );
+            throw new RewardException(NEGATIVE_MONEY_AMOUNT);
         }
     }
 }

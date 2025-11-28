@@ -108,6 +108,7 @@ public class ProjectFundingDraft extends BaseEntity {
         if (!errors.isEmpty()) {
             throw new ProjectException(
                 ProjectErrorCode.INVALID_FUNDING_DRAFT_SUBMISSION);
+
         }
     }
 }

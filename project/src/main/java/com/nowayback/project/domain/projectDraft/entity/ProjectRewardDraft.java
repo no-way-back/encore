@@ -35,6 +35,7 @@ public class ProjectRewardDraft extends BaseEntity {
     private String title;
     private RewardPrice rewardPrice;
     private Integer limitCount;
+
     private Integer purchaseLimitPerPerson;
 
 
@@ -75,6 +76,7 @@ public class ProjectRewardDraft extends BaseEntity {
     private void validatePrice(Long price) {
         if (price != null && price <= 0) {
             throw new ProjectException(ProjectErrorCode.INVALID_REWARD_PRICE);
+
         }
     }
 

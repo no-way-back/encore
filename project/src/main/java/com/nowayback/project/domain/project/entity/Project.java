@@ -1,7 +1,12 @@
 package com.nowayback.project.domain.project.entity;
 
+<<<<<<< HEAD
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
+=======
+import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
+import com.nowayback.project.domain.exception.ProjectDomainException;
+>>>>>>> develop
 import com.nowayback.project.domain.project.vo.ProjectStatus;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.Column;
@@ -20,7 +25,11 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+<<<<<<< HEAD
 @Table(name = "p_projects")
+=======
+@Table(name = "p_project")
+>>>>>>> develop
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Project extends BaseEntity {
 
@@ -121,6 +130,7 @@ public class Project extends BaseEntity {
         LocalDate fundingStartDate,
         LocalDate fundingEndDate
     ) {
+<<<<<<< HEAD
         if (userId == null) throw new ProjectException(ProjectErrorCode.NULL_USER_ID);
         if (title == null || title.isBlank()) throw new ProjectException(ProjectErrorCode.NULL_TITLE);
         if (summary == null || summary.isBlank()) throw new ProjectException(ProjectErrorCode.NULL_SUMMARY);
@@ -132,24 +142,46 @@ public class Project extends BaseEntity {
             ProjectErrorCode.INVALID_GOAL_AMOUNT);
         if (fundingStartDate == null) throw new ProjectException(ProjectErrorCode.NULL_FUNDING_START);
         if (fundingEndDate == null) throw new ProjectException(ProjectErrorCode.NULL_FUNDING_END);
+=======
+        if (userId == null) throw new ProjectDomainException(ProjectDomainErrorCode.NULL_USER_ID);
+        if (title == null || title.isBlank()) throw new ProjectDomainException(ProjectDomainErrorCode.NULL_TITLE);
+        if (summary == null || summary.isBlank()) throw new ProjectDomainException(ProjectDomainErrorCode.NULL_SUMMARY);
+        if (category == null || category.isBlank()) throw new ProjectDomainException(ProjectDomainErrorCode.NULL_CATEGORY);
+        if (contentHtml == null || contentHtml.isBlank()) throw new ProjectDomainException(ProjectDomainErrorCode.NULL_CONTENT);
+        if (goalAmount == null || goalAmount <= 0) throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_GOAL_AMOUNT);
+        if (fundingStartDate == null) throw new ProjectDomainException(ProjectDomainErrorCode.NULL_FUNDING_START);
+        if (fundingEndDate == null) throw new ProjectDomainException(ProjectDomainErrorCode.NULL_FUNDING_END);
+>>>>>>> develop
     }
 
     private void validateFundingPeriod(LocalDate start, LocalDate end) {
         if (!end.isAfter(start)) {
+<<<<<<< HEAD
             throw new ProjectException(ProjectErrorCode.INVALID_FUNDING_PERIOD);
+=======
+            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_FUNDING_PERIOD);
+>>>>>>> develop
         }
     }
 
     public void startFunding() {
         if (this.status != ProjectStatus.UPCOMING) {
+<<<<<<< HEAD
             throw new ProjectException(ProjectErrorCode.INVALID_STATUS_FOR_START);
+=======
+            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_STATUS_FOR_START);
+>>>>>>> develop
         }
         this.status = ProjectStatus.LIVE;
     }
 
     public void endFunding(boolean success) {
         if (this.status != ProjectStatus.LIVE) {
+<<<<<<< HEAD
             throw new ProjectException(ProjectErrorCode.INVALID_STATUS_FOR_END);
+=======
+            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_STATUS_FOR_END);
+>>>>>>> develop
         }
         this.status = success ? ProjectStatus.SUCCESS : ProjectStatus.FAIL;
     }

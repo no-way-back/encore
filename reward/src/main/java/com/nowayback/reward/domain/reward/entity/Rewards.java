@@ -1,7 +1,7 @@
-package com.nowayback.reward.domain.entity;
+package com.nowayback.reward.domain.reward.entity;
 
+import com.nowayback.reward.domain.reward.vo.*;
 import com.nowayback.reward.domain.shared.BaseEntity;
-import com.nowayback.reward.domain.vo.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

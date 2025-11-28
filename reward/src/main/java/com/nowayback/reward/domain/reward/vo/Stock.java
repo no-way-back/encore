@@ -1,4 +1,4 @@
-package com.nowayback.reward.domain.vo;
+package com.nowayback.reward.domain.reward.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

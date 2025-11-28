@@ -1,7 +1,10 @@
-package com.nowayback.reward.domain.entity;
+package com.nowayback.reward.domain.stockreservation.entity;
 
 import com.nowayback.reward.domain.shared.BaseEntity;
-import com.nowayback.reward.domain.vo.ReservationStatus;
+import com.nowayback.reward.domain.vo.FundingId;
+import com.nowayback.reward.domain.vo.OptionId;
+import com.nowayback.reward.domain.stockreservation.vo.ReservationStatus;
+import com.nowayback.reward.domain.vo.RewardId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,12 +23,12 @@ public class StockReservation extends BaseEntity {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID fundingId;
+    private FundingId fundingId;
 
     @Column(nullable = false)
-    private UUID rewardId;
+    private RewardId rewardId;
 
-    private UUID optionId;
+    private OptionId optionId;
 
     @Column(nullable = false)
     private Integer quantity;

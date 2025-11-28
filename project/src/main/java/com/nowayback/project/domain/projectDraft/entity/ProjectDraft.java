@@ -1,7 +1,7 @@
 package com.nowayback.project.domain.projectDraft.entity;
 
-import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
-import com.nowayback.project.domain.exception.ProjectDomainException;
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "p_project_draft")
+@Table(name = "p_project_drafts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectDraft extends BaseEntity {
 
@@ -68,7 +68,7 @@ public class ProjectDraft extends BaseEntity {
 
     public void submit() {
         if (!isAllStepsCompleted()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_DRAFT_SUBMISSION);
+            throw new ProjectException(ProjectErrorCode.INVALID_DRAFT_SUBMISSION);
         }
         this.status = ProjectDraftStatus.SUBMITTED;
     }

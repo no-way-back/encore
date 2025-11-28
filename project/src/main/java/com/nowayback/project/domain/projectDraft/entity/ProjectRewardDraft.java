@@ -1,7 +1,7 @@
 package com.nowayback.project.domain.projectDraft.entity;
 
-import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
-import com.nowayback.project.domain.exception.ProjectDomainException;
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "p_project_reward_draft")
+@Table(name = "p_project_reward_drafts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectRewardDraft extends BaseEntity {
 
@@ -61,19 +61,19 @@ public class ProjectRewardDraft extends BaseEntity {
 
     private void validatePrice(Long price) {
         if (price != null && price <= 0) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_REWARD_PRICE);
+            throw new ProjectException(ProjectErrorCode.INVALID_REWARD_PRICE);
         }
     }
 
     private void validateLimit(Integer limitCount) {
         if (limitCount != null && limitCount < 0) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_REWARD_LIMIT);
+            throw new ProjectException(ProjectErrorCode.INVALID_REWARD_LIMIT);
         }
     }
 
     private void validateShippingFee(Integer shippingFee) {
         if (shippingFee != null && shippingFee < 0) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_REWARD_SHIPPING_FEE);
+            throw new ProjectException(ProjectErrorCode.INVALID_REWARD_SHIPPING_FEE);
         }
     }
 
@@ -88,21 +88,21 @@ public class ProjectRewardDraft extends BaseEntity {
         List<String> errors = new ArrayList<>();
 
         if (title == null || title.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_REWARD_PRICE.getMessage());
+            errors.add(ProjectErrorCode.INVALID_REWARD_PRICE.getMessage());
         }
         if (price == null || price <= 0) {
-            errors.add(ProjectDomainErrorCode.INVALID_REWARD_PRICE.getMessage());
+            errors.add(ProjectErrorCode.INVALID_REWARD_PRICE.getMessage());
         }
         if (limitCount == null || limitCount < 0) {
-            errors.add(ProjectDomainErrorCode.INVALID_REWARD_LIMIT.getMessage());
+            errors.add(ProjectErrorCode.INVALID_REWARD_LIMIT.getMessage());
         }
         if (shippingFee == null || shippingFee < 0) {
-            errors.add(ProjectDomainErrorCode.INVALID_REWARD_SHIPPING_FEE.getMessage());
+            errors.add(ProjectErrorCode.INVALID_REWARD_SHIPPING_FEE.getMessage());
         }
 
         if (!errors.isEmpty()) {
-            throw new ProjectDomainException(
-                ProjectDomainErrorCode.INVALID_REWARD_DRAFT_SUBMISSION);
+            throw new ProjectException(
+                ProjectErrorCode.INVALID_REWARD_DRAFT_SUBMISSION);
         }
     }
 

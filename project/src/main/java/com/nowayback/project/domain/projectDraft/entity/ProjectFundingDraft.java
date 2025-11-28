@@ -1,7 +1,7 @@
 package com.nowayback.project.domain.projectDraft.entity;
 
-import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
-import com.nowayback.project.domain.exception.ProjectDomainException;
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "p_project_funding_draft")
+@Table(name = "p_project_funding_drafts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectFundingDraft extends BaseEntity {
 
@@ -54,7 +54,7 @@ public class ProjectFundingDraft extends BaseEntity {
 
     private void validateGoalAmount(Long goalAmount) {
         if (goalAmount != null && goalAmount <= 0) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_GOAL_AMOUNT);
+            throw new ProjectException(ProjectErrorCode.INVALID_GOAL_AMOUNT);
         }
     }
 
@@ -64,16 +64,16 @@ public class ProjectFundingDraft extends BaseEntity {
         }
 
         if (startDate != null && startDate.isBefore(LocalDate.now())) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_FUNDING_START_DATE);
+            throw new ProjectException(ProjectErrorCode.INVALID_FUNDING_START_DATE);
         }
 
         if (startDate != null && endDate != null) {
             if (endDate.isBefore(startDate)) {
-                throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_FUNDING_PERIOD);
+                throw new ProjectException(ProjectErrorCode.INVALID_FUNDING_PERIOD);
             }
             if (startDate.equals(endDate)) {
-                throw new ProjectDomainException(
-                    ProjectDomainErrorCode.INVALID_FUNDING_PERIOD_EQUAL);
+                throw new ProjectException(
+                    ProjectErrorCode.INVALID_FUNDING_PERIOD_EQUAL);
             }
         }
     }
@@ -88,26 +88,26 @@ public class ProjectFundingDraft extends BaseEntity {
         List<String> errors = new ArrayList<>();
 
         if (goalAmount == null || goalAmount <= 0) {
-            errors.add(ProjectDomainErrorCode.INVALID_GOAL_AMOUNT.getMessage());
+            errors.add(ProjectErrorCode.INVALID_GOAL_AMOUNT.getMessage());
         }
         if (fundingStartDate == null || fundingStartDate.isBefore(LocalDate.now())) {
-            errors.add(ProjectDomainErrorCode.INVALID_FUNDING_START_DATE.getMessage());
+            errors.add(ProjectErrorCode.INVALID_FUNDING_START_DATE.getMessage());
         }
         if (fundingEndDate == null) {
-            errors.add(ProjectDomainErrorCode.NULL_FUNDING_END.getMessage());
+            errors.add(ProjectErrorCode.NULL_FUNDING_END.getMessage());
         }
         if (fundingStartDate != null && fundingEndDate != null) {
             if (fundingEndDate.isBefore(fundingStartDate)) {
-                errors.add(ProjectDomainErrorCode.INVALID_FUNDING_PERIOD.getMessage());
+                errors.add(ProjectErrorCode.INVALID_FUNDING_PERIOD.getMessage());
             }
             if (fundingStartDate.equals(fundingEndDate)) {
-                errors.add(ProjectDomainErrorCode.INVALID_FUNDING_PERIOD_EQUAL.getMessage());
+                errors.add(ProjectErrorCode.INVALID_FUNDING_PERIOD_EQUAL.getMessage());
             }
         }
 
         if (!errors.isEmpty()) {
-            throw new ProjectDomainException(
-                ProjectDomainErrorCode.INVALID_FUNDING_DRAFT_SUBMISSION);
+            throw new ProjectException(
+                ProjectErrorCode.INVALID_FUNDING_DRAFT_SUBMISSION);
         }
     }
 }

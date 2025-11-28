@@ -2,7 +2,11 @@ package com.nowayback.project.domain.projectDraft.entity;
 
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
+import com.nowayback.project.domain.projectDraft.spec.RewardOptionSpec;
+import com.nowayback.project.domain.projectDraft.vo.RewardOptions;
+import com.nowayback.project.domain.projectDraft.vo.RewardPrice;
 import com.nowayback.project.domain.shard.BaseEntity;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,38 +29,47 @@ public class ProjectRewardDraft extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Embedded
+    private RewardOptions rewardOptions = new RewardOptions();
+
     private String title;
-    private Long price;
+    private RewardPrice rewardPrice;
     private Integer limitCount;
-    private Integer shippingFee;
-    private Integer freeShippingAmount;
     private Integer purchaseLimitPerPerson;
 
 
     public static ProjectRewardDraft create() {
         return new ProjectRewardDraft();
     }
-
     public boolean update(
         String title,
-        Long price,
+        RewardPrice price,
         Integer limitCount,
-        Integer shippingFee,
-        Integer freeShippingAmount,
-        Integer purchaseLimitPerPerson
+        Integer purchaseLimitPerPerson,
+        List<RewardOptionSpec> optionSpecs
     ) {
-        validatePrice(price);
         validateLimit(limitCount);
-        validateShippingFee(shippingFee);
 
         this.title = title;
-        this.price = price;
+        this.rewardPrice = price;
         this.limitCount = limitCount;
-        this.shippingFee = shippingFee;
-        this.freeShippingAmount = freeShippingAmount;
         this.purchaseLimitPerPerson = purchaseLimitPerPerson;
 
+        if (!optionSpecs.isEmpty()) {
+            replaceOptions(optionSpecs);
+        }
+
         return isCompleted();
+    }
+
+    private void replaceOptions(List<RewardOptionSpec> optionSpecs) {
+        this.rewardOptions.clear();
+
+        optionSpecs.forEach(spec -> {
+            ProjectRewardOptionDraft option = ProjectRewardOptionDraft.create();
+            option.update(spec.additionalPrice(), spec.stockQuantity(), spec.displayOrder());
+            this.rewardOptions.add(option);
+        });
     }
 
     private void validatePrice(Long price) {
@@ -71,17 +84,10 @@ public class ProjectRewardDraft extends BaseEntity {
         }
     }
 
-    private void validateShippingFee(Integer shippingFee) {
-        if (shippingFee != null && shippingFee < 0) {
-            throw new ProjectException(ProjectErrorCode.INVALID_REWARD_SHIPPING_FEE);
-        }
-    }
-
     public boolean isCompleted() {
         return title != null
-            && price != null
-            && limitCount != null
-            && shippingFee != null;
+            && rewardPrice != null
+            && limitCount != null;
     }
 
     public void validateForSubmission() {
@@ -90,14 +96,9 @@ public class ProjectRewardDraft extends BaseEntity {
         if (title == null || title.isBlank()) {
             errors.add(ProjectErrorCode.INVALID_REWARD_PRICE.getMessage());
         }
-        if (price == null || price <= 0) {
-            errors.add(ProjectErrorCode.INVALID_REWARD_PRICE.getMessage());
-        }
+
         if (limitCount == null || limitCount < 0) {
             errors.add(ProjectErrorCode.INVALID_REWARD_LIMIT.getMessage());
-        }
-        if (shippingFee == null || shippingFee < 0) {
-            errors.add(ProjectErrorCode.INVALID_REWARD_SHIPPING_FEE.getMessage());
         }
 
         if (!errors.isEmpty()) {
@@ -105,5 +106,4 @@ public class ProjectRewardDraft extends BaseEntity {
                 ProjectErrorCode.INVALID_REWARD_DRAFT_SUBMISSION);
         }
     }
-
 }

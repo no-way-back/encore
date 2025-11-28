@@ -2,7 +2,9 @@ package com.nowayback.project.domain.projectDraft.entity;
 
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
+import com.nowayback.project.domain.projectDraft.spec.RewardDraftSpec;
 import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
+import com.nowayback.project.domain.projectDraft.vo.RewardOptions;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -116,5 +118,23 @@ public class ProjectDraft extends BaseEntity {
         }
 
         this.settlementDraft.update(businessNumber, accountBank, accountNumber, accountHolder);
+    }
+
+    public void updateRewardDraft(List<RewardDraftSpec> specs) {
+        this.rewardDrafts.clear();
+
+        specs.forEach(spec -> {
+            ProjectRewardDraft draft = ProjectRewardDraft.create();
+            draft.update(
+                spec.title(),
+                spec.price(),
+                spec.limitCount(),
+                spec.purchaseLimitPerPerson(),
+                spec.options()
+            );
+
+            this.rewardDrafts.add(draft);
+        });
+
     }
 }

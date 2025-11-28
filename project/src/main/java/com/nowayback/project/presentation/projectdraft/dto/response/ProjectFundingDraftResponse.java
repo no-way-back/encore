@@ -1,4 +1,4 @@
-package com.nowayback.project.presentation.projectdraft.response;
+package com.nowayback.project.presentation.projectdraft.dto.response;
 
 import com.nowayback.project.application.dto.ProjectFundingDraftResult;
 import java.time.LocalDate;

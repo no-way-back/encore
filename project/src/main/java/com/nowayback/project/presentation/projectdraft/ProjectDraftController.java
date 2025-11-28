@@ -2,18 +2,22 @@ package com.nowayback.project.presentation.projectdraft;
 
 import com.nowayback.project.application.ProjectDraftService;
 import com.nowayback.project.application.command.SaveFundingDraftCommand;
+import com.nowayback.project.application.command.SaveRewardDraftCommand;
 import com.nowayback.project.application.command.SaveSettlementDraftCommand;
 import com.nowayback.project.application.command.SaveStoryDraftCommand;
 import com.nowayback.project.application.dto.ProjectFundingDraftResult;
 import com.nowayback.project.application.dto.ProjectSettlementDraftResult;
 import com.nowayback.project.application.dto.ProjectStoryDraftResult;
-import com.nowayback.project.presentation.projectdraft.request.SaveProjectFundingDraftRequest;
-import com.nowayback.project.presentation.projectdraft.request.SaveProjectSettlementDraft;
-import com.nowayback.project.presentation.projectdraft.request.SaveProjectStoryDraftRequest;
-import com.nowayback.project.presentation.projectdraft.response.ProjectDraftCreateResponse;
-import com.nowayback.project.presentation.projectdraft.response.ProjectFundingDraftResponse;
-import com.nowayback.project.presentation.projectdraft.response.ProjectSettlementDraftResponse;
-import com.nowayback.project.presentation.projectdraft.response.ProjectStoryDraftResponse;
+import com.nowayback.project.presentation.projectdraft.dto.request.SaveProjectFundingDraftRequest;
+import com.nowayback.project.presentation.projectdraft.dto.request.SaveProjectSettlementDraft;
+import com.nowayback.project.presentation.projectdraft.dto.request.SaveProjectStoryDraftRequest;
+import com.nowayback.project.presentation.projectdraft.dto.request.SaveRewardDraftRequest;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectDraftCreateResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectFundingDraftResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectRewardDraftResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectSettlementDraftResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectStoryDraftResponse;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +43,7 @@ public class ProjectDraftController {
         return ResponseEntity.ok(ProjectDraftCreateResponse.of(projectDraftId));
     }
 
-    @PatchMapping("/projects/drafts/{draftId}/story")
+    @PatchMapping("/projects/drafts/{draftId}/stores")
     public ResponseEntity<ProjectStoryDraftResponse> saveProjectStoryDraft(
         @PathVariable("draftId") UUID draftId,
         @RequestBody SaveProjectStoryDraftRequest request
@@ -62,7 +66,7 @@ public class ProjectDraftController {
         return ResponseEntity.ok(ProjectStoryDraftResponse.from(result));
     }
 
-    @PatchMapping("/projects/drafts/{draftId}/funding")
+    @PatchMapping("/projects/drafts/{draftId}/fundings")
     public ResponseEntity<ProjectFundingDraftResponse> saveProjectFundingDraft(
         @PathVariable("draftId") UUID draftId,
         @RequestBody SaveProjectFundingDraftRequest request
@@ -82,7 +86,7 @@ public class ProjectDraftController {
         return ResponseEntity.ok(ProjectFundingDraftResponse.from(result));
     }
 
-    @PatchMapping("/projects/drafts/{draftId}/settlement")
+    @PatchMapping("/projects/drafts/{draftId}/settlements")
     public ResponseEntity<ProjectSettlementDraftResponse> saveProjectSettlementDraft(
         @PathVariable("draftId") UUID draftId,
         @RequestBody SaveProjectSettlementDraft request
@@ -101,5 +105,40 @@ public class ProjectDraftController {
         );
 
         return ResponseEntity.ok(ProjectSettlementDraftResponse.from(result));
+    }
+
+    @PatchMapping("/projects/drafts/{projectDraftId}/rewards")
+    public ResponseEntity<ProjectRewardDraftResponse> saveRewardDraft(
+        @PathVariable UUID projectDraftId,
+        @RequestBody SaveRewardDraftRequest request
+    ) {
+
+        SaveRewardDraftCommand command =
+            SaveRewardDraftCommand.of(
+                projectDraftId,
+                request.rewards().stream()
+                    .map(r -> SaveRewardDraftCommand.RewardDraftCommand.of(
+                        r.title(),
+                        r.price(),
+                        r.limitCount(),
+                        r.shippingFee(),
+                        r.freeShippingAmount(),
+                        r.purchaseLimitPerPerson(),
+                        r.options() == null
+                            ? List.of()
+                            : r.options().stream()
+                                .map(o -> SaveRewardDraftCommand.RewardOptionCommand.of(
+                                    o.additionalPrice(),
+                                    o.stockQuantity(),
+                                    o.displayOrder()
+                                ))
+                                .toList()
+                    ))
+                    .toList()
+            );
+
+        var result = projectDraftService.saveRewardDraft(command);
+
+        return ResponseEntity.ok(ProjectRewardDraftResponse.from(result));
     }
 }

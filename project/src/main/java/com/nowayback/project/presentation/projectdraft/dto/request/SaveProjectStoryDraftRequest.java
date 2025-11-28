@@ -1,4 +1,4 @@
-package com.nowayback.project.presentation.projectdraft.request;
+package com.nowayback.project.presentation.projectdraft.dto.request;
 
 public record SaveProjectStoryDraftRequest(
     String title,

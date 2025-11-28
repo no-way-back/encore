@@ -1,0 +1,59 @@
+package com.nowayback.payment.fixture;
+
+import com.nowayback.payment.domain.payment.entity.Payment;
+import com.nowayback.payment.domain.payment.vo.*;
+
+import java.lang.reflect.Field;
+import java.util.UUID;
+
+public class PaymentFixture {
+
+    public static final UUID PAYMENT_UUID = UUID.randomUUID();
+
+    public static final UUID USER_UUID = UUID.randomUUID();
+    public static final UserId USER_ID = UserId.of(USER_UUID);
+
+    public static final UUID FUNDING_UUID = UUID.randomUUID();
+    public static final FundingId FUNDING_ID = FundingId.of(FUNDING_UUID);
+
+    public static final long AMOUNT_VALUE = 20_000L;
+    public static final Money AMOUNT = Money.of(AMOUNT_VALUE);
+
+    public static final PaymentStatus STATUS = PaymentStatus.PENDING;
+
+    public static final String PG_METHOD = "CARD";
+    public static final String PG_PAYMENT_KEY = "pg_payment_key_123";
+    public static final String PG_TRANSACTION_ID = "pg_transaction_id_123";
+    public static final String PG_ORDER_ID = "pg_order_id_123";
+    public static final PgInfo PG_INFO = PgInfo.of(PG_METHOD, PG_PAYMENT_KEY, PG_TRANSACTION_ID, PG_ORDER_ID);
+
+    public static final String REFUND_ACCOUNT_BANK = "KAKAOBANK";
+    public static final String REFUND_ACCOUNT_NUMBER = "123-456-7890";
+    public static final String REFUND_ACCOUNT_HOLDER_NAME = "홍길동";
+    public static final RefundAccountInfo REFUND_ACCOUNT_INFO = RefundAccountInfo.of(REFUND_ACCOUNT_BANK, REFUND_ACCOUNT_NUMBER, REFUND_ACCOUNT_HOLDER_NAME);
+
+    public static Payment createPayment() {
+        return Payment.create(
+                USER_ID,
+                FUNDING_ID,
+                AMOUNT,
+                PG_INFO
+        );
+    }
+
+    public static Payment createPaymentWithStatus(PaymentStatus status) {
+        Payment payment = createPayment();
+        setPrivateField(payment, "status", status);
+        return payment;
+    }
+
+    private static void setPrivateField(Object target, String fieldName, Object value) {
+        try {
+            Field field = target.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(target, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}

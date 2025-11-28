@@ -1,4 +1,4 @@
-package com.nowayback.funding.presentation.exception;
+package com.nowayback.funding.domain.exception;
 
 import org.springframework.http.HttpStatus;
 

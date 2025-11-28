@@ -1,4 +1,4 @@
-package com.nowayback.funding.presentation.exception;
+package com.nowayback.funding.domain.exception;
 
 import lombok.Getter;
 
@@ -11,5 +11,4 @@ public class FundingException extends RuntimeException {
 		super(errorCode.getMessage());
 		this.errorCode = errorCode;
 	}
-
 }

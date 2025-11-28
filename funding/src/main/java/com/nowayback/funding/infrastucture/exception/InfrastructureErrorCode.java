@@ -2,7 +2,7 @@ package com.nowayback.funding.infrastucture.exception;
 
 import org.springframework.http.HttpStatus;
 
-import com.nowayback.funding.presentation.exception.ErrorCode;
+import com.nowayback.funding.domain.exception.ErrorCode;
 
 public enum InfrastructureErrorCode implements ErrorCode {
 

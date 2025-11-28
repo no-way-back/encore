@@ -54,25 +54,26 @@ public class Payment extends BaseEntity {
     })
     private RefundAccountInfo refundAccountInfo;
 
-    private Payment(UserId userId, FundingId fundingId, Money amount, PaymentStatus status, PgInfo pgInfo, RefundAccountInfo refundAccountInfo) {
+    private Payment(UserId userId, FundingId fundingId, Money amount, PgInfo pgInfo, RefundAccountInfo refundAccountInfo) {
         this.userId = userId;
         this.fundingId = fundingId;
         this.amount = amount;
-        this.status = status;
+        this.status = PaymentStatus.PENDING;
         this.pgInfo = pgInfo;
         this.refundAccountInfo = refundAccountInfo;
     }
 
     /* Factory Method */
 
-    public static Payment create(UserId userId, FundingId fundingId, Money amount, PaymentStatus status, PgInfo pgInfo) {
-        validatePayment(userId, fundingId, amount, status, pgInfo);
-        return new Payment(userId, fundingId, amount, status, pgInfo, null);
+    public static Payment create(UserId userId, FundingId fundingId, Money amount, PgInfo pgInfo) {
+        validatePayment(userId, fundingId, amount, pgInfo);
+        return new Payment(userId, fundingId, amount, pgInfo, null);
     }
 
     /* Business Methods */
 
     public void changeStatus(PaymentStatus newStatus) {
+        validateStatus(newStatus);
         if (!this.status.canTransitionTo(newStatus)) {
             throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_PAYMENT_STATUS_TRANSITION);
         }
@@ -86,11 +87,10 @@ public class Payment extends BaseEntity {
 
     /* Validation Methods */
 
-    private static void validatePayment(UserId userId, FundingId fundingId, Money amount, PaymentStatus status, PgInfo pgInfo) {
+    private static void validatePayment(UserId userId, FundingId fundingId, Money amount, PgInfo pgInfo) {
         validateUserId(userId);
         validateFundingId(fundingId);
         validateAmount(amount);
-        validateStatus(status);
         validatePgInfo(pgInfo);
     }
 

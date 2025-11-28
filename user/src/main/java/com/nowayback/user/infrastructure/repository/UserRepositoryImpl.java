@@ -2,7 +2,6 @@ package com.nowayback.user.infrastructure.repository;
 
 import com.nowayback.user.domain.entity.User;
 import com.nowayback.user.domain.repository.UserRepository;
-import com.nowayback.user.domain.vo.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

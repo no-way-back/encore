@@ -6,6 +6,7 @@ import com.nowayback.project.application.command.SaveRewardDraftCommand;
 import com.nowayback.project.application.command.SaveSettlementDraftCommand;
 import com.nowayback.project.application.command.SaveStoryDraftCommand;
 import com.nowayback.project.application.dto.ProjectFundingDraftResult;
+import com.nowayback.project.application.dto.ProjectRewardDraftResult;
 import com.nowayback.project.application.dto.ProjectSettlementDraftResult;
 import com.nowayback.project.application.dto.ProjectStoryDraftResult;
 import com.nowayback.project.presentation.projectdraft.dto.request.SaveProjectFundingDraftRequest;
@@ -17,7 +18,6 @@ import com.nowayback.project.presentation.projectdraft.dto.response.ProjectFundi
 import com.nowayback.project.presentation.projectdraft.dto.response.ProjectRewardDraftResponse;
 import com.nowayback.project.presentation.projectdraft.dto.response.ProjectSettlementDraftResponse;
 import com.nowayback.project.presentation.projectdraft.dto.response.ProjectStoryDraftResponse;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -51,17 +51,9 @@ public class ProjectDraftController {
         //TODO
         UUID userId = UUID.randomUUID();
 
-        ProjectStoryDraftResult result = projectDraftService.saveStoryDraft(
-            SaveStoryDraftCommand.of(
-                draftId,
-                userId,
-                request.title(),
-                request.summary(),
-                request.category(),
-                request.thumbnailUrl(),
-                request.contentJson()
-            )
-        );
+        SaveStoryDraftCommand command = request.toCommand(draftId, userId);
+
+        ProjectStoryDraftResult result = projectDraftService.saveStoryDraft(command);
 
         return ResponseEntity.ok(ProjectStoryDraftResponse.from(result));
     }
@@ -74,14 +66,9 @@ public class ProjectDraftController {
         //TODO
         UUID userId = UUID.randomUUID();
 
-        ProjectFundingDraftResult result = projectDraftService.saveFundingDraft(
-            SaveFundingDraftCommand.of(
-                draftId,
-                request.goalAmount(),
-                request.fundingStartDate(),
-                request.fundingEndDate()
-            )
-        );
+        SaveFundingDraftCommand command = request.toCommand(draftId, userId);
+
+        ProjectFundingDraftResult result = projectDraftService.saveFundingDraft(command);
 
         return ResponseEntity.ok(ProjectFundingDraftResponse.from(result));
     }
@@ -94,15 +81,9 @@ public class ProjectDraftController {
         //TODO
         UUID userId = UUID.randomUUID();
 
-        ProjectSettlementDraftResult result = projectDraftService.saveSettlementDraft(
-            SaveSettlementDraftCommand.of(
-                draftId,
-                request.businessNumber(),
-                request.accountBank(),
-                request.accountNumber(),
-                request.accountHolder()
-            )
-        );
+        SaveSettlementDraftCommand command = request.toCommand(draftId, userId);
+
+        ProjectSettlementDraftResult result = projectDraftService.saveSettlementDraft(command);
 
         return ResponseEntity.ok(ProjectSettlementDraftResponse.from(result));
     }
@@ -112,32 +93,11 @@ public class ProjectDraftController {
         @PathVariable UUID projectDraftId,
         @RequestBody SaveRewardDraftRequest request
     ) {
+        UUID userId = UUID.randomUUID();
 
-        SaveRewardDraftCommand command =
-            SaveRewardDraftCommand.of(
-                projectDraftId,
-                request.rewards().stream()
-                    .map(r -> SaveRewardDraftCommand.RewardDraftCommand.of(
-                        r.title(),
-                        r.price(),
-                        r.limitCount(),
-                        r.shippingFee(),
-                        r.freeShippingAmount(),
-                        r.purchaseLimitPerPerson(),
-                        r.options() == null
-                            ? List.of()
-                            : r.options().stream()
-                                .map(o -> SaveRewardDraftCommand.RewardOptionCommand.of(
-                                    o.additionalPrice(),
-                                    o.stockQuantity(),
-                                    o.displayOrder()
-                                ))
-                                .toList()
-                    ))
-                    .toList()
-            );
+        SaveRewardDraftCommand command = request.toCommand(projectDraftId, userId);
 
-        var result = projectDraftService.saveRewardDraft(command);
+        ProjectRewardDraftResult result = projectDraftService.saveRewardDraft(command);
 
         return ResponseEntity.ok(ProjectRewardDraftResponse.from(result));
     }

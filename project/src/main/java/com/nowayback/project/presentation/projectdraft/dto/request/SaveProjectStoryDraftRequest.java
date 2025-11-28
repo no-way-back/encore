@@ -1,5 +1,8 @@
 package com.nowayback.project.presentation.projectdraft.dto.request;
 
+import com.nowayback.project.application.command.SaveStoryDraftCommand;
+import java.util.UUID;
+
 public record SaveProjectStoryDraftRequest(
     String title,
     String summary,
@@ -8,4 +11,15 @@ public record SaveProjectStoryDraftRequest(
     String contentJson
 ) {
 
+    public SaveStoryDraftCommand toCommand(UUID draftId, UUID userId) {
+        return SaveStoryDraftCommand.of(
+            draftId,
+            userId,
+            title,
+            summary,
+            category,
+            thumbnailUrl,
+            contentJson
+        );
+    }
 }

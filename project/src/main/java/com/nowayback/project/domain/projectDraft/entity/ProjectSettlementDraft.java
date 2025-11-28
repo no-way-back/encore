@@ -1,7 +1,7 @@
 package com.nowayback.project.domain.projectDraft.entity;
 
-import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
-import com.nowayback.project.domain.exception.ProjectDomainException;
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "p_project_settlement_draft")
+@Table(name = "p_project_settlement_drafts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectSettlementDraft extends BaseEntity {
 
@@ -63,21 +63,21 @@ public class ProjectSettlementDraft extends BaseEntity {
 
     private void validateBank(String bank) {
         if (bank != null && bank.isBlank()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_SETTLEMENT_BANK);
+            throw new ProjectException(ProjectErrorCode.INVALID_SETTLEMENT_BANK);
         }
     }
 
     private void validateAccountNumber(String number) {
         if (number != null && number.isBlank()) {
-            throw new ProjectDomainException(
-                ProjectDomainErrorCode.INVALID_SETTLEMENT_ACCOUNT_NUMBER);
+            throw new ProjectException(
+                ProjectErrorCode.INVALID_SETTLEMENT_ACCOUNT_NUMBER);
         }
     }
 
     private void validateAccountHolder(String holder) {
         if (holder != null && holder.isBlank()) {
-            throw new ProjectDomainException(
-                ProjectDomainErrorCode.INVALID_SETTLEMENT_ACCOUNT_HOLDER);
+            throw new ProjectException(
+                ProjectErrorCode.INVALID_SETTLEMENT_ACCOUNT_HOLDER);
         }
     }
 
@@ -91,18 +91,18 @@ public class ProjectSettlementDraft extends BaseEntity {
         List<String> errors = new ArrayList<>();
 
         if (accountBank == null || accountBank.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_SETTLEMENT_BANK.getMessage());
+            errors.add(ProjectErrorCode.INVALID_SETTLEMENT_BANK.getMessage());
         }
         if (accountNumber == null || accountNumber.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_SETTLEMENT_ACCOUNT_NUMBER.getMessage());
+            errors.add(ProjectErrorCode.INVALID_SETTLEMENT_ACCOUNT_NUMBER.getMessage());
         }
         if (accountHolder == null || accountHolder.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_SETTLEMENT_ACCOUNT_HOLDER.getMessage());
+            errors.add(ProjectErrorCode.INVALID_SETTLEMENT_ACCOUNT_HOLDER.getMessage());
         }
 
         if (!errors.isEmpty()) {
-            throw new ProjectDomainException(
-                ProjectDomainErrorCode.INVALID_SETTLEMENT_DRAFT_SUBMISSION);
+            throw new ProjectException(
+                ProjectErrorCode.INVALID_SETTLEMENT_DRAFT_SUBMISSION);
         }
     }
 

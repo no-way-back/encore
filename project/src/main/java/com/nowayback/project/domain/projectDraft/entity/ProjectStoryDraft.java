@@ -1,7 +1,7 @@
 package com.nowayback.project.domain.projectDraft.entity;
 
-import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
-import com.nowayback.project.domain.exception.ProjectDomainException;
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "p_project_story_draft")
+@Table(name = "p_project_story_drafts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectStoryDraft extends BaseEntity {
 
@@ -67,19 +67,19 @@ public class ProjectStoryDraft extends BaseEntity {
         String contentJson
     ) {
         if (title != null && title.isBlank()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_STORY_TITLE);
+            throw new ProjectException(ProjectErrorCode.INVALID_STORY_TITLE);
         }
         if (summary != null && summary.isBlank()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_STORY_SUMMARY);
+            throw new ProjectException(ProjectErrorCode.INVALID_STORY_SUMMARY);
         }
         if (category != null && category.isBlank()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_STORY_CATEGORY);
+            throw new ProjectException(ProjectErrorCode.INVALID_STORY_CATEGORY);
         }
         if (thumbnailUrl != null && thumbnailUrl.isBlank()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_STORY_THUMBNAIL);
+            throw new ProjectException(ProjectErrorCode.INVALID_STORY_THUMBNAIL);
         }
         if (contentJson != null && contentJson.isBlank()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_STORY_CONTENT);
+            throw new ProjectException(ProjectErrorCode.INVALID_STORY_CONTENT);
         }
     }
 
@@ -95,23 +95,23 @@ public class ProjectStoryDraft extends BaseEntity {
         List<String> errors = new ArrayList<>();
 
         if (title == null || title.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_STORY_TITLE.getMessage());
+            errors.add(ProjectErrorCode.INVALID_STORY_TITLE.getMessage());
         }
         if (summary == null || summary.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_STORY_SUMMARY.getMessage());
+            errors.add(ProjectErrorCode.INVALID_STORY_SUMMARY.getMessage());
         }
         if (category == null || category.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_STORY_CATEGORY.getMessage());
+            errors.add(ProjectErrorCode.INVALID_STORY_CATEGORY.getMessage());
         }
         if (thumbnailUrl == null || thumbnailUrl.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_STORY_THUMBNAIL.getMessage());
+            errors.add(ProjectErrorCode.INVALID_STORY_THUMBNAIL.getMessage());
         }
         if (contentJson == null || contentJson.isBlank()) {
-            errors.add(ProjectDomainErrorCode.INVALID_STORY_CONTENT.getMessage());
+            errors.add(ProjectErrorCode.INVALID_STORY_CONTENT.getMessage());
         }
 
         if (!errors.isEmpty()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_STORY_DRAFT_SUBMISSION);
+            throw new ProjectException(ProjectErrorCode.INVALID_STORY_DRAFT_SUBMISSION);
         }
     }
 

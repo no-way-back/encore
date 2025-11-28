@@ -1,10 +1,7 @@
 package com.nowayback.payment.domain.settlement.vo;
 
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 
-@Component
 public class SettlementFeePolicy {
 
     private static final BigDecimal SERVICE_FEE_RATE = new BigDecimal("0.05");

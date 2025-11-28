@@ -90,7 +90,8 @@ class PaymentTest {
             /* given */
             Payment payment = createPayment();
 
-            /* when / then */
+            /* when */
+            /* then */
             assertThatThrownBy(() -> payment.changeStatus(null))
                     .isInstanceOf(PaymentDomainException.class)
                     .hasMessage(PaymentDomainErrorCode.NULL_PAYMENT_STATUS_OBJECT.getMessage());
@@ -158,7 +159,8 @@ class PaymentTest {
             /* given */
             Payment payment = createPayment();
 
-            /* when / then */
+            /* when */
+            /* then */
             assertThatThrownBy(() -> payment.setRefundAccountInfo(null))
                     .isInstanceOf(PaymentDomainException.class)
                     .hasMessage(PaymentDomainErrorCode.NULL_REFUND_ACCOUNT_INFO_OBJECT.getMessage());

@@ -26,7 +26,7 @@ public class Payment extends BaseEntity {
     private UserId userId;
 
     @Embedded
-    @AttributeOverride(name = "id", column = @Column(name = "payment_id", updatable = false, nullable = false))
+    @AttributeOverride(name = "id", column = @Column(name = "funding_id", updatable = false, nullable = false))
     private FundingId fundingId;
 
     @Embedded

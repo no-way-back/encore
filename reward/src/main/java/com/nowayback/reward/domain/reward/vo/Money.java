@@ -14,7 +14,6 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 public class Money {
 
     private Integer amount;
-    private static final int MINIMUM_AMOUNT = 1000;
 
     private Money(Integer amount) {
         validateAmount(amount);
@@ -35,9 +34,6 @@ public class Money {
         }
         if (amount < 0) {
             throw new RewardException(NEGATIVE_MONEY_AMOUNT);
-        }
-        if (amount < MINIMUM_AMOUNT) {
-            throw new RewardException(PRICE_BELOW_MINIMUM);
         }
     }
 }

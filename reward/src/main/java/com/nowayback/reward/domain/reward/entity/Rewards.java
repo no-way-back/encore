@@ -26,6 +26,7 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 public class Rewards extends BaseEntity {
 
     private static final int MAX_OPTION_COUNT = 20;
+    private static final int MINIMUM_AMOUNT = 1000;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -81,12 +82,18 @@ public class Rewards extends BaseEntity {
      * @return 생성된 Rewards 엔티티
      */
     public static Rewards create(CreateRewardCommand command) {
+        Money price = Money.of(command.price());
+
+        if (price.getAmount() < MINIMUM_AMOUNT) {
+            throw new RewardException(PRICE_BELOW_MINIMUM);
+        }
+
         return new Rewards(
                 ProjectId.of(command.projectId()),
                 CreatorId.of(command.creatorId()),
                 command.name(),
                 command.description(),
-                Money.of(command.price()),
+                price,
                 Stock.of(command.stockQuantity()),
                 ShippingPolicy.of(command.shippingFee(), command.freeShippingAmount()),
                 command.purchaseLimitPerPerson(),

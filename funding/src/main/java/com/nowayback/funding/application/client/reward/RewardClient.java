@@ -9,7 +9,7 @@ import com.nowayback.funding.application.client.reward.dto.response.DecreaseRewa
 
 @FeignClient(
 	name = "reward-service",
-	url = "${feign.client.config.reward-service.url"
+	url = "${feign.client.config.reward-service.url}"
 )
 public interface RewardClient {
 

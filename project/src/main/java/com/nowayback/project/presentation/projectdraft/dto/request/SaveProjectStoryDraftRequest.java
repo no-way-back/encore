@@ -1,6 +1,6 @@
 package com.nowayback.project.presentation.projectdraft.dto.request;
 
-import com.nowayback.project.application.command.SaveStoryDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveStoryDraftCommand;
 import java.util.UUID;
 
 public record SaveProjectStoryDraftRequest(

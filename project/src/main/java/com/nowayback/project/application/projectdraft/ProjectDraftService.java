@@ -1,14 +1,16 @@
-package com.nowayback.project.application;
+package com.nowayback.project.application.projectdraft;
 
-import com.nowayback.project.application.command.SaveFundingDraftCommand;
-import com.nowayback.project.application.command.SaveRewardDraftCommand;
-import com.nowayback.project.application.command.SaveSettlementDraftCommand;
-import com.nowayback.project.application.command.SaveStoryDraftCommand;
-import com.nowayback.project.application.dto.ProjectDraftResult;
-import com.nowayback.project.application.dto.ProjectFundingDraftResult;
-import com.nowayback.project.application.dto.ProjectRewardDraftResult;
-import com.nowayback.project.application.dto.ProjectSettlementDraftResult;
-import com.nowayback.project.application.dto.ProjectStoryDraftResult;
+import com.nowayback.project.application.project.ProjectService;
+import com.nowayback.project.application.project.command.CreateProjectCommand;
+import com.nowayback.project.application.projectdraft.command.SaveFundingDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveRewardDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveSettlementDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveStoryDraftCommand;
+import com.nowayback.project.application.projectdraft.dto.ProjectDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectRewardDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectSettlementDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectStoryDraftResult;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProjectDraftService {
 
+    private final ProjectService projectService;
     private final ProjectDraftRepository projectDraftRepository;
 
     @Transactional
@@ -173,6 +176,20 @@ public class ProjectDraftService {
         projectDraft.ensureUpdatable();
 
         projectDraft.submit();
+
+        projectService.createProject(
+            CreateProjectCommand.of(
+                projectDraft.getUserId(),
+                projectDraft.getStoryDraft().getTitle(),
+                projectDraft.getStoryDraft().getSummary(),
+                projectDraft.getStoryDraft().getCategory(),
+                projectDraft.getStoryDraft().getThumbnailUrl(),
+                projectDraft.getStoryDraft().getContentJson(),
+                projectDraft.getFundingDraft().getGoalAmount(),
+                projectDraft.getFundingDraft().getFundingStartDate(),
+                projectDraft.getFundingDraft().getFundingEndDate()
+            )
+        );
     }
 
     private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {

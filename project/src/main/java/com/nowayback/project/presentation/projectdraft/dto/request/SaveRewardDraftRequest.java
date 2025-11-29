@@ -1,6 +1,6 @@
 package com.nowayback.project.presentation.projectdraft.dto.request;
 
-import com.nowayback.project.application.command.SaveRewardDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveRewardDraftCommand;
 import java.util.List;
 import java.util.UUID;
 

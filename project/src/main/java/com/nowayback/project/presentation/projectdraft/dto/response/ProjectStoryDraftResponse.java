@@ -1,6 +1,6 @@
 package com.nowayback.project.presentation.projectdraft.dto.response;
 
-import com.nowayback.project.application.dto.ProjectStoryDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectStoryDraftResult;
 import java.util.UUID;
 
 public record ProjectStoryDraftResponse(

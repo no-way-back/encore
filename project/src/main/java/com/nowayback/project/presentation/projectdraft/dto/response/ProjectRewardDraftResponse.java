@@ -1,6 +1,6 @@
 package com.nowayback.project.presentation.projectdraft.dto.response;
 
-import com.nowayback.project.application.dto.ProjectRewardDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectRewardDraftResult;
 import java.util.List;
 import java.util.UUID;
 

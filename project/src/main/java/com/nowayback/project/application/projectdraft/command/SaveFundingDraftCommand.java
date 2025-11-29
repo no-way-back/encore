@@ -1,4 +1,4 @@
-package com.nowayback.project.application.command;
+package com.nowayback.project.application.projectdraft.command;
 
 import java.time.LocalDate;
 import java.util.UUID;

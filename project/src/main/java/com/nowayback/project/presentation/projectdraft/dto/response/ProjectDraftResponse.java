@@ -1,6 +1,6 @@
 package com.nowayback.project.presentation.projectdraft.dto.response;
 
-import com.nowayback.project.application.dto.ProjectDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectDraftResult;
 
 public record ProjectDraftResponse(
     ProjectStoryDraftResponse storyDraft,

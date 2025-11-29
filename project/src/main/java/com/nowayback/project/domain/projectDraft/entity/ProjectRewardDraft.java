@@ -8,9 +8,12 @@ import com.nowayback.project.domain.projectDraft.vo.RewardPrice;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,10 @@ public class ProjectRewardDraft extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_draft_id", nullable = false)
+    private ProjectDraft projectDraft;
 
     @Embedded
     private RewardOptions rewardOptions = new RewardOptions();
@@ -107,5 +114,9 @@ public class ProjectRewardDraft extends BaseEntity {
             throw new ProjectException(
                 ProjectErrorCode.INVALID_REWARD_DRAFT_SUBMISSION);
         }
+    }
+
+    public void assignTo(ProjectDraft projectDraft) {
+        this.projectDraft = projectDraft;
     }
 }

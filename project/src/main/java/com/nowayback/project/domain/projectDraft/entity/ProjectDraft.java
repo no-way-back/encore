@@ -44,8 +44,7 @@ public class ProjectDraft extends BaseEntity {
     @JoinColumn(name = "story_draft_id")
     private ProjectStoryDraft storyDraft;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "project_draft_id")
+    @OneToMany(mappedBy = "projectDraft", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectRewardDraft> rewardDrafts = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -92,9 +91,13 @@ public class ProjectDraft extends BaseEntity {
         this.settlementDraft = settlementDraft;
     }
 
+
     public void replaceRewardDrafts(List<ProjectRewardDraft> drafts) {
-        this.rewardDrafts.clear();
-        this.rewardDrafts.addAll(drafts);
+        rewardDrafts.clear();
+        drafts.forEach(draft -> {
+            draft.assignTo(this);
+            rewardDrafts.add(draft);
+        });
     }
 
     public void ensureUpdatable() {

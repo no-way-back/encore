@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.OutboxRepository;
+import com.nowayback.funding.domain.service.OutboxService;
 
 import lombok.extern.slf4j.Slf4j;
 

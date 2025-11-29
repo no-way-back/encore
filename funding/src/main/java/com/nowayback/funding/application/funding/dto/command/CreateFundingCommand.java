@@ -14,8 +14,8 @@ public record CreateFundingCommand(
 	String idempotencyKey
 ) {
 	public record RewardItem(
-		Long rewardId,
-		Long optionId,
+		UUID rewardId,
+		UUID optionId,
 		Integer quantity
 	) {
 	}

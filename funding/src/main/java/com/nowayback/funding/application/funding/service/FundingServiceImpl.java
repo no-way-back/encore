@@ -2,8 +2,10 @@ package com.nowayback.funding.application.funding.service;
 
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -14,17 +16,21 @@ import com.nowayback.funding.application.client.payment.dto.request.ProcessPayme
 import com.nowayback.funding.application.client.project.ProjectClient;
 import com.nowayback.funding.application.client.reward.RewardClient;
 import com.nowayback.funding.application.client.reward.dto.request.DecreaseRewardRequest;
+import com.nowayback.funding.application.client.reward.dto.request.RewardDetailsRequest;
 import com.nowayback.funding.application.client.reward.dto.response.DecreaseRewardResponse;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessPaymentResponse;
+import com.nowayback.funding.application.client.reward.dto.response.RewardDetailResponse;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.result.FundingResult;
-import com.nowayback.funding.application.funding.event.dto.OutboxEventCreated;
+import com.nowayback.funding.domain.funding.event.OutboxEventCreated;
 import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Funding;
+import com.nowayback.funding.domain.funding.entity.FundingStatus;
 import com.nowayback.funding.domain.funding.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
 import com.nowayback.funding.domain.funding.repository.OutboxRepository;
+import com.nowayback.funding.domain.service.FundingService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +52,8 @@ public class FundingServiceImpl implements FundingService {
 	@Transactional
 	public FundingResult createFunding(CreateFundingCommand command) {
 
-		log.info("펀딩 시작 - projectId: {}, userId: {}, amount: {}",
-			command.projectId(), command.userId(), command.amount());
+		log.info("펀딩 시작 - projectId: {}, userId: {}",
+			command.projectId(), command.userId());
 
 		fundingRepository.findByIdempotencyKey(command.idempotencyKey())
 			.ifPresent(existingFunding -> {
@@ -56,11 +62,49 @@ public class FundingServiceImpl implements FundingService {
 				throw new FundingException(DUPLICATE_REQUEST);
 			});
 
-		Funding funding = Funding.createFunding(
+		boolean alreadyFunded = fundingRepository.existsByUserIdAndProjectIdAndStatus(
+			command.userId(),
+			command.projectId(),
+			FundingStatus.COMPLETED
+		);
+
+		if (alreadyFunded) {
+			log.warn("중복 후원 감지 - userId: {}, projectId: {}",
+				command.userId(), command.projectId());
+			throw new FundingException(DUPLICATE_FUNDING);
+		}
+
+		long calculatedRewardPrice = 0;
+
+		if (command.hasRewards()) {
+			List<UUID> rewardIds = command.rewardItems().stream()
+				.map(CreateFundingCommand.RewardItem::rewardId)
+				.toList();
+
+			List<RewardDetailResponse> rewardDetails =
+				rewardClient.getRewardDetails(new RewardDetailsRequest(rewardIds));
+
+			Map<UUID, RewardDetailResponse> rewardDetailMap = rewardDetails.stream()
+				.collect(Collectors.toMap(RewardDetailResponse::rewardId, r -> r));
+
+			for (CreateFundingCommand.RewardItem item : command.rewardItems()) {
+				RewardDetailResponse detail = rewardDetailMap.get(item.rewardId());
+
+				if (detail == null) {
+					throw new FundingException(REWARD_NOT_FOUND);
+				}
+
+				calculatedRewardPrice += detail.price() * item.quantity();
+			}
+		}
+
+		Long totalAmount = calculatedRewardPrice + command.amount();
+
+			Funding funding = Funding.createFunding(
 			command.projectId(),
 			command.userId(),
-			command.amount(),
-			command.idempotencyKey()
+			command.idempotencyKey(),
+			calculatedRewardPrice
 		);
 
 		Funding savedFunding = fundingRepository.save(funding);
@@ -93,14 +137,13 @@ public class FundingServiceImpl implements FundingService {
 
 			handleFundingFailure(funding, reservationId, e.getMessage());
 
-			throw new FundingException(FUNDING_PROCESS_FAILED);
-
+			return FundingResult.failure(e.getErrorCode().getMessage());
 		} catch (Exception e) {
 			log.error("예상치 못한 오류 - funding: {}, error: {}", funding.getId(), e.getMessage(), e);
 
 			handleFundingFailure(funding, reservationId, e.getMessage());
 
-			throw new FundingException(FUNDING_PROCESS_FAILED);
+			return FundingResult.failure("후원 처리 중 오류가 발생했습니다.");
 		}
 	}
 

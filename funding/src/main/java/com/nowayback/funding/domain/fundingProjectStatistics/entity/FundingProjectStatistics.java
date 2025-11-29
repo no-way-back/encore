@@ -61,6 +61,29 @@ public class FundingProjectStatistics extends BaseEntity {
 		this.participantCount += 1;
 	}
 
+	public static FundingProjectStatistics create(
+		UUID projectId,
+		Long targetAmount,
+		LocalDateTime startDate,
+		LocalDateTime endDate
+	) {
+		FundingProjectStatistics statistics = new FundingProjectStatistics();
+		statistics.projectId = projectId;
+		statistics.targetAmount = targetAmount;
+		statistics.currentAmount = 0L;
+		statistics.participantCount = 0;
+		statistics.startDate = startDate;
+		statistics.endDate = endDate;
+		statistics.status = determineInitialStatus(startDate);
+		return statistics;
+	}
+
+	private static FundingProjectStatus determineInitialStatus(LocalDateTime startDate) {
+		return LocalDateTime.now().isBefore(startDate)
+			? FundingProjectStatus.SCHEDULED
+			: FundingProjectStatus.PROCESSING;
+	}
+
 	/**
 	 * 후원 취소 시 금액과 참여자 수 감소
 	 */

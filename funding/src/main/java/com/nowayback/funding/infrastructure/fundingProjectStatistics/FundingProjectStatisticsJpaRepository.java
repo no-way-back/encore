@@ -1,4 +1,4 @@
-package com.nowayback.funding.infrastucture.fundingProjectStatistics;
+package com.nowayback.funding.infrastructure.fundingProjectStatistics;
 
 import java.util.Optional;
 import java.util.UUID;

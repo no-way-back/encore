@@ -1,4 +1,4 @@
-package com.nowayback.funding.infrastucture.config;
+package com.nowayback.funding.infrastructure.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;

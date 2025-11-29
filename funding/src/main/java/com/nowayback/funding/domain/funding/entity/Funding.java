@@ -57,15 +57,15 @@ public class Funding extends BaseEntity {
 	public static Funding createFunding(
 		UUID projectId,
 		UUID userId,
-		Long amount,
-		String idempotencyKey
+		String idempotencyKey,
+		Long amount
 	) {
 		Funding funding = new Funding();
 		funding.projectId = projectId;
 		funding.userId = userId;
-		funding.amount = amount;
 		funding.status = FundingStatus.PENDING;
 		funding.idempotencyKey = idempotencyKey;
+		funding.amount = amount;
 		return funding;
 	}
 

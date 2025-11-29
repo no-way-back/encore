@@ -1,4 +1,4 @@
-package com.nowayback.funding.infrastucture.config;
+package com.nowayback.funding.infrastructure.config;
 
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 

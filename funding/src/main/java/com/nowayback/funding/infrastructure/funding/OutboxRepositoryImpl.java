@@ -1,4 +1,4 @@
-package com.nowayback.funding.infrastucture.funding;
+package com.nowayback.funding.infrastructure.funding;
 
 import java.util.List;
 import java.util.Optional;

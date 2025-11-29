@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.nowayback.funding.application.funding.event.dto.OutboxEventCreated;
-import com.nowayback.funding.application.funding.service.OutboxService;
+import com.nowayback.funding.domain.funding.event.OutboxEventCreated;
+import com.nowayback.funding.domain.service.OutboxService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.OutboxRepository;
@@ -30,7 +30,7 @@ public class OutboxEventListener {
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	@Async("outboxTaskExecutor")
-	public void handleOutboxEventCreated(OutboxEventCreated event) {
+	public void handleRewardCancellationOutboxEvent(OutboxEventCreated event) {
 
 		Outbox outboxEvent = outboxRepository.findById(event.eventId())
 			.orElseThrow(() -> new FundingException(OUTBOX_EVENT_NOT_FOUND));
@@ -42,7 +42,6 @@ public class OutboxEventListener {
 			outboxService.markAsPublished(outboxEvent.getId());
 
 			log.info("Outbox 이벤트 발행 성공: eventId={}", event.eventId());
-
 		} catch (Exception e) {
 			log.warn("Outbox 이벤트 발행 실패 (스케줄러가 재시도): eventId={}", event.eventId(), e);
 		}

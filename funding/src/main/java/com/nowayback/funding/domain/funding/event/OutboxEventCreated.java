@@ -1,4 +1,4 @@
-package com.nowayback.funding.application.funding.event.dto;
+package com.nowayback.funding.domain.funding.event;
 
 import java.util.UUID;
 

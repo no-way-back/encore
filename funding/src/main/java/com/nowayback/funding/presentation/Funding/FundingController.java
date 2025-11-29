@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.result.FundingResult;
-import com.nowayback.funding.application.funding.service.FundingService;
+import com.nowayback.funding.domain.service.FundingService;
 import com.nowayback.funding.presentation.Funding.dto.request.CreateFundingRequest;
 import com.nowayback.funding.presentation.Funding.dto.response.CreateFundingResponse;
 

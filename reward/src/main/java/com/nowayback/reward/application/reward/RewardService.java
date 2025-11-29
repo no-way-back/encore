@@ -1,5 +1,6 @@
 package com.nowayback.reward.application.reward;
 
+import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.entity.Rewards;
@@ -13,12 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RewardService {
 
     private final RewardRepository rewardRepository;
+
+    private static final int MAX_REWARD_COUNT = 10;
 
     /**
      * 프로젝트에 속한 리워드 생성
@@ -31,6 +36,10 @@ public class RewardService {
     @Transactional
     public List<Rewards> createRewardsForProject(UUID projectId, UUID creatorId, List<RewardCreateRequest> requests) {
         log.info("프로젝트 {} 리워드 생성 시작 - {}개", projectId, requests.size());
+
+        if (requests.size() > MAX_REWARD_COUNT) {
+            throw new RewardException(REWARD_COUNT_EXCEEDED);
+        }
 
         List<Rewards> createdRewards = requests.stream()
                 .map(request -> createReward(projectId, creatorId, request))

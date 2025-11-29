@@ -17,11 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+
 @Entity
 @Table(name = "p_rewards")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Rewards extends BaseEntity {
+
+    private static final int MAX_OPTION_COUNT = 20;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -79,7 +83,7 @@ public class Rewards extends BaseEntity {
     public static Rewards create(CreateRewardCommand command) {
         return new Rewards(
                 ProjectId.of(command.projectId()),
-                CreatorId.of(command.creatorId()),  // 👈 VO 변환
+                CreatorId.of(command.creatorId()),
                 command.name(),
                 command.description(),
                 Money.of(command.price()),
@@ -101,6 +105,10 @@ public class Rewards extends BaseEntity {
     public void addOptionList(List<CreateRewardOptionCommand> commands) {
         if (commands == null || commands.isEmpty()) {
             return;
+        }
+
+        if (commands.size() > MAX_OPTION_COUNT) {
+            throw new RewardException(OPTION_COUNT_EXCEEDED);
         }
 
         commands.forEach(this::addOption);
@@ -146,7 +154,7 @@ public class Rewards extends BaseEntity {
                 .anyMatch(option -> option.getName().equals(name));
 
         if (isDuplicate) {
-            throw new RewardException(RewardErrorCode.DUPLICATE_OPTION_NAME);
+            throw new RewardException(DUPLICATE_OPTION_NAME);
         }
     }
 
@@ -162,7 +170,7 @@ public class Rewards extends BaseEntity {
                 .anyMatch(option -> option.getDisplayOrder().equals(displayOrder));
 
         if (isConflict) {
-            throw new RewardException(RewardErrorCode.DUPLICATE_DISPLAY_ORDER);
+            throw new RewardException(DUPLICATE_DISPLAY_ORDER);
         }
     }
 

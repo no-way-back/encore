@@ -14,6 +14,7 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 public class Stock {
 
     private Integer quantity;
+    private static final int MINIMUM_QUANTITY = 1;
 
     private Stock(Integer quantity) {
         validateQuantity(quantity);
@@ -30,6 +31,9 @@ public class Stock {
         }
         if (quantity < 0) {
             throw new RewardException(NEGATIVE_STOCK_QUANTITY);
+        }
+        if (quantity < MINIMUM_QUANTITY) {
+            throw new RewardException(STOCK_BELOW_MINIMUM);
         }
     }
 

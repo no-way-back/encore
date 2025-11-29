@@ -1,9 +1,15 @@
 package com.nowayback.payment.fixture;
 
+import com.nowayback.payment.application.payment.dto.command.ConfirmPaymentCommand;
+import com.nowayback.payment.application.payment.dto.command.RefundPaymentCommand;
+import com.nowayback.payment.application.payment.dto.result.PaymentResult;
+import com.nowayback.payment.application.payment.service.pg.dto.PgConfirmResult;
+import com.nowayback.payment.application.payment.service.pg.dto.PgRefundResult;
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.vo.*;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class PaymentFixture {
@@ -32,6 +38,10 @@ public class PaymentFixture {
     public static final String REFUND_ACCOUNT_HOLDER_NAME = "홍길동";
     public static final RefundAccountInfo REFUND_ACCOUNT_INFO = RefundAccountInfo.of(REFUND_ACCOUNT_BANK, REFUND_ACCOUNT_NUMBER, REFUND_ACCOUNT_HOLDER_NAME);
 
+    private static final String REFUND_REASON = "단순 변심";
+
+    /* payment entity */
+
     public static Payment createPayment() {
         return Payment.create(
                 USER_ID,
@@ -46,6 +56,62 @@ public class PaymentFixture {
         setPrivateField(payment, "status", status);
         return payment;
     }
+
+    /* payment command */
+
+    public static final ConfirmPaymentCommand CONFIRM_PAYMENT_COMMAND = ConfirmPaymentCommand.of(
+            USER_UUID,
+            FUNDING_UUID,
+            AMOUNT_VALUE,
+            PG_METHOD,
+            PG_PAYMENT_KEY,
+            PG_TRANSACTION_ID,
+            PG_ORDER_ID
+    );
+
+    public static final RefundPaymentCommand REFUND_PAYMENT_COMMAND = RefundPaymentCommand.of(
+            FUNDING_UUID,
+            REFUND_REASON,
+            REFUND_ACCOUNT_BANK,
+            REFUND_ACCOUNT_NUMBER,
+            REFUND_ACCOUNT_HOLDER_NAME
+    );
+
+    /* payment result */
+
+    public static final PaymentResult PAYMENT_RESULT_PENDING = PaymentResult.from(createPayment());
+    public static final PaymentResult PAYMENT_RESULT_COMPLETED = PaymentResult.from(createPaymentWithStatus(PaymentStatus.COMPLETED));
+    public static final PaymentResult PAYMENT_RESULT_REFUNDED = PaymentResult.from(createPaymentWithStatus(PaymentStatus.REFUNDED));
+
+    /**
+     * External Client Fixture
+     */
+
+    /* Payment Gateway Client */
+    private static final LocalDateTime APPROVED_AT = LocalDateTime.now();
+
+    public static final PgConfirmResult PG_CONFIRM_RESULT = new PgConfirmResult(
+            PG_PAYMENT_KEY,
+            PG_ORDER_ID,
+            AMOUNT_VALUE,
+            APPROVED_AT,
+            "APPROVED"
+    );
+
+    private static final LocalDateTime REFUNDED_AT = LocalDateTime.now();
+    private static final Long REFUND_AMOUNT = 20_000L;
+    private static final String REFUND_STATUS = "CANCELED";
+
+    public static final PgRefundResult PG_REFUND_RESULT = new PgRefundResult(
+            PG_PAYMENT_KEY,
+            PG_ORDER_ID,
+            REFUND_REASON,
+            REFUNDED_AT,
+            REFUND_AMOUNT,
+            REFUND_STATUS
+    );
+
+    /* private methods */
 
     private static void setPrivateField(Object target, String fieldName, Object value) {
         try {

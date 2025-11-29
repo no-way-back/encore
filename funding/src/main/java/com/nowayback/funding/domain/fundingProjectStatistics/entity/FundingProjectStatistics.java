@@ -1,8 +1,11 @@
 package com.nowayback.funding.domain.fundingProjectStatistics.entity;
 
+import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.shared.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -14,10 +17,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "funding_project_statistics)")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FundingProjectStatistics extends BaseEntity {
 
@@ -47,4 +52,40 @@ public class FundingProjectStatistics extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false, length = 30)
 	private FundingProjectStatus status;
+
+	public void increaseFunding(Long amount) {
+		if (amount == null || amount <= 0) {
+			throw new FundingException(INVALID_AMOUNT);
+		}
+		this.currentAmount += amount;
+		this.participantCount += 1;
+	}
+
+	/**
+	 * 후원 취소 시 금액과 참여자 수 감소
+	 */
+	public void decreaseFunding(Long amount) {
+		if (amount == null || amount <= 0) {
+			throw new FundingException(INVALID_AMOUNT);
+		}
+		if (this.currentAmount < amount) {
+			throw new FundingException(INSUFFICIENT_CURRENT_AMOUNT);
+		}
+		if (this.participantCount <= 0) {
+			throw new FundingException(NO_PARTICIPANTS_TO_DECREASE);
+		}
+		this.currentAmount -= amount;
+		this.participantCount -= 1;
+	}
+
+	public boolean isTargetAchieved() {
+		return this.currentAmount >= this.targetAmount;
+	}
+
+	public double getAchievementRate() {
+		if (this.targetAmount == 0) {
+			return 0.0;
+		}
+		return (double) this.currentAmount / this.targetAmount * 100;
+	}
 }

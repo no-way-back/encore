@@ -1,7 +1,7 @@
 package com.nowayback.user.domain.entity;
 
-import com.nowayback.user.domain.exception.UserDomainErrorCode;
-import com.nowayback.user.domain.exception.UserDomainException;
+import com.nowayback.user.domain.exception.UserErrorCode;
+import com.nowayback.user.domain.exception.UserException;
 import com.nowayback.user.domain.vo.UserRole;
 import com.nowayback.user.domain.vo.UserStatus;
 import org.junit.jupiter.api.DisplayName;
@@ -53,8 +53,8 @@ class UserTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> User.create(USERNAME, ENCODED_PASSWORD, EMAIL, NICKNAME, UserRole.MASTER))
-                    .isInstanceOf(UserDomainException.class)
-                    .hasMessage(UserDomainErrorCode.INVALID_USER_ROLE_FOR_CREATION.getMessage());
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_USER_ROLE_FOR_CREATION.getMessage());
         }
     }
 
@@ -86,8 +86,8 @@ class UserTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> user.changeStatus(newStatus))
-                    .isInstanceOf(UserDomainException.class)
-                    .hasMessage(UserDomainErrorCode.INVALID_USER_STATUS_TRANSITION.getMessage());
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_USER_STATUS_TRANSITION.getMessage());
         }
 
         private static Stream<Arguments> provideValidStatusTransitions() {
@@ -158,8 +158,8 @@ class UserTest {
             /* when */
             /* then */
             assertThatThrownBy(user::approve)
-                    .isInstanceOf(UserDomainException.class)
-                    .hasMessage(UserDomainErrorCode.INVALID_USER_ROLE_FOR_APPROVAL.getMessage());
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_USER_ROLE_FOR_APPROVAL.getMessage());
         }
 
         @ParameterizedTest(name = "{0} 상태의 ADMIN 유저 승인 시도")
@@ -172,8 +172,8 @@ class UserTest {
             /* when */
             /* then */
             assertThatThrownBy(user::approve)
-                    .isInstanceOf(UserDomainException.class)
-                    .hasMessage(UserDomainErrorCode.INVALID_USER_STATUS_FOR_APPROVAL.getMessage());
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_USER_STATUS_FOR_APPROVAL.getMessage());
         }
     }
 
@@ -206,8 +206,8 @@ class UserTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> user.deactivate(USER_UUID))
-                    .isInstanceOf(UserDomainException.class)
-                    .hasMessage(UserDomainErrorCode.USER_ALREADY_DEACTIVATED.getMessage());
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.USER_ALREADY_DEACTIVATED.getMessage());
         }
     }
 }

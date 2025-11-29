@@ -2,9 +2,13 @@ package com.nowayback.user.fixture;
 
 import com.nowayback.user.application.dto.command.LoginUserCommand;
 import com.nowayback.user.application.dto.command.SignupUserCommand;
+import com.nowayback.user.application.dto.result.LoginResult;
+import com.nowayback.user.application.dto.result.UserResult;
 import com.nowayback.user.domain.entity.User;
 import com.nowayback.user.domain.vo.UserRole;
 import com.nowayback.user.domain.vo.UserStatus;
+import com.nowayback.user.presentation.dto.request.LoginUserRequest;
+import com.nowayback.user.presentation.dto.request.SignupUserRequest;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
@@ -14,7 +18,7 @@ public class UserFixture {
     public static final UUID USER_UUID = UUID.randomUUID();
 
     public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
+    public static final String PASSWORD = "password123!";
     public static final String ENCODED_PASSWORD = "encodedPassword";
     public static final String EMAIL = "email@example.com";
     public static final String NICKNAME = "nickname";
@@ -75,6 +79,42 @@ public class UserFixture {
     public static final LoginUserCommand LOGIN_USER_COMMAND = LoginUserCommand.of(
             USERNAME,
             PASSWORD
+    );
+
+    /* user result */
+
+    public static final UserResult USER_RESULT = UserResult.from(createUser());
+    public static final LoginResult LOGIN_RESULT = LoginResult.from(
+            ACCESS_TOKEN,
+            createUser()
+    );
+
+    /* user request */
+
+    public static final SignupUserRequest VALID_SIGNUP_USER_REQUEST = new SignupUserRequest(
+            USERNAME,
+            PASSWORD,
+            EMAIL,
+            NICKNAME,
+            UserRole.USER
+    );
+
+    public static final SignupUserRequest INVALID_SIGNUP_USER_REQUEST = new SignupUserRequest(
+            "",
+            "short",
+            "invalid-email",
+            "",
+            UserRole.USER
+    );
+
+    public static final LoginUserRequest VALID_LOGIN_USER_REQUEST = new LoginUserRequest(
+            USERNAME,
+            PASSWORD
+    );
+
+    public static final LoginUserRequest INVALID_LOGIN_USER_REQUEST = new LoginUserRequest(
+            "",
+            ""
     );
 
     /* private methods */

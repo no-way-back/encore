@@ -40,4 +40,16 @@ public class RewardOptions extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reward_id", nullable = false)
     private Rewards reward;
+
+    /**
+     * 리워드 옵션 생성자
+     */
+    RewardOptions(String name, Money additionalPrice, Stock stock, Boolean isRequired, Integer displayOrder, Rewards reward) {
+        this.name = name;
+        this.additionalPrice = additionalPrice;
+        this.stock = stock;
+        this.isRequired = isRequired;
+        this.displayOrder = displayOrder;
+        this.reward = reward;
+    }
 }

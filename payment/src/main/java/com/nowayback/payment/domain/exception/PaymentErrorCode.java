@@ -29,9 +29,8 @@ public enum PaymentErrorCode {
     NULL_PAYMENT_MONEY_OBJECT("PAYMENT1013", "금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_PAYMENT_STATUS_OBJECT("PAYMENT1014", "결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_PG_INFO_OBJECT("PAYMENT1015", "PG 정보 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_REFUND_ACCOUNT_INFO_OBJECT("PAYMENT1016", "환불 정보 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
-    INVALID_PAYMENT_STATUS_TRANSITION("PAYMENT1017", "유효하지 않은 결제 상태 전환입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_PAYMENT_STATUS_TRANSITION("PAYMENT1016", "유효하지 않은 결제 상태 전환입니다.", HttpStatus.BAD_REQUEST),
 
     /**
      * Settlement Domain Error Codes

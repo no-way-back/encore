@@ -18,10 +18,20 @@ public record RefundPaymentCommand (
             String refundAccountNumber,
             String refundAccountHolderName
     ) {
+        RefundAccountInfo info = null;
+
+        if (refundAccountBank != null && refundAccountNumber != null && refundAccountHolderName != null) {
+            info = RefundAccountInfo.of(
+                    refundAccountBank,
+                    refundAccountNumber,
+                    refundAccountHolderName
+            );
+        }
+
         return new RefundPaymentCommand(
                 FundingId.of(fundingId),
                 cancelReason,
-                RefundAccountInfo.of(refundAccountBank, refundAccountNumber, refundAccountHolderName)
+                info
         );
     }
 }

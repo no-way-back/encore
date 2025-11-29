@@ -148,18 +148,5 @@ class PaymentTest {
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
         }
-
-        @Test
-        @DisplayName("환불 계좌 정보가 null일 때 결제를 환불하면 예외가 발생한다.")
-        void refund_givenNullRefundAccountInfo_thenThrowException() {
-            /* given */
-            Payment payment = createPaymentWithStatus(PaymentStatus.COMPLETED);
-
-            /* when */
-            /* then */
-            assertThatThrownBy(() -> payment.refund(null))
-                    .isInstanceOf(PaymentException.class)
-                    .hasMessage(PaymentErrorCode.NULL_REFUND_ACCOUNT_INFO_OBJECT.getMessage());
-        }
     }
 }

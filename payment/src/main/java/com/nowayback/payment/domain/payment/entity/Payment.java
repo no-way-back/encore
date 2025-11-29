@@ -82,8 +82,8 @@ public class Payment extends BaseEntity {
     }
 
     public void refund(RefundAccountInfo refundAccountInfo) {
-        setRefundAccountInfo(refundAccountInfo);
         changeStatus(PaymentStatus.REFUNDED);
+        this.refundAccountInfo = refundAccountInfo;
     }
 
     private void changeStatus(PaymentStatus newStatus) {
@@ -92,11 +92,6 @@ public class Payment extends BaseEntity {
             throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION);
         }
         this.status = newStatus;
-    }
-
-    private void setRefundAccountInfo(RefundAccountInfo refundAccountInfo) {
-        validateRefundAccountInfo(refundAccountInfo);
-        this.refundAccountInfo = refundAccountInfo;
     }
 
     /* Validation Methods */
@@ -135,12 +130,6 @@ public class Payment extends BaseEntity {
     private static void validatePgInfo(PgInfo pgInfo) {
         if (pgInfo == null) {
             throw new PaymentException(PaymentErrorCode.NULL_PG_INFO_OBJECT);
-        }
-    }
-
-    private static void validateRefundAccountInfo(RefundAccountInfo refundAccountInfo) {
-        if (refundAccountInfo == null) {
-            throw new PaymentException(PaymentErrorCode.NULL_REFUND_ACCOUNT_INFO_OBJECT);
         }
     }
 }

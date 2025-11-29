@@ -32,7 +32,6 @@ public class RewardOptions {
         optionDrafts.add(rewardOptionDraft);
     }
 
-
     public void replace(List<RewardOptionSpec> specs) {
         optionDrafts.clear();
         specs.forEach(spec -> {

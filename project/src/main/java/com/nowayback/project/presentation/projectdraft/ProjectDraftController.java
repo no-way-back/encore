@@ -162,4 +162,13 @@ public class ProjectDraftController {
             PageResponse.fromPage(result.map(ProjectDraftResponse::of))
         );
     }
+
+    @PostMapping("/project-drafts/{projectDraftId}/submit")
+    public ResponseEntity<Void> submitDraft(
+        @PathVariable UUID projectDraftId
+    ) {
+        projectDraftService.submit(projectDraftId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

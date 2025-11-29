@@ -80,13 +80,6 @@ public class ProjectRewardDraft extends BaseEntity {
         });
     }
 
-    private void validatePrice(Long price) {
-        if (price != null && price <= 0) {
-            throw new ProjectException(ProjectErrorCode.INVALID_REWARD_PRICE);
-
-        }
-    }
-
     private void validateLimit(Integer limitCount) {
         if (limitCount != null && limitCount < 0) {
             throw new ProjectException(ProjectErrorCode.INVALID_REWARD_LIMIT);

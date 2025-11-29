@@ -78,7 +78,6 @@ public class ProjectDraft extends BaseEntity {
             && rewardDrafts.stream().allMatch(ProjectRewardDraft::isCompleted);
     }
 
-
     public void assignStoryDraft(ProjectStoryDraft storyDraft) {
         this.storyDraft = storyDraft;
     }

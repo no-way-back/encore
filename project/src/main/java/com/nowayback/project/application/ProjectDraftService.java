@@ -168,6 +168,13 @@ public class ProjectDraftService {
         return projectDrafts.map(ProjectDraftResult::of);
     }
 
+    public void submit(UUID projectDraftId) {
+        ProjectDraft projectDraft = findProjectDraftOrThrow(projectDraftId);
+        projectDraft.ensureUpdatable();
+
+        projectDraft.submit();
+    }
+
     private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {
         return projectDraftRepository.findById(projectDraftId)
             .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_DRAFT_NOT_FOUND));

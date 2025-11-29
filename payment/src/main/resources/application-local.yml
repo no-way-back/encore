@@ -1,0 +1,31 @@
+server:
+  port: 18084
+
+spring:
+  datasource:
+    url: ${PAYMENT_SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/encore_db}
+    username: ${PAYMENT_SPRING_DATASOURCE_USERNAME:user}
+    password: ${PAYMENT_SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: payment_service
+    show-sql: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+
+logging:
+  level:
+    com.nowayback.payment: DEBUG
+    org.hibernate.SQL: DEBUG

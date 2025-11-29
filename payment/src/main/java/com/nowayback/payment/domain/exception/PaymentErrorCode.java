@@ -55,6 +55,11 @@ public enum PaymentErrorCode {
     NULL_SETTLEMENT_ACCOUNT_INFO_OBJECT("SETTLEMENT1010", "정산 계좌 정보 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     INVALID_SETTLEMENT_STATUS_TRANSITION("SETTLEMENT1011", "유효하지 않은 정산 상태 전환입니다.", HttpStatus.BAD_REQUEST),
+
+    /**
+     * Payment Application Error Codes
+     */
+    PAYMENT_NOT_FOUND("PAYMENT2001", "결제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ;
 
     private final String code;

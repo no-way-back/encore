@@ -12,7 +12,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PaymentRepositoryImpl implements PaymentRepository {
 
-    PaymentJpaRepository paymentJpaRepository;
+    private final PaymentJpaRepository paymentJpaRepository;
 
     @Override
     public Payment save(Payment payment) {

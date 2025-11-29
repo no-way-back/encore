@@ -83,7 +83,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
         String body = String.format(
-                "{\"code\":%s\",\"message\":\"%s\",\"status\":\"%d\"}",
+                "{\"code\":\"%s\",\"message\":\"%s\",\"status\":\"%d\"}",
                 status.name(),
                 message,
                 status.value()

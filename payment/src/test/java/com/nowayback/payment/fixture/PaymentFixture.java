@@ -7,6 +7,8 @@ import com.nowayback.payment.application.payment.service.pg.dto.PgConfirmResult;
 import com.nowayback.payment.application.payment.service.pg.dto.PgRefundResult;
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.vo.*;
+import com.nowayback.payment.presentation.payment.dto.request.ConfirmPaymentRequest;
+import com.nowayback.payment.presentation.payment.dto.request.RefundPaymentRequest;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -82,6 +84,42 @@ public class PaymentFixture {
     public static final PaymentResult PAYMENT_RESULT_PENDING = PaymentResult.from(createPayment());
     public static final PaymentResult PAYMENT_RESULT_COMPLETED = PaymentResult.from(createPaymentWithStatus(PaymentStatus.COMPLETED));
     public static final PaymentResult PAYMENT_RESULT_REFUNDED = PaymentResult.from(createPaymentWithStatus(PaymentStatus.REFUNDED));
+
+    /* payment request */
+
+    public static final ConfirmPaymentRequest VALID_CONFIRM_PAYMENT_REQUEST = new ConfirmPaymentRequest(
+            FUNDING_UUID,
+            AMOUNT_VALUE,
+            PG_METHOD,
+            PG_PAYMENT_KEY,
+            PG_TRANSACTION_ID,
+            PG_ORDER_ID
+    );
+
+    public static final ConfirmPaymentRequest INVALID_CONFIRM_PAYMENT_REQUEST = new ConfirmPaymentRequest(
+            null,
+            null,
+            "",
+            "",
+            "",
+            ""
+    );
+
+    public static final RefundPaymentRequest VALID_REFUND_PAYMENT_REQUEST = new RefundPaymentRequest(
+            FUNDING_UUID,
+            REFUND_REASON,
+            REFUND_ACCOUNT_BANK,
+            REFUND_ACCOUNT_NUMBER,
+            REFUND_ACCOUNT_HOLDER_NAME
+    );
+
+    public static final RefundPaymentRequest INVALID_REFUND_PAYMENT_REQUEST = new RefundPaymentRequest(
+            null,
+            "",
+            "",
+            "",
+            ""
+    );
 
     /**
      * External Client Fixture

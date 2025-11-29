@@ -1,7 +1,7 @@
 package com.nowayback.payment.domain.payment.vo;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -40,25 +40,25 @@ public class PgInfo {
 
     private static void validatePgMethod(String pgMethod) {
         if (pgMethod == null || pgMethod.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_PG_METHOD_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_PG_METHOD_VALUE);
         }
     }
 
     private static void validatePgPaymentKey(String pgPaymentKey) {
         if (pgPaymentKey == null || pgPaymentKey.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_PG_PAYMENT_KEY_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_PG_PAYMENT_KEY_VALUE);
         }
     }
 
     private static void validatePgTransactionId(String pgTransactionId) {
         if (pgTransactionId == null || pgTransactionId.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_PG_TRANSACTION_ID_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_PG_TRANSACTION_ID_VALUE);
         }
     }
 
     private static void validatePgOrderId(String pgOrderId) {
         if (pgOrderId == null || pgOrderId.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_PG_ORDER_ID_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_PG_ORDER_ID_VALUE);
         }
     }
 }

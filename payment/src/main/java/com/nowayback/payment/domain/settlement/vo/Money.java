@@ -1,8 +1,8 @@
 package com.nowayback.payment.domain.settlement.vo;
 
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -26,7 +26,7 @@ public class Money {
 
     public static Money of(long amount) {
         if (amount < 0) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_SETTLEMENT_MONEY_VALUE);
+            throw new PaymentException(PaymentErrorCode.INVALID_SETTLEMENT_MONEY_VALUE);
         }
         return new Money(amount);
     }
@@ -41,7 +41,7 @@ public class Money {
 
     public Money multiplyByRate(BigDecimal rate) {
         if (rate == null || rate.compareTo(BigDecimal.ZERO) < 0) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_RATE);
+            throw new PaymentException(PaymentErrorCode.INVALID_RATE);
         }
 
         BigDecimal result = BigDecimal.valueOf(this.amount)
@@ -53,7 +53,7 @@ public class Money {
 
     public Money multiplyByPercent(int percent) {
         if (percent < 0) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_PERCENTAGE);
+            throw new PaymentException(PaymentErrorCode.INVALID_PERCENTAGE);
         }
         return multiplyByRate(BigDecimal.valueOf(percent).divide(BigDecimal.valueOf(100)));
     }

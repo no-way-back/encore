@@ -1,7 +1,7 @@
 package com.nowayback.payment.domain.payment.entity;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -42,8 +42,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Payment.create(null, FUNDING_ID, AMOUNT, PG_INFO))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_USER_ID_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_USER_ID_OBJECT.getMessage());
         }
 
         @Test
@@ -53,8 +53,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Payment.create(USER_ID, null, AMOUNT, PG_INFO))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_FUNDING_ID_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_FUNDING_ID_OBJECT.getMessage());
         }
 
         @Test
@@ -64,8 +64,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, null, PG_INFO))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_PAYMENT_MONEY_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_PAYMENT_MONEY_OBJECT.getMessage());
         }
 
         @Test
@@ -75,8 +75,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, AMOUNT, null))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_PG_INFO_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_PG_INFO_OBJECT.getMessage());
         }
     }
 
@@ -93,8 +93,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> payment.changeStatus(null))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_PAYMENT_STATUS_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_PAYMENT_STATUS_OBJECT.getMessage());
         }
 
         @ParameterizedTest(name = "{0} 상태에서 {1} 상태로 변경 시도")
@@ -131,8 +131,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> payment.changeStatus(newStatus))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
         }
     }
 
@@ -162,8 +162,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> payment.setRefundAccountInfo(null))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_REFUND_ACCOUNT_INFO_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_REFUND_ACCOUNT_INFO_OBJECT.getMessage());
         }
     }
 }

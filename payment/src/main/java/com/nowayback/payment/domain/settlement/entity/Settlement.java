@@ -1,7 +1,7 @@
 package com.nowayback.payment.domain.settlement.entity;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.settlement.vo.*;
 import com.nowayback.payment.domain.shared.BaseEntity;
 import jakarta.persistence.*;
@@ -101,7 +101,7 @@ public class Settlement extends BaseEntity {
 
     private void validateStatus(SettlementStatus newStatus) {
         if (!this.status.canTransitionTo(newStatus)) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_SETTLEMENT_STATUS_TRANSITION);
+            throw new PaymentException(PaymentErrorCode.INVALID_SETTLEMENT_STATUS_TRANSITION);
         }
     }
 
@@ -115,19 +115,19 @@ public class Settlement extends BaseEntity {
 
     private static void validateProjectId(ProjectId projectId) {
         if (projectId == null) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_PROJECT_ID_OBJECT);
+            throw new PaymentException(PaymentErrorCode.NULL_PROJECT_ID_OBJECT);
         }
     }
 
     private static void validateTotalAmount(Money totalAmount) {
         if (totalAmount == null) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_SETTLEMENT_TOTAL_AMOUNT_OBJECT);
+            throw new PaymentException(PaymentErrorCode.NULL_SETTLEMENT_TOTAL_AMOUNT_OBJECT);
         }
     }
 
     private static void validateAccountInfo(AccountInfo accountInfo) {
         if (accountInfo == null) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_SETTLEMENT_ACCOUNT_INFO_OBJECT);
+            throw new PaymentException(PaymentErrorCode.NULL_SETTLEMENT_ACCOUNT_INFO_OBJECT);
         }
     }
 }

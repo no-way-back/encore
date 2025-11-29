@@ -1,7 +1,7 @@
 package com.nowayback.payment.domain.payment.vo;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -22,7 +22,7 @@ public class Money {
 
     public static Money of(long amount) {
         if (amount < 0) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.INVALID_PAYMENT_MONEY_VALUE);
+            throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_MONEY_VALUE);
         }
         return new Money(amount);
     }

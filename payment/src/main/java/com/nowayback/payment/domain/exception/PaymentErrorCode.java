@@ -1,9 +1,10 @@
 package com.nowayback.payment.domain.exception;
 
-import com.nowayback.payment.presentation.exception.PaymentErrorCode;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public enum PaymentDomainErrorCode implements PaymentErrorCode {
+@Getter
+public enum PaymentErrorCode {
     /**
      * Payment Domain Error Codes
      */
@@ -60,24 +61,9 @@ public enum PaymentDomainErrorCode implements PaymentErrorCode {
     private final String message;
     private final HttpStatus httpStatus;
 
-    PaymentDomainErrorCode(String code, String message, HttpStatus httpStatus) {
+    PaymentErrorCode(String code, String message, HttpStatus httpStatus) {
         this.code = code;
         this.message = message;
         this.httpStatus = httpStatus;
-    }
-
-    @Override
-    public String getCode() {
-        return code;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    @Override
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
     }
 }

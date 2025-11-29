@@ -1,7 +1,7 @@
 package com.nowayback.payment.domain.settlement.vo;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -24,7 +24,7 @@ public class ProjectId {
 
     public static ProjectId of(UUID id) {
         if (id == null) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_PROJECT_ID_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_PROJECT_ID_VALUE);
         }
         return new ProjectId(id);
     }

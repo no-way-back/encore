@@ -1,7 +1,7 @@
 package com.nowayback.payment.domain.settlement.entity;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.settlement.vo.SettlementStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,8 +44,8 @@ class SettlementTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Settlement.create(null, TOTAL_AMOUNT, ACCOUNT_INFO, FEE_POLICY))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_PROJECT_ID_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_PROJECT_ID_OBJECT.getMessage());
         }
 
         @Test
@@ -55,8 +55,8 @@ class SettlementTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Settlement.create(PROJECT_ID, null, ACCOUNT_INFO, FEE_POLICY))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_SETTLEMENT_TOTAL_AMOUNT_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_SETTLEMENT_TOTAL_AMOUNT_OBJECT.getMessage());
         }
 
         @Test
@@ -66,8 +66,8 @@ class SettlementTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Settlement.create(PROJECT_ID, TOTAL_AMOUNT, null, FEE_POLICY))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_SETTLEMENT_ACCOUNT_INFO_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_SETTLEMENT_ACCOUNT_INFO_OBJECT.getMessage());
         }
     }
 
@@ -99,8 +99,8 @@ class SettlementTest {
             /* when */
             /* then */
             assertThatThrownBy(settlement::complete)
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.INVALID_SETTLEMENT_STATUS_TRANSITION.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.INVALID_SETTLEMENT_STATUS_TRANSITION.getMessage());
         }
     }
 
@@ -132,8 +132,8 @@ class SettlementTest {
             /* when */
             /* then */
             assertThatThrownBy(settlement::fail)
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.INVALID_SETTLEMENT_STATUS_TRANSITION.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.INVALID_SETTLEMENT_STATUS_TRANSITION.getMessage());
         }
     }
 }

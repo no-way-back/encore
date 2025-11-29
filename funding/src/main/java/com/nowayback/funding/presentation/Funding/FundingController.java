@@ -29,7 +29,7 @@ public class FundingController {
 
 	@PostMapping
 	public ResponseEntity<CreateFundingResponse> createFunding(
-		@RequestHeader(value = "X-User_Id") UUID userId,
+		@RequestHeader(value = "X-User-Id") UUID userId,
 		@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
 		@Validated @RequestBody CreateFundingRequest request
 	) {

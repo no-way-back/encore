@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -54,6 +55,9 @@ public class Payment extends BaseEntity {
     })
     private RefundAccountInfo refundAccountInfo;
 
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
+
     private Payment(UserId userId, FundingId fundingId, Money amount, PgInfo pgInfo, RefundAccountInfo refundAccountInfo) {
         this.userId = userId;
         this.fundingId = fundingId;
@@ -72,7 +76,17 @@ public class Payment extends BaseEntity {
 
     /* Business Methods */
 
-    public void changeStatus(PaymentStatus newStatus) {
+    public void complete(LocalDateTime approvedAt) {
+        changeStatus(PaymentStatus.COMPLETED);
+        this.approvedAt = approvedAt;
+    }
+
+    public void refund(RefundAccountInfo refundAccountInfo) {
+        setRefundAccountInfo(refundAccountInfo);
+        changeStatus(PaymentStatus.REFUNDED);
+    }
+
+    private void changeStatus(PaymentStatus newStatus) {
         validateStatus(newStatus);
         if (!this.status.canTransitionTo(newStatus)) {
             throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION);
@@ -80,7 +94,7 @@ public class Payment extends BaseEntity {
         this.status = newStatus;
     }
 
-    public void setRefundAccountInfo(RefundAccountInfo refundAccountInfo) {
+    private void setRefundAccountInfo(RefundAccountInfo refundAccountInfo) {
         validateRefundAccountInfo(refundAccountInfo);
         this.refundAccountInfo = refundAccountInfo;
     }

@@ -26,38 +26,27 @@ spring:
             - id: user-service
               uri: lb://user-service
               predicates:
-                - Path=/users/**
-                - Path=/auth/**
-              filters:
-                - name: JwtAuthenticationFilter
+                - Path=/users/**,/auth/**
 
             - id: project-service
               uri: lb://project-service
               predicates:
                 - Path=/projects/**
-              filters:
-                - name: JwtAuthenticationFilter
 
             - id: funding-service
               uri: lb://funding-service
               predicates:
                 - Path=/fundings/**
-              filters:
-                - name: JwtAuthenticationFilter
 
             - id: reward-service
               uri: lb://reward-service
               predicates:
                 - Path=/rewards/**
-              filters:
-                - name: JwtAuthenticationFilter
 
             - id: payment-service
               uri: lb://payment-service
               predicates:
                 - Path=/payments/**
-              filters:
-                - name: JwtAuthenticationFilter
 
           globalcors:
             corsConfigurations:

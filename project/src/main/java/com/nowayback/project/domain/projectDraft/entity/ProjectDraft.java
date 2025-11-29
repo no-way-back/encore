@@ -1,7 +1,7 @@
 package com.nowayback.project.domain.projectDraft.entity;
 
-import com.nowayback.project.domain.exception.ProjectDomainErrorCode;
-import com.nowayback.project.domain.exception.ProjectDomainException;
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.CascadeType;
@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "p_project_draft")
+@Table(name = "p_project_drafts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectDraft extends BaseEntity {
 
@@ -45,7 +45,7 @@ public class ProjectDraft extends BaseEntity {
     private ProjectStoryDraft storyDraft;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "reward_draft_id")
+    @JoinColumn(name = "project_draft_id")
     private List<ProjectRewardDraft> rewardDrafts = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -67,15 +67,39 @@ public class ProjectDraft extends BaseEntity {
 
     public void submit() {
         if (!isAllStepsCompleted()) {
-            throw new ProjectDomainException(ProjectDomainErrorCode.INVALID_DRAFT_SUBMISSION);
+            throw new ProjectException(ProjectErrorCode.INVALID_DRAFT_SUBMISSION);
         }
         this.status = ProjectDraftStatus.SUBMITTED;
     }
 
     private boolean isAllStepsCompleted() {
-        return storyDraft.isCompleted()
-            && fundingDraft.isCompleted()
-            && settlementDraft.isCompleted()
-            && rewardDrafts.stream().allMatch(rewardDraft -> rewardDraft.isCompleted());
+        return storyDraft != null && storyDraft.isCompleted()
+            && fundingDraft != null && fundingDraft.isCompleted()
+            && settlementDraft != null && settlementDraft.isCompleted()
+            && rewardDrafts.stream().allMatch(ProjectRewardDraft::isCompleted);
+    }
+
+
+    public void assignStoryDraft(ProjectStoryDraft storyDraft) {
+        this.storyDraft = storyDraft;
+    }
+
+    public void assignFundingDraft(ProjectFundingDraft fundingDraft) {
+        this.fundingDraft = fundingDraft;
+    }
+
+    public void assignSettlementDraft(ProjectSettlementDraft settlementDraft) {
+        this.settlementDraft = settlementDraft;
+    }
+
+    public void replaceRewardDrafts(List<ProjectRewardDraft> drafts) {
+        this.rewardDrafts.clear();
+        this.rewardDrafts.addAll(drafts);
+    }
+
+    public void ensureUpdatable() {
+        if (this.status != ProjectDraftStatus.DRAFT) {
+            throw new ProjectException(ProjectErrorCode.INVALID_PROJECT_DRAFT_STATUS);
+        }
     }
 }

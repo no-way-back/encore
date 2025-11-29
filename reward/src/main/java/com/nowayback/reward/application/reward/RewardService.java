@@ -29,11 +29,11 @@ public class RewardService {
      * @return 생성된 Rewards 엔티티 목록
      */
     @Transactional
-    public List<Rewards> createRewardsForProject(UUID projectId, List<RewardCreateRequest> requests) {
+    public List<Rewards> createRewardsForProject(UUID projectId, UUID creatorId, List<RewardCreateRequest> requests) {
         log.info("프로젝트 {} 리워드 생성 시작 - {}개", projectId, requests.size());
 
         List<Rewards> createdRewards = requests.stream()
-                .map(request -> createReward(projectId, request))
+                .map(request -> createReward(projectId, creatorId, request))
                 .toList();
 
         log.info("프로젝트 {} 총 {}개 리워드 생성 완료", projectId, createdRewards.size());
@@ -48,8 +48,8 @@ public class RewardService {
      * @return 생성된 Rewards 엔티티
      * @throws RewardException 옵션 검증 실패 시
      */
-    private Rewards createReward(UUID projectId, RewardCreateRequest request) {
-        CreateRewardCommand command = CreateRewardCommand.from(projectId, request);
+    private Rewards createReward(UUID projectId, UUID creatorId, RewardCreateRequest request) {
+        CreateRewardCommand command = CreateRewardCommand.from(projectId, creatorId, request);
 
         Rewards reward = Rewards.create(command);
         reward.addOptionList(command.options());

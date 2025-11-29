@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public record CreateRewardCommand(
         UUID projectId,
+        UUID creatorId,
         String name,
         String description,
         Integer price,
@@ -18,9 +19,10 @@ public record CreateRewardCommand(
         RewardType rewardType,
         List<CreateRewardOptionCommand> options
 ) {
-    public static CreateRewardCommand from(UUID projectId, RewardCreateRequest request) {
+    public static CreateRewardCommand from(UUID projectId, UUID creatorId, RewardCreateRequest request) {
         return new CreateRewardCommand(
                 projectId,
+                creatorId,
                 request.name(),
                 request.description(),
                 request.price(),

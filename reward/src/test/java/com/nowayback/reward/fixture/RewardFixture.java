@@ -2,9 +2,9 @@ package com.nowayback.reward.fixture;
 
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.command.CreateRewardOptionCommand;
+import com.nowayback.reward.domain.reward.handler.command.RewardCreateCommand;
+import com.nowayback.reward.domain.reward.handler.command.RewardOptionCreateCommand;
 import com.nowayback.reward.domain.reward.vo.RewardType;
-import com.nowayback.reward.infrastructure.kafka.dto.project.request.RewardCreateRequest;
-import com.nowayback.reward.infrastructure.kafka.dto.project.request.RewardOptionCreateRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -64,12 +64,12 @@ public class RewardFixture {
         );
     }
 
-    public static RewardCreateRequest createRequest() {
+    public static RewardCreateCommand createRequest() {
         return createRequest("테스트 리워드", 25000, 100);
     }
 
-    public static RewardCreateRequest createRequest(String name, Integer price, Integer stock) {
-        return new RewardCreateRequest(
+    public static RewardCreateCommand createRequest(String name, Integer price, Integer stock) {
+        return new RewardCreateCommand(
                 name,
                 "테스트 설명",
                 price,
@@ -82,14 +82,14 @@ public class RewardFixture {
         );
     }
 
-    public static RewardCreateRequest createRequestWithOptions() {
-        List<RewardOptionCreateRequest> options = List.of(
+    public static RewardCreateCommand createRequestWithOptions() {
+        List<RewardOptionCreateCommand> options = List.of(
                 createOptionRequest("S", 0, 20, 1),
                 createOptionRequest("M", 0, 30, 2),
                 createOptionRequest("L", 2000, 25, 3)
         );
 
-        return new RewardCreateRequest(
+        return new RewardCreateCommand(
                 "옵션 있는 리워드",
                 "설명",
                 25000,
@@ -102,9 +102,9 @@ public class RewardFixture {
         );
     }
 
-    public static RewardOptionCreateRequest createOptionRequest(
+    public static RewardOptionCreateCommand createOptionRequest(
             String name, Integer additionalPrice, Integer stock, Integer displayOrder) {
-        return new RewardOptionCreateRequest(
+        return new RewardOptionCreateCommand(
                 name,
                 additionalPrice,
                 stock,
@@ -119,7 +119,7 @@ public class RewardFixture {
                 .toList();
     }
 
-    public static List<RewardCreateRequest> createRequests(int count) {
+    public static List<RewardCreateCommand> createRequests(int count) {
         return java.util.stream.IntStream.range(0, count)
                 .mapToObj(i -> createRequest("리워드" + i, 25000, 100))
                 .toList();

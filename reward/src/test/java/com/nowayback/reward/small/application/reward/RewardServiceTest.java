@@ -4,8 +4,8 @@ import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.entity.Rewards;
+import com.nowayback.reward.domain.reward.handler.command.RewardCreateCommand;
 import com.nowayback.reward.domain.reward.repository.RewardRepository;
-import com.nowayback.reward.infrastructure.kafka.dto.project.request.RewardCreateRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateRequest> requests = List.of(createRequest());
+                List<RewardCreateCommand> requests = List.of(createRequest());
 
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -65,7 +65,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateRequest> requests = List.of(
+                List<RewardCreateCommand> requests = List.of(
                         createRequest("티셔츠", 25000, 100),
                         createRequest("입장권", 30000, 200),
                         createRequest("응원봉", 15000, 150)
@@ -90,7 +90,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateRequest> requests = List.of(createRequestWithOptions());
+                List<RewardCreateCommand> requests = List.of(createRequestWithOptions());
 
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -110,7 +110,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateRequest> requests = createRequests(10);
+                List<RewardCreateCommand> requests = createRequests(10);
 
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -134,7 +134,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateRequest> requests = createRequests(11);
+                List<RewardCreateCommand> requests = createRequests(11);
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))
@@ -151,7 +151,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateRequest> requests = createRequests(15);
+                List<RewardCreateCommand> requests = createRequests(15);
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))
@@ -166,7 +166,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateRequest> requests = List.of(createRequest("리워드", 500, 100));
+                List<RewardCreateCommand> requests = List.of(createRequest("리워드", 500, 100));
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))
@@ -183,7 +183,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateRequest> requests = List.of(createRequest("리워드", 25000, 0));
+                List<RewardCreateCommand> requests = List.of(createRequest("리워드", 25000, 0));
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))

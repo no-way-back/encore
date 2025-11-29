@@ -1,7 +1,7 @@
 package com.nowayback.reward.domain.reward.command;
 
+import com.nowayback.reward.domain.reward.handler.command.RewardCreateCommand;
 import com.nowayback.reward.domain.reward.vo.RewardType;
-import com.nowayback.reward.infrastructure.kafka.dto.project.request.RewardCreateRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,19 +19,19 @@ public record CreateRewardCommand(
         RewardType rewardType,
         List<CreateRewardOptionCommand> options
 ) {
-    public static CreateRewardCommand from(UUID projectId, UUID creatorId, RewardCreateRequest request) {
+    public static CreateRewardCommand from(UUID projectId, UUID creatorId, RewardCreateCommand command) {
         return new CreateRewardCommand(
                 projectId,
                 creatorId,
-                request.name(),
-                request.description(),
-                request.price(),
-                request.stockQuantity(),
-                request.shippingFee(),
-                request.freeShippingAmount(),
-                request.purchaseLimitPerPerson(),
-                request.rewardType(),
-                CreateRewardOptionCommand.from(request.options())
+                command.name(),
+                command.description(),
+                command.price(),
+                command.stockQuantity(),
+                command.shippingFee(),
+                command.freeShippingAmount(),
+                command.purchaseLimitPerPerson(),
+                command.rewardType(),
+                CreateRewardOptionCommand.from(command.options())
         );
     }
 }

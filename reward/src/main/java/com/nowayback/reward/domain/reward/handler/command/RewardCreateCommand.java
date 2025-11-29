@@ -1,10 +1,10 @@
-package com.nowayback.reward.infrastructure.kafka.dto.project.request;
+package com.nowayback.reward.domain.reward.handler.command;
 
 import com.nowayback.reward.domain.reward.vo.RewardType;
 
 import java.util.List;
 
-public record RewardCreateRequest(
+public record RewardCreateCommand(
         String name,
         String description,
         Integer price,
@@ -13,6 +13,6 @@ public record RewardCreateRequest(
         Integer freeShippingAmount,
         Integer purchaseLimitPerPerson,
         RewardType rewardType,
-        List<RewardOptionCreateRequest> options
+        List<RewardOptionCreateCommand> options
 ) {
 }

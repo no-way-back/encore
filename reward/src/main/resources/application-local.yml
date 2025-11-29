@@ -21,8 +21,6 @@ spring:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: reward-service-group-local
-    producer:
-      acks: all
 
 logging:
   level:

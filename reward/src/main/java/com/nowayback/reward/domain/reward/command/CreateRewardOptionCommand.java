@@ -1,6 +1,6 @@
 package com.nowayback.reward.domain.reward.command;
 
-import com.nowayback.reward.infrastructure.kafka.dto.project.request.RewardOptionCreateRequest;
+import com.nowayback.reward.domain.reward.handler.command.RewardOptionCreateCommand;
 
 import java.util.List;
 
@@ -11,21 +11,21 @@ public record CreateRewardOptionCommand(
         Boolean isRequired,
         Integer displayOrder
 ) {
-    public static CreateRewardOptionCommand from(RewardOptionCreateRequest request) {
+    public static CreateRewardOptionCommand from(RewardOptionCreateCommand command) {
         return new CreateRewardOptionCommand(
-                request.name(),
-                request.additionalPrice(),
-                request.stockQuantity(),
-                request.isRequired(),
-                request.displayOrder()
+                command.name(),
+                command.additionalPrice(),
+                command.stockQuantity(),
+                command.isRequired(),
+                command.displayOrder()
         );
     }
 
-    public static List<CreateRewardOptionCommand> from(List<RewardOptionCreateRequest> requests) {
-        if (requests == null) {
+    public static List<CreateRewardOptionCommand> from(List<RewardOptionCreateCommand> commandList) {
+        if (commandList == null) {
             return null;
         }
-        return requests.stream()
+        return commandList.stream()
                 .map(CreateRewardOptionCommand::from)
                 .toList();
     }

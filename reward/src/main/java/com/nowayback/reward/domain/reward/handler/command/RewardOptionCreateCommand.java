@@ -1,6 +1,6 @@
-package com.nowayback.reward.infrastructure.kafka.dto.project.request;
+package com.nowayback.reward.domain.reward.handler.command;
 
-public record RewardOptionCreateRequest(
+public record RewardOptionCreateCommand(
         String name,
         Integer additionalPrice,
         Integer stockQuantity,

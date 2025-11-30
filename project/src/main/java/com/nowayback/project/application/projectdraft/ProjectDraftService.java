@@ -1,5 +1,7 @@
 package com.nowayback.project.application.projectdraft;
 
+import com.nowayback.project.application.outbox.event.OutboxEventPublisher;
+import com.nowayback.project.application.outbox.event.payload.ProjectCreatedEventPayload;
 import com.nowayback.project.application.project.ProjectService;
 import com.nowayback.project.application.project.command.CreateProjectCommand;
 import com.nowayback.project.application.projectdraft.command.SaveFundingDraftCommand;
@@ -13,6 +15,8 @@ import com.nowayback.project.application.projectdraft.dto.ProjectSettlementDraft
 import com.nowayback.project.application.projectdraft.dto.ProjectStoryDraftResult;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
+import com.nowayback.project.domain.outbox.vo.AggregateType;
+import com.nowayback.project.domain.outbox.vo.EventType;
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectFundingDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectRewardDraft;
@@ -35,6 +39,8 @@ public class ProjectDraftService {
 
     private final ProjectService projectService;
     private final ProjectDraftRepository projectDraftRepository;
+
+    private final OutboxEventPublisher outboxEventPublisher;
 
     @Transactional
     public UUID createProjectDraft(UUID userId) {
@@ -171,6 +177,7 @@ public class ProjectDraftService {
         return projectDrafts.map(ProjectDraftResult::of);
     }
 
+    @Transactional
     public void submit(UUID projectDraftId) {
         ProjectDraft projectDraft = findProjectDraftOrThrow(projectDraftId);
         projectDraft.ensureUpdatable();
@@ -189,6 +196,13 @@ public class ProjectDraftService {
                 projectDraft.getFundingDraft().getFundingStartDate(),
                 projectDraft.getFundingDraft().getFundingEndDate()
             )
+        );
+
+        outboxEventPublisher.publish(
+            EventType.PROJECT_DRAFT_SUBMITTED,
+            ProjectCreatedEventPayload.of(projectDraft.getId()),
+            AggregateType.PROJECT_DRAFT,
+            projectDraft.getId()
         );
     }
 

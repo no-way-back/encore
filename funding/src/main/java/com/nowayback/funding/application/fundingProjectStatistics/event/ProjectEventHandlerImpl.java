@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
 import com.nowayback.funding.domain.fundingProjectStatistics.repository.FundingProjectStatisticsRepository;
-import com.nowayback.funding.domain.service.ProjectEventPort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ProjectEventHandler implements ProjectEventPort {
+public class ProjectEventHandlerImpl implements com.nowayback.funding.domain.service.ProjectEventHandler {
 
 	private final FundingProjectStatisticsRepository fundingProjectStatisticsRepository;
 

@@ -3,7 +3,7 @@ package com.nowayback.funding.domain.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public interface ProjectEventPort {
+public interface ProjectEventHandler {
 
 	void handleProjectCreated(
 		UUID projectId,

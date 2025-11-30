@@ -70,7 +70,7 @@ public class PaymentFixture {
     );
 
     public static final RefundPaymentCommand REFUND_PAYMENT_COMMAND = RefundPaymentCommand.of(
-            FUNDING_UUID,
+            PAYMENT_UUID,
             REFUND_REASON,
             REFUND_ACCOUNT_BANK,
             REFUND_ACCOUNT_NUMBER,

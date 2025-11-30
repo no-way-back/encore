@@ -57,30 +57,30 @@ class PaymentRepositoryTest {
     }
 
     @Nested
-    @DisplayName("펀딩 ID로 결제 조회")
-    class FindByFundingId {
+    @DisplayName("ID로 결제 조회")
+    class FindById {
 
         @Test
-        @DisplayName("펀딩 ID에 대한 결제가 존재하면 Optional<Payment>를 반환한다.")
-        void findByFundingId_whenExists_returnPayment() {
+        @DisplayName("결제 ID에 대한 결제가 존재하면 결제를 반환한다.")
+        void findById_whenExists_returnPayment() {
             /* given */
             Payment payment = createPayment();
             entityManager.persist(payment);
             entityManager.flush();
 
             /* when */
-            Optional<Payment> foundPayment = paymentRepository.findByFundingId(FUNDING_ID);
+            Optional<Payment> foundPayment = paymentRepository.findById(payment.getId());
 
             /* then */
             assertThat(foundPayment).isPresent();
         }
 
         @Test
-        @DisplayName("펀딩 ID에 대한 결제가 존재하지 않으면 빈 Optional을 반환한다.")
-        void findByFundingId_whenNotExists_returnEmptyOptional() {
+        @DisplayName("결제 ID에 대한 결제가 존재하지 않으면 빈 Optional을 반환한다.")
+        void findById_whenNotExists_returnEmptyOptional() {
             /* given */
             /* when */
-            Optional<Payment> foundPayment = paymentRepository.findByFundingId(FUNDING_ID);
+            Optional<Payment> foundPayment = paymentRepository.findById(PAYMENT_UUID);
 
             /* then */
             assertThat(foundPayment).isNotPresent();

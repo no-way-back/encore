@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -44,7 +46,7 @@ public class PaymentService {
 
     @Transactional
     public PaymentResult refundPayment(RefundPaymentCommand command) {
-        Payment payment = getPaymentByFundingId(command.fundingId());
+        Payment payment = getPaymentById(command.paymentId());
 
         PgRefundResult pgResponse = paymentGatewayClient.refundPayment(
                 payment.getPgInfo().getPgPaymentKey(),
@@ -57,8 +59,8 @@ public class PaymentService {
         return PaymentResult.from(payment);
     }
 
-    private Payment getPaymentByFundingId(FundingId fundingId) {
-        return paymentRepository.findByFundingId(fundingId)
+    private Payment getPaymentById(UUID paymentId) {
+        return paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
     }
 }

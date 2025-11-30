@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     }
 
     @Override
-    public Optional<Payment> findByFundingId(FundingId fundingId) {
-        return paymentJpaRepository.findByFundingId(fundingId);
+    public Optional<Payment> findById(UUID paymentId) {
+        return paymentJpaRepository.findById(paymentId);
     }
 }

@@ -48,7 +48,7 @@ public class PaymentController {
             @Valid @RequestBody RefundPaymentRequest request
     ) {
         RefundPaymentCommand command = RefundPaymentCommand.of(
-                request.fundingId(),
+                request.paymentId(),
                 request.reason(),
                 request.refundAccountBank(),
                 request.refundAccountNumber(),

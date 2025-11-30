@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.nowayback.payment.fixture.PaymentFixture.*;
 import static org.assertj.core.api.Assertions.*;
@@ -64,7 +65,7 @@ class PaymentServiceTest {
         @DisplayName("유효한 정보로 결제 환불을 하면 결제 환불이 요청되고 결제 정보가 수정된다.")
         void refund_whenValid_thenRefundPayment() {
             /* given */
-            when(paymentRepository.findByFundingId(any()))
+            when(paymentRepository.findById(any(UUID.class)))
                     .thenReturn(Optional.of(createPaymentWithStatus(PaymentStatus.COMPLETED)));
             when(paymentGatewayClient.refundPayment(anyString(), anyString(), any(RefundAccountInfo.class)))
                     .thenReturn(PG_REFUND_RESULT);

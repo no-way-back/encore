@@ -1,18 +1,17 @@
 package com.nowayback.payment.application.payment.dto.command;
 
-import com.nowayback.payment.domain.payment.vo.FundingId;
 import com.nowayback.payment.domain.payment.vo.RefundAccountInfo;
 
 import java.util.UUID;
 
 public record RefundPaymentCommand (
-        FundingId fundingId,
+        UUID paymentId,
         String cancelReason,
         RefundAccountInfo refundAccountInfo
 ) {
 
     public static RefundPaymentCommand of(
-            UUID fundingId,
+            UUID paymentId,
             String cancelReason,
             String refundAccountBank,
             String refundAccountNumber,
@@ -29,7 +28,7 @@ public record RefundPaymentCommand (
         }
 
         return new RefundPaymentCommand(
-                FundingId.of(fundingId),
+                paymentId,
                 cancelReason,
                 info
         );

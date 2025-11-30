@@ -97,6 +97,33 @@ class RewardsTest {
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.NEGATIVE_STOCK_QUANTITY);
             }
+
+            @Test
+            @DisplayName("배송비가 음수일 때 예외 발생")
+            void negativeShippingFee() {
+                // given
+                CreateRewardCommand command = createCommandWithShippingPolicy(-1000, 30000);
+
+                // when & then
+                assertThatThrownBy(() -> Rewards.create(command))
+                        .isInstanceOf(RewardException.class)
+                        .extracting("errorCode")
+                        .isEqualTo(RewardErrorCode.NEGATIVE_SHIPPING_FEE);
+            }
+
+            @Test
+            @DisplayName("옵션 추가 가격이 음수일 때 예외 발생")
+            void negativeOptionAdditionalPrice() {
+                // given
+                Rewards reward = Rewards.create(createCommand());
+                CreateRewardOptionCommand optionCommand = createOptionCommand("S", -500, 20, 1);
+
+                // when & then
+                assertThatThrownBy(() -> reward.addOption(optionCommand))
+                        .isInstanceOf(RewardException.class)
+                        .extracting("errorCode")
+                        .isEqualTo(RewardErrorCode.NEGATIVE_MONEY_AMOUNT);
+            }
         }
     }
 

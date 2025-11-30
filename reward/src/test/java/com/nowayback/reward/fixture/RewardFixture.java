@@ -102,6 +102,23 @@ public class RewardFixture {
         );
     }
 
+    public static CreateRewardCommand createCommandWithShippingPolicy(
+            Integer shippingFee, Integer freeShippingAmount) {
+        return new CreateRewardCommand(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "배송 정책 테스트 리워드",
+                "테스트 설명",
+                25000,
+                100,
+                shippingFee,
+                freeShippingAmount,
+                5,
+                RewardType.GENERAL,
+                null
+        );
+    }
+
     public static RewardOptionCreateCommand createOptionRequest(
             String name, Integer additionalPrice, Integer stock, Integer displayOrder) {
         return new RewardOptionCreateCommand(

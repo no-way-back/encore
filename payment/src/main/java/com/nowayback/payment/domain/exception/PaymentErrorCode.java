@@ -58,6 +58,12 @@ public enum PaymentErrorCode {
      * Payment Application Error Codes
      */
     PAYMENT_NOT_FOUND("PAYMENT2001", "결제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    /**
+     * Payment Infrastructure Error Codes
+     */
+    PG_CONFIRMATION_FAILED("PAYMENT3001", "PG 결제 승인에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+    PG_REFUND_FAILED("PAYMENT3002", "PG 결제 환불에 실패했습니다.", HttpStatus.BAD_GATEWAY),
     ;
 
     private final String code;

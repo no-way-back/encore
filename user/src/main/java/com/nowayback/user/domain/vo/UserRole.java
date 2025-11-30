@@ -1,13 +1,13 @@
 package com.nowayback.user.domain.vo;
 
-import com.nowayback.user.domain.exception.UserDomainErrorCode;
-import com.nowayback.user.domain.exception.UserDomainException;
+import com.nowayback.user.domain.exception.UserErrorCode;
+import com.nowayback.user.domain.exception.UserException;
 
 public enum UserRole {
     MASTER {
         @Override
         public UserStatus getInitialStatus() {
-            throw new UserDomainException(UserDomainErrorCode.INVALID_USER_ROLE_FOR_CREATION);
+            throw new UserException(UserErrorCode.INVALID_USER_ROLE_FOR_CREATION);
         }
 
         @Override

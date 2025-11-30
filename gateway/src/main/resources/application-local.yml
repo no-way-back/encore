@@ -1,7 +1,78 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpserver:
+            wiretap: true
+          httpclient:
+            wiretap: true
+          forwarded:
+            enabled: true
+
+          default-filters:
+            - PreserveHostHeader
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/users/**,/auth/**
+
+            - id: project-service
+              uri: lb://project-service
+              predicates:
+                - Path=/projects/**
+
+            - id: funding-service
+              uri: lb://funding-service
+              predicates:
+                - Path=/fundings/**
+
+            - id: reward-service
+              uri: lb://reward-service
+              predicates:
+                - Path=/rewards/**
+
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/payments/**
+
+          globalcors:
+            corsConfigurations:
+              '[/**]':
+                allowed-origins:
+                  - "http://localhost:3000"
+                allowed-methods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowed-headers: "*"
+                exposed-headers: "*"
+                allowCredentials: true
+                max-age: 3600
+
+  management:
+    endpoints:
+      web:
+        base-path: /actuator
+    endpoint:
+      health:
+        show-details: always
+
+
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
 
 jwt:
   secret: ${JWT_SECRET:yH2Nf5Q9bV4mE1uU2Z+8HsWlQq7R3pOjfL5xB0kDcZ8=}

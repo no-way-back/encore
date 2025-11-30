@@ -15,9 +15,6 @@ public record ConfirmPaymentRequest (
         @NotBlank(message = "PG 결제 키는 필수 값입니다.")
         String pgPaymentKey,
 
-        @NotBlank(message = "PG 트랜잭션 ID는 필수 값입니다.")
-        String pgTransactionId,
-
         @NotBlank(message = "PG 주문 번호는 필수 값입니다.")
         String pgOrderId,
 

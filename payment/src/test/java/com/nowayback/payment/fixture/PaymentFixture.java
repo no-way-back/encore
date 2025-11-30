@@ -31,9 +31,8 @@ public class PaymentFixture {
 
     public static final String PG_METHOD = "CARD";
     public static final String PG_PAYMENT_KEY = "pg_payment_key_123";
-    public static final String PG_TRANSACTION_ID = "pg_transaction_id_123";
     public static final String PG_ORDER_ID = "pg_order_id_123";
-    public static final PgInfo PG_INFO = PgInfo.of(PG_METHOD, PG_PAYMENT_KEY, PG_TRANSACTION_ID, PG_ORDER_ID);
+    public static final PgInfo PG_INFO = PgInfo.of(PG_METHOD, PG_PAYMENT_KEY, PG_ORDER_ID);
 
     public static final String REFUND_ACCOUNT_BANK = "KAKAOBANK";
     public static final String REFUND_ACCOUNT_NUMBER = "123-456-7890";
@@ -67,7 +66,6 @@ public class PaymentFixture {
             AMOUNT_VALUE,
             PG_METHOD,
             PG_PAYMENT_KEY,
-            PG_TRANSACTION_ID,
             PG_ORDER_ID
     );
 
@@ -92,14 +90,12 @@ public class PaymentFixture {
             AMOUNT_VALUE,
             PG_METHOD,
             PG_PAYMENT_KEY,
-            PG_TRANSACTION_ID,
             PG_ORDER_ID
     );
 
     public static final ConfirmPaymentRequest INVALID_CONFIRM_PAYMENT_REQUEST = new ConfirmPaymentRequest(
             null,
             null,
-            "",
             "",
             "",
             ""

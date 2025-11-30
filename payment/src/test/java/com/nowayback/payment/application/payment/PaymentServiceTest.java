@@ -6,6 +6,7 @@ import com.nowayback.payment.domain.payment.repository.PaymentRepository;
 import com.nowayback.payment.domain.payment.vo.Money;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.PgInfo;
+import com.nowayback.payment.domain.payment.vo.RefundAccountInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -65,7 +66,7 @@ class PaymentServiceTest {
             /* given */
             when(paymentRepository.findByFundingId(any()))
                     .thenReturn(Optional.of(createPaymentWithStatus(PaymentStatus.COMPLETED)));
-            when(paymentGatewayClient.refundPayment(anyString(), any(Money.class), any()))
+            when(paymentGatewayClient.refundPayment(anyString(), anyString(), any(RefundAccountInfo.class)))
                     .thenReturn(PG_REFUND_RESULT);
 
             /* when */
@@ -74,7 +75,7 @@ class PaymentServiceTest {
             /* then */
             assertThat(result.status()).isEqualTo(PaymentStatus.REFUNDED);
 
-            verify(paymentGatewayClient, times(1)).refundPayment(anyString(), any(Money.class), any());
+            verify(paymentGatewayClient, times(1)).refundPayment(anyString(), anyString(), any(RefundAccountInfo.class));
         }
     }
 }

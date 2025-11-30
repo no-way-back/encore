@@ -42,7 +42,6 @@ public class Payment extends BaseEntity {
     @AttributeOverrides({
             @AttributeOverride(name = "pgMethod", column = @Column(name = "pg_method", updatable = false, nullable = false, length = 20)),
             @AttributeOverride(name = "pgPaymentKey", column = @Column(name = "pg_payment_key", updatable = false, nullable = false, length = 100)),
-            @AttributeOverride(name = "pgTransactionId", column = @Column(name = "pg_transaction_id", updatable = false, nullable = false, length = 100)),
             @AttributeOverride(name = "pgOrderId", column = @Column(name = "pg_order_id", updatable = false, nullable = false, length = 255))
     })
     private PgInfo pgInfo;

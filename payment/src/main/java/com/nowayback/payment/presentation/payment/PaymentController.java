@@ -33,7 +33,6 @@ public class PaymentController {
                 request.amount(),
                 request.pgMethod(),
                 request.pgPaymentKey(),
-                request.pgTransactionId(),
                 request.pgOrderId()
         );
 

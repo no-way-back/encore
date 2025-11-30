@@ -19,7 +19,6 @@ public record ConfirmPaymentCommand (
             UUID fundingId,
             Long amount,
             String pgMethod,
-            String pgPaymentKey,
             String pgTransactionId,
             String pgOrderId
     ) {
@@ -27,7 +26,7 @@ public record ConfirmPaymentCommand (
                 UserId.of(userId),
                 FundingId.of(fundingId),
                 Money.of(amount),
-                PgInfo.of(pgMethod, pgPaymentKey, pgTransactionId, pgOrderId)
+                PgInfo.of(pgMethod, pgTransactionId, pgOrderId)
         );
     }
 }

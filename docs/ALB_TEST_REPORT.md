@@ -16,7 +16,8 @@
             <img width="835" height="351" alt="image" src="https://github.com/user-attachments/assets/b64c2d82-c8ea-455f-95b3-ba5a9dddc77a" />
             
         - `/fundings`
-            <img width="718" height="639" alt="image" src="https://github.com/user-attachments/assets/4ae9dcfc-25dd-4c58-97e7-d6529c45f7f2" />
+          
+          <img width="718" height="639" alt="image" src="https://github.com/user-attachments/assets/4ae9dcfc-25dd-4c58-97e7-d6529c45f7f2" />
 
             
     - ALB Target Groups Healthy 상태 확인

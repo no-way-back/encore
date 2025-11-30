@@ -26,7 +26,9 @@ public enum FundingErrorCode implements ErrorCode {
 	PROJECT_FUNDING_PERIOD_ENDED("FD-APP-008", "펀딩 기간이 종료되었습니다.", HttpStatus.CONFLICT),
 	INVALID_FUNDING_AMOUNT("FD-APP-009", "요청된 펀딩 금액이 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
 	REWARD_NOT_FOUND("FD-APP-010", "존재하지 않는 리워드입니다.", HttpStatus.NOT_FOUND),
-
+	FUNDING_NOT_FOUND("FD-APP-011", "존재하지 않는 후원 내역입니다.", HttpStatus.NOT_FOUND),
+	UNAUTHORIZED_CANCEL("FD-APP-012", "본인의 후원 내역만 취소할 수 있습니다.", HttpStatus.FORBIDDEN),
+	ALREADY_CANCELLED("FD-APP-013", "이미 취소된 후원입니다.", HttpStatus.CONFLICT),
 
 	// ================= Infrastructure / External Errors =================
 	REWARD_SERVICE_UNAVAILABLE("FD-INF-001", "티켓 서비스에 연결할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE),
@@ -36,6 +38,7 @@ public enum FundingErrorCode implements ErrorCode {
 	PAYMENT_SERVICE_UNAVAILABLE("FD-INF-101", "결제 서비스에 연결할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE),
 	PAYMENT_BAD_REQUEST("FD-INF-102", "결제 요청이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
 	PAYMENT_FAILED("FD-INF-103", "결제 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	REFUND_FAILED("FD-INF-104", "환불 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 	EXTERNAL_SERVICE_TIMEOUT("FD-INF-900", "외부 서비스 응답 시간이 초과되었습니다.", HttpStatus.GATEWAY_TIMEOUT),
 	EXTERNAL_SERVICE_ERROR("FD-INF-901", "외부 서비스에서 오류가 발생했습니다.", HttpStatus.BAD_GATEWAY);

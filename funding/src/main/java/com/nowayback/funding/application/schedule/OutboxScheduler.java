@@ -67,9 +67,9 @@ public class OutboxScheduler {
 
 	private String getTopicName(String eventType) {
 		return switch (eventType) {
-			case "REWARD_CANCELLATION_REQUESTED" -> REWARD_CANCELLATION;
-			case "FUNDING_COMPLETED" -> FUNDING_COMPLETED;
+			case "FUNDING_FAILED" -> FUNDING_FAILED;
 			case "FUNDING_CANCELLED" -> FUNDING_CANCELLED;
+			case "FUNDING_COMPLETED" -> FUNDING_COMPLETED;
 			default -> "funding-events";
 		};
 	}

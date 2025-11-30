@@ -1,9 +1,13 @@
 package com.nowayback.funding.domain.service;
 
+import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
-import com.nowayback.funding.application.funding.dto.result.FundingResult;
+import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
+import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 
 public interface FundingService {
 
-	FundingResult createFunding(CreateFundingCommand command);
+	CreateFundingResult createFunding(CreateFundingCommand command);
+
+	CancelFundingResult cancelFunding(CancelFundingCommand command);
 }

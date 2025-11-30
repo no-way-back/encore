@@ -5,16 +5,22 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
-import com.nowayback.funding.application.funding.dto.result.FundingResult;
+import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
+import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 import com.nowayback.funding.domain.service.FundingService;
+import com.nowayback.funding.presentation.Funding.dto.request.CancelFundingRequest;
 import com.nowayback.funding.presentation.Funding.dto.request.CreateFundingRequest;
+import com.nowayback.funding.presentation.Funding.dto.response.CancelFundingResponse;
 import com.nowayback.funding.presentation.Funding.dto.response.CreateFundingResponse;
 
 @RestController
@@ -37,10 +43,25 @@ public class FundingController {
 
 		CreateFundingCommand command = request.toCommand(userId, finalIdempotencyKey);
 
-		FundingResult result = fundingService.createFunding(command);
+		CreateFundingResult result = fundingService.createFunding(command);
 
 		CreateFundingResponse response = CreateFundingResponse.from(result);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+
+	@DeleteMapping("/{fundingId}")
+	public ResponseEntity<CancelFundingResponse> cancelFunding(
+		@PathVariable UUID fundingId,
+		@RequestHeader(value = "X-User-Id") UUID userId,
+		@Validated @RequestBody CancelFundingRequest request
+	) {
+		CancelFundingCommand command = request.toCommand(fundingId, userId);
+
+		CancelFundingResult result = fundingService.cancelFunding(command);
+
+		CancelFundingResponse response = CancelFundingResponse.from(result);
+
+		return ResponseEntity.ok(response);
 	}
 }

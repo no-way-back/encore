@@ -10,7 +10,7 @@ public final class KafkaTopics {
 	public static final String PROJECT_CREATED = "project-created";
 
 	// Producer Topics (외부로 발행)
-	public static final String REWARD_CANCELLATION = "reward-cancellation";
-	public static final String FUNDING_COMPLETED = "funding-completed";
+	public static final String FUNDING_FAILED = "funding-failed";
 	public static final String FUNDING_CANCELLED = "funding-cancelled";
+	public static final String FUNDING_COMPLETED = "funding-completed";
 }

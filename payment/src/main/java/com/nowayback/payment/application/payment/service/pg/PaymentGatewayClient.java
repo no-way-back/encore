@@ -9,5 +9,5 @@ import com.nowayback.payment.domain.payment.vo.RefundAccountInfo;
 public interface PaymentGatewayClient {
 
     PgConfirmResult confirmPayment(PgInfo pgInfo, Money amount);
-    PgRefundResult refundPayment(String cancelReason, Money cancelAmount, RefundAccountInfo refundAccountInfo);
+    PgRefundResult refundPayment(String paymentKey, String cancelReason, RefundAccountInfo refundAccountInfo);
 }

@@ -47,8 +47,8 @@ public class PaymentService {
         Payment payment = getPaymentByFundingId(command.fundingId());
 
         PgRefundResult pgResponse = paymentGatewayClient.refundPayment(
+                payment.getPgInfo().getPgPaymentKey(),
                 command.cancelReason(),
-                payment.getAmount(),
                 command.refundAccountInfo()
         );
 

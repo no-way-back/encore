@@ -1,4 +1,4 @@
-package com.nowayback.funding.infrastructure.funding;
+package com.nowayback.funding.infrastructure.outbox;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
-import com.nowayback.funding.domain.funding.entity.Outbox;
-import com.nowayback.funding.domain.funding.entity.OutboxStatus;
-import com.nowayback.funding.domain.funding.repository.OutboxRepository;
+import com.nowayback.funding.domain.outbox.entity.Outbox;
+import com.nowayback.funding.domain.outbox.entity.OutboxStatus;
+import com.nowayback.funding.domain.outbox.repository.OutboxRepository;
 
 import lombok.RequiredArgsConstructor;
 

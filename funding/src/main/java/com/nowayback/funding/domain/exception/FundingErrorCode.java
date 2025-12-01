@@ -22,7 +22,7 @@ public enum FundingErrorCode implements ErrorCode {
 	OUTBOX_EVENT_NOT_FOUND("FD-OUT-001", "해당 Outbox 이벤트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	PROJECT_NOT_FOUND("FD-APP-005", "존재하지 않는 프로젝트입니다.", HttpStatus.NOT_FOUND),
 	DUPLICATE_FUNDING("FD-APP-006", "이미 해당 프로젝트에 후원하셨습니다.", HttpStatus.CONFLICT),
-	PROJECT_NOT_ONGOING("FD-APP-007", "현재 후원할 수 없는 프로젝트입니다.", HttpStatus.CONFLICT),
+	PROJECT_NOT_PROCESSING("FD-APP-007", "현재 후원할 수 없는 프로젝트입니다.", HttpStatus.CONFLICT),
 	PROJECT_FUNDING_PERIOD_ENDED("FD-APP-008", "펀딩 기간이 종료되었습니다.", HttpStatus.CONFLICT),
 	INVALID_FUNDING_AMOUNT("FD-APP-009", "요청된 펀딩 금액이 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
 	REWARD_NOT_FOUND("FD-APP-010", "존재하지 않는 리워드입니다.", HttpStatus.NOT_FOUND),

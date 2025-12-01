@@ -7,7 +7,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nowayback.funding.domain.service.ProjectEventHandler;
+import com.nowayback.funding.domain.eventHandler.ProjectEventHandler;
 import com.nowayback.funding.infrastructure.messaging.kafka.dto.ProjectCreatedEvent;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +30,7 @@ public class ProjectEventConsumer {
 
 			projectEventPort.handleProjectCreated(
 				event.projectId(),
+				event.creatorId(),
 				event.targetAmount(),
 				event.startDate(),
 				event.endDate()

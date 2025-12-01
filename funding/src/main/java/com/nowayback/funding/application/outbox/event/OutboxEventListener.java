@@ -1,4 +1,4 @@
-package com.nowayback.funding.application.funding.event;
+package com.nowayback.funding.application.outbox.event;
 
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 import static com.nowayback.funding.infrastructure.config.KafkaTopics.*;
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.nowayback.funding.domain.funding.event.OutboxEventCreated;
-import com.nowayback.funding.domain.service.OutboxService;
+import com.nowayback.funding.domain.event.OutboxEventCreated;
+import com.nowayback.funding.application.outbox.service.OutboxService;
 import com.nowayback.funding.domain.exception.FundingException;
-import com.nowayback.funding.domain.funding.entity.Outbox;
-import com.nowayback.funding.domain.funding.repository.OutboxRepository;
+import com.nowayback.funding.domain.outbox.entity.Outbox;
+import com.nowayback.funding.domain.outbox.repository.OutboxRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.nowayback.funding.application.schedule;
+package com.nowayback.funding.infrastructure.schedule;
 
 import static com.nowayback.funding.infrastructure.config.KafkaTopics.*;
 
@@ -10,9 +10,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nowayback.funding.domain.service.OutboxService;
-import com.nowayback.funding.domain.funding.entity.Outbox;
-import com.nowayback.funding.domain.funding.repository.OutboxRepository;
+import com.nowayback.funding.application.outbox.service.OutboxService;
+import com.nowayback.funding.domain.outbox.entity.Outbox;
+import com.nowayback.funding.domain.outbox.repository.OutboxRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

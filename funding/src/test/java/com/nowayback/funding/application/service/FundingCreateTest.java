@@ -20,7 +20,6 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import com.nowayback.funding.application.client.payment.PaymentClient;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessPaymentResponse;
-import com.nowayback.funding.application.client.project.ProjectClient;
 import com.nowayback.funding.application.client.reward.RewardClient;
 import com.nowayback.funding.application.client.reward.dto.response.DecreaseRewardResponse;
 import com.nowayback.funding.application.client.reward.dto.response.RewardDetailResponse;
@@ -31,8 +30,8 @@ import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
-import com.nowayback.funding.domain.funding.repository.OutboxRepository;
-import com.nowayback.funding.domain.fundingProjectStatistics.sevice.FundingProjectStatisticsService;
+import com.nowayback.funding.domain.outbox.repository.OutboxRepository;
+import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FundingService 테스트")
@@ -52,9 +51,6 @@ class FundingCreateTest {
 
 	@Mock
 	private PaymentClient paymentClient;
-
-	@Mock
-	private ProjectClient projectClient;
 
 	@Mock
 	private OutboxRepository outboxRepository;

@@ -34,6 +34,9 @@ public class FundingProjectStatistics extends BaseEntity {
 	@Column(name = "project_id", nullable = false, unique = true)
 	private UUID projectId;
 
+	@Column(name = "creator_id", nullable = false)
+	private UUID creatorId;
+
 	@Column(name = "target_amount", nullable = false)
 	private Long targetAmount;
 
@@ -53,22 +56,16 @@ public class FundingProjectStatistics extends BaseEntity {
 	@Column(name = "status", nullable = false, length = 30)
 	private FundingProjectStatus status;
 
-	public void increaseFunding(Long amount) {
-		if (amount == null || amount <= 0) {
-			throw new FundingException(INVALID_AMOUNT);
-		}
-		this.currentAmount += amount;
-		this.participantCount += 1;
-	}
-
 	public static FundingProjectStatistics create(
 		UUID projectId,
+		UUID creatorId,
 		Long targetAmount,
 		LocalDateTime startDate,
 		LocalDateTime endDate
 	) {
 		FundingProjectStatistics statistics = new FundingProjectStatistics();
 		statistics.projectId = projectId;
+		statistics.creatorId = creatorId;
 		statistics.targetAmount = targetAmount;
 		statistics.currentAmount = 0L;
 		statistics.participantCount = 0;
@@ -84,9 +81,14 @@ public class FundingProjectStatistics extends BaseEntity {
 			: FundingProjectStatus.PROCESSING;
 	}
 
-	/**
-	 * 후원 취소 시 금액과 참여자 수 감소
-	 */
+	public void increaseFunding(Long amount) {
+		if (amount == null || amount <= 0) {
+			throw new FundingException(INVALID_AMOUNT);
+		}
+		this.currentAmount += amount;
+		this.participantCount += 1;
+	}
+
 	public void decreaseFunding(Long amount) {
 		if (amount == null || amount <= 0) {
 			throw new FundingException(INVALID_AMOUNT);
@@ -110,5 +112,53 @@ public class FundingProjectStatistics extends BaseEntity {
 			return 0.0;
 		}
 		return (double) this.currentAmount / this.targetAmount * 100;
+	}
+
+	public void validateProjectStatusForCanFund() {
+		if (this.status != FundingProjectStatus.PROCESSING) {
+			throw new FundingException(PROJECT_NOT_PROCESSING);
+		}
+		if (LocalDateTime.now().isAfter(this.endDate)) {
+			throw new FundingException(PROJECT_FUNDING_PERIOD_ENDED);
+		}
+	}
+
+	public void startProject() {
+		if (this.status != FundingProjectStatus.SCHEDULED) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.PROCESSING;
+	}
+
+	public void markAsSuccess() {
+		if (this.status != FundingProjectStatus.SETTLEMENT_IN_PROGRESS) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.SUCCESS;
+	}
+
+	public void markAsRefundInProgress() {
+		if (this.status != FundingProjectStatus.PROCESSING) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.REFUND_IN_PROGRESS;
+	}
+
+	public void markAsSettlementInProgress() {
+		if (this.status != FundingProjectStatus.PROCESSING) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.SETTLEMENT_IN_PROGRESS;
+	}
+
+	public void markAsFailed() {
+		if (this.status != FundingProjectStatus.REFUND_IN_PROGRESS) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.FAILED;
+	}
+
+	public boolean isCreator(UUID userId) {
+		return this.creatorId.equals(userId);
 	}
 }

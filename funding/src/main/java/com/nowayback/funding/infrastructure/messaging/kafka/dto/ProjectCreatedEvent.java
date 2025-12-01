@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProjectCreatedEvent(
 	UUID projectId,
+	UUID creatorId,
 	Long targetAmount,
 	LocalDateTime startDate,
 	LocalDateTime endDate

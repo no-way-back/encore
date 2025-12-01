@@ -48,8 +48,3 @@ feign:
         url: ${PAYMENT_SERVICE_URL:http://localhost:18084}
         connectTimeout: 3000
         readTimeout: 10000
-
-      project-service:
-        url: ${PROJECT_SERVICE_URL:http://localhost:18085}
-        connectTimeout: 3000
-        readTimeout: 5000

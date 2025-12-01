@@ -1,5 +1,6 @@
 package com.nowayback.payment.fixture;
 
+import com.nowayback.payment.application.settlement.dto.result.SettlementResult;
 import com.nowayback.payment.application.settlement.service.project.dto.ProjectAccountResult;
 import com.nowayback.payment.domain.settlement.entity.Settlement;
 import com.nowayback.payment.domain.settlement.vo.AccountInfo;
@@ -35,6 +36,8 @@ public class SettlementFixture {
 
     public static final SettlementFeePolicy FEE_POLICY = new SettlementFeePolicy();
 
+    /* Settlement Entity */
+
     public static Settlement createSettlement() {
         return Settlement.create(PROJECT_ID, TOTAL_AMOUNT, ACCOUNT_INFO, FEE_POLICY);
     }
@@ -44,6 +47,10 @@ public class SettlementFixture {
         setPrivateField(settlement, "status", status);
         return settlement;
     }
+
+    /* Settlement Result */
+
+    public static final SettlementResult SETTLEMENT_RESULT_COMPLETED = SettlementResult.from(createSettlementWithStatus(SettlementStatus.COMPLETED));
 
     /**
      * External Client Fixture

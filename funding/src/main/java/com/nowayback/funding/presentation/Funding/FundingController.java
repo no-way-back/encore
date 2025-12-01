@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,13 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
+import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
+import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
 import com.nowayback.funding.application.funding.service.FundingService;
 import com.nowayback.funding.presentation.Funding.dto.request.CancelFundingRequest;
 import com.nowayback.funding.presentation.Funding.dto.request.CreateFundingRequest;
+import com.nowayback.funding.presentation.Funding.dto.request.GetMyFundingsRequest;
 import com.nowayback.funding.presentation.Funding.dto.response.CancelFundingResponse;
 import com.nowayback.funding.presentation.Funding.dto.response.CreateFundingResponse;
+import com.nowayback.funding.presentation.Funding.dto.response.GetMyFundingsResponse;
 
 @RestController
 @RequestMapping("/fundings")
@@ -61,6 +67,20 @@ public class FundingController {
 		CancelFundingResult result = fundingService.cancelFunding(command);
 
 		CancelFundingResponse response = CancelFundingResponse.from(result);
+
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/my")
+	public ResponseEntity<GetMyFundingsResponse> getMyFundings(
+		@RequestHeader(value = "X-User-Id") UUID userId,
+		@Validated @ModelAttribute GetMyFundingsRequest request
+	) {
+		GetMyFundingsCommand command = request.toCommand(userId);
+
+		GetMyFundingsResult result = fundingService.getMyFundings(command);
+
+		GetMyFundingsResponse response = GetMyFundingsResponse.from(result);
 
 		return ResponseEntity.ok(response);
 	}

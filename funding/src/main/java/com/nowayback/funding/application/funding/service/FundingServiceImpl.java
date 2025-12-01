@@ -2,12 +2,17 @@ package com.nowayback.funding.application.funding.service;
 
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +28,10 @@ import com.nowayback.funding.application.client.payment.dto.response.ProcessPaym
 import com.nowayback.funding.application.client.reward.dto.response.RewardDetailResponse;
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
+import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
+import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
 import com.nowayback.funding.domain.event.OutboxEventCreated;
 import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
 import com.nowayback.funding.domain.exception.FundingException;
@@ -211,6 +218,58 @@ public class FundingServiceImpl implements FundingService {
 			log.error("후원 취소 중 예상치 못한 오류 - fundingId: {}", command.fundingId(), e);
 			throw new FundingException(REFUND_FAILED);
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public GetMyFundingsResult getMyFundings(GetMyFundingsCommand command) {
+		log.info("내 후원 내역 조회 - userId: {}, status: {}, period: {}, sortBy: {}",
+			command.userId(), command.status(), command.period(), command.sortBy());
+
+		LocalDateTime startDate = calculateStartDate(command.period());
+
+		Pageable pageable = createPageable(command);
+
+		Page<Funding> fundingPage = fundingRepository.findMyFundings(
+			command.userId(),
+			command.status(),
+			startDate,
+			pageable
+		);
+
+		log.info("내 후원 내역 조회 완료 - totalElements: {}", fundingPage.getTotalElements());
+
+		return GetMyFundingsResult.of(
+			fundingPage.getContent(),
+			fundingPage.getTotalElements(),
+			command.page(),
+			command.size()
+		);
+	}
+
+	private LocalDateTime calculateStartDate(GetMyFundingsCommand.FundingPeriod period) {
+		if (period == null || period == GetMyFundingsCommand.FundingPeriod.ALL) {
+			return null;
+		}
+
+		LocalDateTime now = LocalDateTime.now();
+
+		return switch (period) {
+			case ONE_MONTH -> now.minusMonths(1);
+			case THREE_MONTHS -> now.minusMonths(3);
+			case ONE_YEAR -> now.minusYears(1);
+			case ALL -> null;
+		};
+	}
+
+	private Pageable createPageable(GetMyFundingsCommand command) {
+		Sort sort = switch (command.sortBy()) {
+			case LATEST -> Sort.by(Sort.Direction.DESC, "createdAt");
+			case AMOUNT_DESC -> Sort.by(Sort.Direction.DESC, "amount");
+			case AMOUNT_ASC -> Sort.by(Sort.Direction.ASC, "amount");
+		};
+
+		return PageRequest.of(command.page(), command.size(), sort);
 	}
 
 	private void handleFundingFailure(Funding funding, UUID reservationId, String errorMessage) {

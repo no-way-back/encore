@@ -19,7 +19,6 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import com.nowayback.funding.application.client.payment.PaymentClient;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
-import com.nowayback.funding.application.client.project.ProjectClient;
 import com.nowayback.funding.application.client.reward.RewardClient;
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
@@ -49,9 +48,6 @@ class FundingCancelTest {
 
 	@Mock
 	private PaymentClient paymentClient;
-
-	@Mock
-	private ProjectClient projectClient;
 
 	@Mock
 	private OutboxRepository outboxRepository;

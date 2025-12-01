@@ -20,7 +20,6 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import com.nowayback.funding.application.client.payment.PaymentClient;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessPaymentResponse;
-import com.nowayback.funding.application.client.project.ProjectClient;
 import com.nowayback.funding.application.client.reward.RewardClient;
 import com.nowayback.funding.application.client.reward.dto.response.DecreaseRewardResponse;
 import com.nowayback.funding.application.client.reward.dto.response.RewardDetailResponse;
@@ -52,9 +51,6 @@ class FundingCreateTest {
 
 	@Mock
 	private PaymentClient paymentClient;
-
-	@Mock
-	private ProjectClient projectClient;
 
 	@Mock
 	private OutboxRepository outboxRepository;

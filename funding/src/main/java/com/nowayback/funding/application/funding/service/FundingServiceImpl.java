@@ -15,7 +15,6 @@ import com.nowayback.funding.application.client.payment.PaymentClient;
 import com.nowayback.funding.application.client.payment.dto.request.ProcessPaymentRequest;
 import com.nowayback.funding.application.client.payment.dto.request.ProcessRefundRequest;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
-import com.nowayback.funding.application.client.project.ProjectClient;
 import com.nowayback.funding.application.client.reward.RewardClient;
 import com.nowayback.funding.application.client.reward.dto.request.DecreaseRewardRequest;
 import com.nowayback.funding.application.client.reward.dto.request.RewardDetailsRequest;
@@ -47,7 +46,6 @@ public class FundingServiceImpl implements FundingService {
 	private final FundingProjectStatisticsService fundingProjectStatisticsService;
 	private final RewardClient rewardClient;
 	private final PaymentClient paymentClient;
-	private final ProjectClient projectClient;
 	private final OutboxRepository outboxRepository;
 	private final ApplicationEventPublisher eventPublisher;
 

@@ -26,7 +26,7 @@ import com.nowayback.funding.application.funding.dto.command.CancelFundingComman
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
-import com.nowayback.funding.domain.funding.event.OutboxEventCreated;
+import com.nowayback.funding.domain.event.OutboxEventCreated;
 import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Funding;
@@ -134,6 +134,8 @@ public class FundingServiceImpl implements FundingService {
 
 			fundingProjectStatisticsService.increaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
 
+			// TODO: 펀딩 성공 이벤트 발행 -> 리워드 서비스에서 QR 생성 목적
+
 			return CreateFundingResult.success(funding.getId());
 		} catch (FundingException e) {
 			log.error("외부 서비스 호출 실패 - funding: {}, error: {}", funding.getId(), e.getMessage(), e);
@@ -184,37 +186,32 @@ public class FundingServiceImpl implements FundingService {
 			fundingRepository.save(funding);
 			log.info("펀딩 상태 변경 완료 - fundingId: {}, status: CANCELLED", funding.getId());
 
-			handleFundingCancellation(funding);
+			if (funding.hasReservation()) {
+				Outbox event = Outbox.createOutbox(
+					"FUNDING",
+					funding.getId(),
+					"FUNDING_CANCELLED",
+					Map.of(
+						"reservationId", funding.getReservationId(),
+						"fundingId", funding.getId(),
+						"projectId", funding.getProjectId(),
+						"userId", funding.getUserId()
+					)
+				);
+
+				Outbox savedOutbox = outboxRepository.save(event);
+				eventPublisher.publishEvent(new OutboxEventCreated(savedOutbox.getId()));
+			}
 
 			fundingProjectStatisticsService.decreaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
 
 			return CancelFundingResult.success(funding.getId());
-
 		} catch (FundingException e) {
 			log.error("후원 취소 실패 - fundingId: {}, error: {}", command.fundingId(), e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
 			log.error("후원 취소 중 예상치 못한 오류 - fundingId: {}", command.fundingId(), e);
 			throw new FundingException(REFUND_FAILED);
-		}
-	}
-
-	private void handleFundingCancellation(Funding funding) {
-		if (funding.hasReservation()) {
-			Outbox event = Outbox.createOutbox(
-				"FUNDING",
-				funding.getId(),
-				"FUNDING_CANCELLED",
-				Map.of(
-					"reservationId", funding.getReservationId(),
-					"fundingId", funding.getId(),
-					"projectId", funding.getProjectId(),
-					"userId", funding.getUserId()
-				)
-			);
-
-			Outbox savedOutbox = outboxRepository.save(event);
-			eventPublisher.publishEvent(new OutboxEventCreated(savedOutbox.getId()));
 		}
 	}
 

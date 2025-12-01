@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.nowayback.funding.domain.funding.event.OutboxEventCreated;
+import com.nowayback.funding.domain.event.OutboxEventCreated;
 import com.nowayback.funding.application.outbox.service.OutboxService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.outbox.entity.Outbox;

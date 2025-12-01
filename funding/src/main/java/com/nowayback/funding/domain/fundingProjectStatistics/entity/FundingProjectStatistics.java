@@ -111,10 +111,45 @@ public class FundingProjectStatistics extends BaseEntity {
 
 	public void validateProjectStatusForCanFund() {
 		if (this.status != FundingProjectStatus.PROCESSING) {
-			throw new FundingException(PROJECT_NOT_ONGOING);
+			throw new FundingException(PROJECT_NOT_PROCESSING);
 		}
 		if (LocalDateTime.now().isAfter(this.endDate)) {
 			throw new FundingException(PROJECT_FUNDING_PERIOD_ENDED);
 		}
+	}
+
+	public void startProject() {
+		if (this.status != FundingProjectStatus.SCHEDULED) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.PROCESSING;
+	}
+
+	public void markAsSuccess() {
+		if (this.status != FundingProjectStatus.SETTLEMENT_IN_PROGRESS) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.SUCCESS;
+	}
+
+	public void markAsRefundInProgress() {
+		if (this.status != FundingProjectStatus.PROCESSING) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.REFUND_IN_PROGRESS;
+	}
+
+	public void markAsSettlementInProgress() {
+		if (this.status != FundingProjectStatus.PROCESSING) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.SETTLEMENT_IN_PROGRESS;
+	}
+
+	public void markAsFailed() {
+		if (this.status != FundingProjectStatus.REFUND_IN_PROGRESS) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+		this.status = FundingProjectStatus.FAILED;
 	}
 }

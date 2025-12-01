@@ -11,4 +11,8 @@ public interface FundingProjectStatisticsService {
 	void decreaseFundingStatusRate(UUID projectId, Long amount);
 
 	FundingProjectStatisticsResult getFundingProjectStatistics(UUID projectId);
+
+	void startScheduledProjects();
+
+	void closeProcessingProjects();
 }

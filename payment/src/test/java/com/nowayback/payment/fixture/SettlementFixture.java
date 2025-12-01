@@ -1,5 +1,6 @@
 package com.nowayback.payment.fixture;
 
+import com.nowayback.payment.application.settlement.service.project.dto.ProjectAccountResult;
 import com.nowayback.payment.domain.settlement.entity.Settlement;
 import com.nowayback.payment.domain.settlement.vo.AccountInfo;
 import com.nowayback.payment.domain.settlement.vo.Money;
@@ -43,6 +44,17 @@ public class SettlementFixture {
         setPrivateField(settlement, "status", status);
         return settlement;
     }
+
+    /**
+     * External Client Fixture
+     */
+
+    /* Project Client */
+    public static ProjectAccountResult PROJECT_ACCOUNT_RESULT =
+            new ProjectAccountResult(PROJECT_UUID, ACCOUNT_BANK, ACCOUNT_NUMBER, ACCOUNT_HOLDER_NAME);
+
+    /* Open Banking Client */
+    public static String TRANSACTION_ID = "TXN1234567890";
 
     private static void setPrivateField(Object target, String fieldName, Object value) {
         try {

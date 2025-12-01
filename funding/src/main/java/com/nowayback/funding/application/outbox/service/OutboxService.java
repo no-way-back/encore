@@ -1,4 +1,4 @@
-package com.nowayback.funding.domain.service;
+package com.nowayback.funding.application.outbox.service;
 
 import java.util.UUID;
 

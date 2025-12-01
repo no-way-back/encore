@@ -1,4 +1,4 @@
-package com.nowayback.funding.domain.service;
+package com.nowayback.funding.application.funding.service;
 
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;

@@ -27,14 +27,13 @@ import com.nowayback.funding.application.funding.dto.command.CreateFundingComman
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 import com.nowayback.funding.domain.funding.event.OutboxEventCreated;
-import com.nowayback.funding.domain.fundingProjectStatistics.sevice.FundingProjectStatisticsService;
+import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
-import com.nowayback.funding.domain.funding.entity.Outbox;
+import com.nowayback.funding.domain.outbox.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
-import com.nowayback.funding.domain.funding.repository.OutboxRepository;
-import com.nowayback.funding.domain.service.FundingService;
+import com.nowayback.funding.domain.outbox.repository.OutboxRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

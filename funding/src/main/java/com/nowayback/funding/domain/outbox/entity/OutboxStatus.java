@@ -1,4 +1,4 @@
-package com.nowayback.funding.domain.funding.entity;
+package com.nowayback.funding.domain.outbox.entity;
 
 public enum OutboxStatus {
 	PENDING,     // 발행 대기

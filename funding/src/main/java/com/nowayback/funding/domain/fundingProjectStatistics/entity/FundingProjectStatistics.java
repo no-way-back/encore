@@ -53,14 +53,6 @@ public class FundingProjectStatistics extends BaseEntity {
 	@Column(name = "status", nullable = false, length = 30)
 	private FundingProjectStatus status;
 
-	public void increaseFunding(Long amount) {
-		if (amount == null || amount <= 0) {
-			throw new FundingException(INVALID_AMOUNT);
-		}
-		this.currentAmount += amount;
-		this.participantCount += 1;
-	}
-
 	public static FundingProjectStatistics create(
 		UUID projectId,
 		Long targetAmount,
@@ -84,9 +76,14 @@ public class FundingProjectStatistics extends BaseEntity {
 			: FundingProjectStatus.PROCESSING;
 	}
 
-	/**
-	 * 후원 취소 시 금액과 참여자 수 감소
-	 */
+	public void increaseFunding(Long amount) {
+		if (amount == null || amount <= 0) {
+			throw new FundingException(INVALID_AMOUNT);
+		}
+		this.currentAmount += amount;
+		this.participantCount += 1;
+	}
+
 	public void decreaseFunding(Long amount) {
 		if (amount == null || amount <= 0) {
 			throw new FundingException(INVALID_AMOUNT);
@@ -110,5 +107,14 @@ public class FundingProjectStatistics extends BaseEntity {
 			return 0.0;
 		}
 		return (double) this.currentAmount / this.targetAmount * 100;
+	}
+
+	public void validateProjectStatusForCanFund() {
+		if (this.status != FundingProjectStatus.PROCESSING) {
+			throw new FundingException(PROJECT_NOT_ONGOING);
+		}
+		if (LocalDateTime.now().isAfter(this.endDate)) {
+			throw new FundingException(PROJECT_FUNDING_PERIOD_ENDED);
+		}
 	}
 }

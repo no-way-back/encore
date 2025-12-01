@@ -1,4 +1,4 @@
-package com.nowayback.funding.domain.funding.entity;
+package com.nowayback.funding.domain.outbox.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.nowayback.funding.domain.service;
+package com.nowayback.funding.domain.eventHandler;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ProjectEventHandlerImpl implements com.nowayback.funding.domain.service.ProjectEventHandler {
+public class ProjectEventHandlerImpl implements com.nowayback.funding.domain.eventHandler.ProjectEventHandler {
 
 	private final FundingProjectStatisticsRepository fundingProjectStatisticsRepository;
 

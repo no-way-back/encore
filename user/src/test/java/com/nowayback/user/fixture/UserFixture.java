@@ -9,8 +9,7 @@ import com.nowayback.user.application.dto.result.UserResult;
 import com.nowayback.user.domain.entity.User;
 import com.nowayback.user.domain.vo.UserRole;
 import com.nowayback.user.domain.vo.UserStatus;
-import com.nowayback.user.presentation.dto.request.LoginUserRequest;
-import com.nowayback.user.presentation.dto.request.SignupUserRequest;
+import com.nowayback.user.presentation.dto.request.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -160,6 +159,31 @@ public class UserFixture {
 
     public static final LoginUserRequest INVALID_LOGIN_USER_REQUEST = new LoginUserRequest(
             "",
+            ""
+    );
+
+    public static final SearchUserRequest VALID_SEARCH_USER_REQUEST = new SearchUserRequest(
+            KEYWORD,
+            SEARCH_FIELDS,
+            null,
+            null
+    );
+
+    public static final UpdateUserEmailRequest VALID_UPDATE_USER_EMAIL_REQUEST = new UpdateUserEmailRequest(
+            MODIFIED_EMAIL
+    );
+
+    public static final UpdateUserEmailRequest INVALID_UPDATE_USER_EMAIL_REQUEST = new UpdateUserEmailRequest(
+            "invalid-email"
+    );
+
+    public static final UpdateUserInfoRequest VALID_UPDATE_USER_INFO_REQUEST = new UpdateUserInfoRequest(
+            USER_UUID,
+            MODIFIED_NICKNAME
+    );
+
+    public static final UpdateUserInfoRequest INVALID_UPDATE_USER_INFO_REQUEST = new UpdateUserInfoRequest(
+            USER_UUID,
             ""
     );
 

@@ -65,6 +65,15 @@ public class User extends BaseEntity {
     }
 
     /* Business Methods */
+
+    public void updateEmail(String newEmail) {
+        this.email = newEmail;
+    }
+
+    public void updateInfo(String newNickname) {
+        this.nickname = newNickname;
+    }
+
     public void changeStatus(UserStatus newStatus) {
         if (!this.status.canTransitionTo(newStatus)) {
             throw new UserException(UserErrorCode.INVALID_USER_STATUS_TRANSITION);

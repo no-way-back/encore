@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface SettlementRepository {
     Settlement save(Settlement settlement);
     Optional<Settlement> findByProjectId(ProjectId projectId);
+    boolean existsByProjectId(ProjectId projectId);
 }

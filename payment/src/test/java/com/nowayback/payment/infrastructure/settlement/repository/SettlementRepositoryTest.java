@@ -85,4 +85,34 @@ class SettlementRepositoryTest {
             assertThat(foundSettlement).isNotPresent();
         }
     }
+
+    @Nested
+    @DisplayName("프로젝트 ID로 정산 존재 여부 확인")
+    class ExistsByProjectId {
+
+        @Test
+        @DisplayName("프로젝트 ID에 대한 정산이 존재하면 true를 반환한다.")
+        void existsByProjectId_whenExists_returnTrue() {
+            /* given */
+            Settlement settlement = createSettlement();
+            entityManager.persistAndFlush(settlement);
+
+            /* when */
+            boolean exists = settlementRepository.existsByProjectId(PROJECT_ID);
+
+            /* then */
+            assertThat(exists).isTrue();
+        }
+
+        @Test
+        @DisplayName("프로젝트 ID에 대한 정산이 존재하지 않으면 false를 반환한다.")
+        void existsByProjectId_whenNotExists_returnFalse() {
+            /* given */
+            /* when */
+            boolean exists = settlementRepository.existsByProjectId(PROJECT_ID);
+
+            /* then */
+            assertThat(exists).isFalse();
+        }
+    }
 }

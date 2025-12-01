@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface SettlementJpaRepository extends JpaRepository<Settlement, UUID> {
     Optional<Settlement> findByProjectId(ProjectId projectId);
+    boolean existsByProjectId(ProjectId projectId);
 }

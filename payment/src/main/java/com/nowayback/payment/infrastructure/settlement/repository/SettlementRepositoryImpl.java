@@ -23,4 +23,9 @@ public class SettlementRepositoryImpl implements SettlementRepository {
     public Optional<Settlement> findByProjectId(ProjectId projectId) {
         return jpaRepository.findByProjectId(projectId);
     }
+
+    @Override
+    public boolean existsByProjectId(ProjectId projectId) {
+        return jpaRepository.existsByProjectId(projectId);
+    }
 }

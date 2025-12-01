@@ -1,4 +1,4 @@
-package com.nowayback.reward.domain.reward.handler.command;
+package com.nowayback.reward.application.reward.command;
 
 import com.nowayback.reward.domain.reward.vo.RewardType;
 

@@ -1,6 +1,6 @@
 package com.nowayback.reward.infrastructure.kafka.dto.project.data;
 
-import com.nowayback.reward.domain.reward.handler.command.RewardOptionCreateCommand;
+import com.nowayback.reward.application.reward.command.RewardOptionCreateCommand;
 
 public record RewardOptionCreateData(
         String name,

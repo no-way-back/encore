@@ -3,7 +3,7 @@ package com.nowayback.reward.application.reward;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.entity.Rewards;
-import com.nowayback.reward.domain.reward.handler.command.RewardCreateCommand;
+import com.nowayback.reward.application.reward.command.RewardCreateCommand;
 import com.nowayback.reward.domain.reward.repository.RewardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.nowayback.reward.infrastructure.kafka.dto.project.data;
 
-import com.nowayback.reward.domain.reward.handler.command.RewardCreateCommand;
-import com.nowayback.reward.domain.reward.handler.command.RewardOptionCreateCommand;
+import com.nowayback.reward.application.reward.command.RewardCreateCommand;
+import com.nowayback.reward.application.reward.command.RewardOptionCreateCommand;
 import com.nowayback.reward.domain.reward.vo.RewardType;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public record RewardCreateData(
             return List.of();
         }
         return optionList.stream()
-                .map(RewardOptionCreateData::toCommand) // 각 옵션 DTO의 toCommand 사용
+                .map(RewardOptionCreateData::toCommand)
                 .toList();
     }
 

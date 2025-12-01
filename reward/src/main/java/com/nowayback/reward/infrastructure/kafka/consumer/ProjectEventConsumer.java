@@ -1,7 +1,8 @@
 package com.nowayback.reward.infrastructure.kafka.consumer;
 
+import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.domain.reward.handler.ProjectEventHandler;
-import com.nowayback.reward.domain.reward.handler.command.RewardCreateCommand;
+import com.nowayback.reward.application.reward.command.RewardCreateCommand;
 import com.nowayback.reward.infrastructure.kafka.dto.project.data.RewardCreateData;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProjectEventConsumer {
 
-    private final ProjectEventHandler projectEventHandler;
+    private final RewardService rewardService;
 
     @KafkaListener(
             topics = "${spring.kafka.topic.project-events}",
@@ -29,9 +30,9 @@ public class ProjectEventConsumer {
             Acknowledgment acknowledgment
     ) {
         log.info("이벤트 수신 - ID: {}, 타입: {}, 프로젝트: {}",
-                event.eventId(),
-                event.eventType(),
-                event.payload().projectId());
+            event.eventId(),
+            event.eventType(),
+            event.payload().projectId());
 
         if (!"PROJECT_CREATED".equals(event.eventType())) {
             log.warn("처리 불가능한 이벤트 타입: {}", event.eventType());
@@ -43,7 +44,7 @@ public class ProjectEventConsumer {
                 event.payload().rewards()
         );
 
-        projectEventHandler.handle(
+        rewardService.createRewardsForProject(
                 event.payload().projectId(),
                 event.payload().creatorId(),
                 rewardCommands

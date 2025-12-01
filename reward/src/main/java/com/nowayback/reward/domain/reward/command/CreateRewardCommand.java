@@ -1,6 +1,6 @@
 package com.nowayback.reward.domain.reward.command;
 
-import com.nowayback.reward.domain.reward.handler.command.RewardCreateCommand;
+import com.nowayback.reward.application.reward.command.RewardCreateCommand;
 import com.nowayback.reward.domain.reward.vo.RewardType;
 
 import java.util.List;

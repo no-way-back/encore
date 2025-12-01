@@ -1,11 +1,11 @@
 package com.nowayback.project.application.projectdraft;
 
 import com.nowayback.project.application.outbox.event.OutboxEventPublisher;
-import com.nowayback.project.application.outbox.event.payload.ProjectCreatedEventPayload;
 import com.nowayback.project.application.project.ProjectService;
 import com.nowayback.project.application.project.command.CreateProjectCommand;
 import com.nowayback.project.application.projectdraft.command.SaveFundingDraftCommand;
 import com.nowayback.project.application.projectdraft.command.SaveRewardDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveRewardDraftCommand.RewardDraftCommand;
 import com.nowayback.project.application.projectdraft.command.SaveSettlementDraftCommand;
 import com.nowayback.project.application.projectdraft.command.SaveStoryDraftCommand;
 import com.nowayback.project.application.projectdraft.dto.ProjectDraftResult;
@@ -15,8 +15,6 @@ import com.nowayback.project.application.projectdraft.dto.ProjectSettlementDraft
 import com.nowayback.project.application.projectdraft.dto.ProjectStoryDraftResult;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
-import com.nowayback.project.domain.outbox.vo.AggregateType;
-import com.nowayback.project.domain.outbox.vo.EventType;
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectFundingDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectRewardDraft;
@@ -184,7 +182,7 @@ public class ProjectDraftService {
 
         projectDraft.submit();
 
-        projectService.createProject(
+        UUID projectId = projectService.createProject(
             CreateProjectCommand.of(
                 projectDraft.getUserId(),
                 projectDraft.getStoryDraft().getTitle(),
@@ -198,12 +196,15 @@ public class ProjectDraftService {
             )
         );
 
+        // TODO: 이벤트처리시 주석 삭제
+        /*
         outboxEventPublisher.publish(
-            EventType.PROJECT_DRAFT_SUBMITTED,
-            ProjectCreatedEventPayload.of(projectDraft.getId()),
+            EventType.REWARD_CREATE_REQUESTED,
+            RewardCreateRequestEventPayload.from(projectId, projectDraft.getRewardDrafts()),
             AggregateType.PROJECT_DRAFT,
             projectDraft.getId()
         );
+         */
     }
 
     private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {
@@ -211,15 +212,19 @@ public class ProjectDraftService {
             .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_DRAFT_NOT_FOUND));
     }
 
-    private ProjectRewardDraft toRewardDraft(SaveRewardDraftCommand.RewardDraftCommand spec) {
+    private ProjectRewardDraft toRewardDraft(RewardDraftCommand rewardDraftCommand) {
         ProjectRewardDraft draft = ProjectRewardDraft.create();
 
         draft.update(
-            spec.title(),
-            new RewardPrice(spec.price(), spec.shippingFee(), spec.freeShippingAmount()),
-            spec.limitCount(),
-            spec.purchaseLimitPerPerson(),
-            spec.rewardOptionCommands().stream()
+            rewardDraftCommand.title(),
+            new RewardPrice(
+                rewardDraftCommand.price(),
+                rewardDraftCommand.shippingFee(),
+                rewardDraftCommand.freeShippingAmount()
+            ),
+            rewardDraftCommand.limitCount(),
+            rewardDraftCommand.purchaseLimitPerPerson(),
+            rewardDraftCommand.rewardOptionCommands().stream()
                 .map(o -> new RewardOptionSpec(
                     o.additionalPrice(),
                     o.stockQuantity(),

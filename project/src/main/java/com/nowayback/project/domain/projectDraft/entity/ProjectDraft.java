@@ -75,6 +75,7 @@ public class ProjectDraft extends BaseEntity {
         return storyDraft != null && storyDraft.isCompleted()
             && fundingDraft != null && fundingDraft.isCompleted()
             && settlementDraft != null && settlementDraft.isCompleted()
+            && !rewardDrafts.isEmpty()
             && rewardDrafts.stream().allMatch(ProjectRewardDraft::isCompleted);
     }
 

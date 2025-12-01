@@ -11,10 +11,12 @@ import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
 import com.nowayback.payment.domain.payment.vo.FundingId;
+import com.nowayback.payment.domain.payment.vo.ProjectId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -58,6 +60,10 @@ public class PaymentService {
         payment.refund(command.refundAccountInfo());
 
         return PaymentResult.from(payment);
+    }
+
+    public Long getTotalAmountByProjectId(UUID projectId) {
+        return paymentRepository.sumAmountByProjectId(ProjectId.of(projectId));
     }
 
     private Payment getPaymentById(UUID paymentId) {

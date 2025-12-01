@@ -24,6 +24,12 @@ public enum UserErrorCode {
     INVALID_CREDENTIALS("USER2004", "아이디 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
     USER_STATUS_PENDING("USER2005", "가입 승인 대기 중인 사용자입니다.", HttpStatus.FORBIDDEN),
     USER_STATUS_SUSPENDED("USER2006", "정지된 사용자입니다.", HttpStatus.FORBIDDEN),
+
+    /**
+     * Presentation Errors
+     */
+    UNAUTHORIZED("USER3001", "인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
+    FORBIDDEN("USER3002", "권한이 없는 사용자입니다.", HttpStatus.FORBIDDEN),
     ;
 
     private final String code;

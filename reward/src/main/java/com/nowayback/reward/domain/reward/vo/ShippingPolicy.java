@@ -1,9 +1,12 @@
-package com.nowayback.reward.domain.vo;
+package com.nowayback.reward.domain.reward.vo;
 
+import com.nowayback.reward.domain.exception.RewardException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 
 @Embeddable
 @Getter
@@ -25,17 +28,13 @@ public class ShippingPolicy {
 
     private void validateShippingPolicy(Integer shippingFee, Integer freeShippingAmount) {
         if (shippingFee == null) {
-            throw new IllegalArgumentException("배송비를 입력해주세요.");
+            throw new RewardException(INVALID_SHIPPING_FEE);
         }
         if (shippingFee < 0) {
-            throw new IllegalArgumentException(
-                    String.format("배송비는 0원 이상이어야 합니다. (입력값: %d원)", shippingFee)
-            );
+            throw new RewardException(NEGATIVE_SHIPPING_FEE);
         }
         if (freeShippingAmount != null && freeShippingAmount < 0) {
-            throw new IllegalArgumentException(
-                    String.format("무료배송 기준금액은 0원 이상이어야 합니다. (입력값: %d원)", freeShippingAmount)
-            );
+            throw new RewardException(NEGATIVE_FREE_SHIPPING_AMOUNT);
         }
     }
 }

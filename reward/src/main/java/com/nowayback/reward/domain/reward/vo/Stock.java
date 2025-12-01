@@ -1,9 +1,12 @@
-package com.nowayback.reward.domain.vo;
+package com.nowayback.reward.domain.reward.vo;
 
+import com.nowayback.reward.domain.exception.RewardException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 
 @Embeddable
 @Getter
@@ -11,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class Stock {
 
     private Integer quantity;
+    private static final int MINIMUM_QUANTITY = 1;
 
     private Stock(Integer quantity) {
         validateQuantity(quantity);
@@ -23,20 +27,19 @@ public class Stock {
 
     private void validateQuantity(Integer quantity) {
         if (quantity == null) {
-            throw new IllegalArgumentException("재고 수량을 입력해주세요.");
+            throw new RewardException(INVALID_STOCK_QUANTITY);
         }
         if (quantity < 0) {
-            throw new IllegalArgumentException(
-                    String.format("재고 수량은 0 이상이어야 합니다. (입력값: %d)", quantity)
-            );
+            throw new RewardException(NEGATIVE_STOCK_QUANTITY);
+        }
+        if (quantity < MINIMUM_QUANTITY) {
+            throw new RewardException(STOCK_BELOW_MINIMUM);
         }
     }
 
     public Stock decrease(Integer amount) {
         if (this.quantity < amount) {
-            throw new IllegalStateException(
-                    String.format("재고가 부족합니다. (현재 재고: %d, 요청 수량: %d)", this.quantity, amount)
-            );
+            throw new RewardException(INSUFFICIENT_STOCK);
         }
         return new Stock(this.quantity - amount);
     }

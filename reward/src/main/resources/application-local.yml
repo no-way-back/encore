@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/reward_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/encore_db
+    username: user
+    password: 1234
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,11 +18,11 @@ spring:
     open-in-view: false
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:29092
     consumer:
-      group-id: reward-service-group-local
-    producer:
-      acks: all
+      group-id: reward-service-group-test
+    topic:
+      project-events: project-events
 
 logging:
   level:

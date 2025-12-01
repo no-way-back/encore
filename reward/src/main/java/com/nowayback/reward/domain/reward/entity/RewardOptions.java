@@ -1,7 +1,8 @@
-package com.nowayback.reward.domain.entity;
+package com.nowayback.reward.domain.reward.entity;
 
+import com.nowayback.reward.domain.reward.vo.Money;
+import com.nowayback.reward.domain.reward.vo.Stock;
 import com.nowayback.reward.domain.shared.BaseEntity;
-import com.nowayback.reward.domain.vo.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,4 +40,16 @@ public class RewardOptions extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reward_id", nullable = false)
     private Rewards reward;
+
+    /**
+     * 리워드 옵션 생성자
+     */
+    RewardOptions(String name, Money additionalPrice, Stock stock, Boolean isRequired, Integer displayOrder, Rewards reward) {
+        this.name = name;
+        this.additionalPrice = additionalPrice;
+        this.stock = stock;
+        this.isRequired = isRequired;
+        this.displayOrder = displayOrder;
+        this.reward = reward;
+    }
 }

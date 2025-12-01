@@ -1,4 +1,4 @@
-package com.nowayback.reward.domain.vo;
+package com.nowayback.reward.domain.stockreservation.vo;
 
 import lombok.Getter;
 

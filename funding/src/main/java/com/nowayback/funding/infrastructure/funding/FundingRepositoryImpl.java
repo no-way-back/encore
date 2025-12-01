@@ -45,4 +45,14 @@ public class FundingRepositoryImpl implements FundingRepository {
 	public Page<Funding> findMyFundings(UUID userId, FundingStatus status, LocalDateTime startDate, Pageable pageable) {
 		return fundingJpaRepository.findMyFundings(userId, status, startDate, pageable);
 	}
+
+	@Override
+	public Page<Funding> findProjectSponsors(UUID projectId, FundingStatus status, Pageable pageable) {
+		return fundingJpaRepository.findProjectSponsors(projectId, status, pageable);
+	}
+
+	@Override
+	public Long sumAmountByProjectIdAndStatus(UUID projectId, FundingStatus status) {
+		return fundingJpaRepository.sumAmountByProjectIdAndStatus(projectId, status);
+	}
 }

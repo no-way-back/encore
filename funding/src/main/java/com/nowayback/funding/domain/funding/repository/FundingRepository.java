@@ -21,4 +21,8 @@ public interface FundingRepository {
 	boolean existsByUserIdAndProjectIdAndStatus(UUID userId, UUID projectId, FundingStatus status);
 
 	Page<Funding> findMyFundings(UUID userId, FundingStatus status, LocalDateTime startDate, Pageable pageable);
+
+	Page<Funding> findProjectSponsors(UUID projectId, FundingStatus status, Pageable pageable);
+
+	Long sumAmountByProjectIdAndStatus(UUID projectId, FundingStatus status);
 }

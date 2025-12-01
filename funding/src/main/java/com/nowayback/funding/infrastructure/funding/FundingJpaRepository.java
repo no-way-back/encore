@@ -29,4 +29,22 @@ public interface FundingJpaRepository extends JpaRepository<Funding, UUID> {
 		@Param("startDate") LocalDateTime startDate,
 		Pageable pageable
 	);
+
+	@Query("SELECT f FROM Funding f " +
+		"WHERE f.projectId = :projectId " +
+		"AND f.status = :status " +
+		"ORDER BY f.createdAt DESC")
+	Page<Funding> findProjectSponsors(
+		@Param("projectId") UUID projectId,
+		@Param("status") FundingStatus status,
+		Pageable pageable
+	);
+
+	@Query("SELECT COALESCE(SUM(f.amount), 0) FROM Funding f " +
+		"WHERE f.projectId = :projectId " +
+		"AND f.status = :status")
+	Long sumAmountByProjectIdAndStatus(
+		@Param("projectId") UUID projectId,
+		@Param("status") FundingStatus status
+	);
 }

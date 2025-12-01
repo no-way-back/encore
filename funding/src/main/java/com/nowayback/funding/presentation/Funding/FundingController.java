@@ -18,16 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
+import com.nowayback.funding.application.funding.dto.command.GetProjectSponsorsCommand;
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
+import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
 import com.nowayback.funding.application.funding.service.FundingService;
 import com.nowayback.funding.presentation.Funding.dto.request.CancelFundingRequest;
 import com.nowayback.funding.presentation.Funding.dto.request.CreateFundingRequest;
 import com.nowayback.funding.presentation.Funding.dto.request.GetMyFundingsRequest;
+import com.nowayback.funding.presentation.Funding.dto.request.GetProjectSponsorsRequest;
 import com.nowayback.funding.presentation.Funding.dto.response.CancelFundingResponse;
 import com.nowayback.funding.presentation.Funding.dto.response.CreateFundingResponse;
 import com.nowayback.funding.presentation.Funding.dto.response.GetMyFundingsResponse;
+import com.nowayback.funding.presentation.Funding.dto.response.GetProjectSponsorsResponse;
 
 @RestController
 @RequestMapping("/fundings")
@@ -81,6 +85,21 @@ public class FundingController {
 		GetMyFundingsResult result = fundingService.getMyFundings(command);
 
 		GetMyFundingsResponse response = GetMyFundingsResponse.from(result);
+
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/projects/{projectId}")
+	public ResponseEntity<GetProjectSponsorsResponse> getProjectSponsors(
+		@PathVariable UUID projectId,
+		@RequestHeader(value = "X-User-Id") UUID creatorId,
+		@Validated @ModelAttribute GetProjectSponsorsRequest request
+	) {
+		GetProjectSponsorsCommand command = request.toCommand(projectId, creatorId);
+
+		GetProjectSponsorsResult result = fundingService.getProjectSponsors(command);
+
+		GetProjectSponsorsResponse response = GetProjectSponsorsResponse.from(result);
 
 		return ResponseEntity.ok(response);
 	}

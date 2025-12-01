@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:funding/src/main/java/com/nowayback/funding/infrastructure/outbox/OutboxRepositoryImpl.java
 package com.nowayback.funding.infrastructure.outbox;
-========
-package com.nowayback.funding.infrastructure.funding;
->>>>>>>> e4871a16310cb3e5a6c4e0786d8db206ced153ba:funding/src/main/java/com/nowayback/funding/infrastructure/funding/OutboxRepositoryImpl.java
 
 import java.util.List;
 import java.util.Optional;

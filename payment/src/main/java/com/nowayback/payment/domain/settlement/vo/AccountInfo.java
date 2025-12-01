@@ -1,8 +1,7 @@
 package com.nowayback.payment.domain.settlement.vo;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
-import com.nowayback.payment.domain.payment.entity.Payment;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -38,19 +37,19 @@ public class AccountInfo {
 
     private static void validateAccountBank(String accountBank) {
         if (accountBank == null || accountBank.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_ACCOUNT_BANK_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_ACCOUNT_BANK_VALUE);
         }
     }
 
     private static void validateAccountNumber(String accountNumber) {
         if (accountNumber == null || accountNumber.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_ACCOUNT_NUMBER_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_ACCOUNT_NUMBER_VALUE);
         }
     }
 
     private static void validateAccountHolderName(String accountHolderName) {
         if (accountHolderName == null || accountHolderName.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_ACCOUNT_HOLDER_NAME_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_ACCOUNT_HOLDER_NAME_VALUE);
         }
     }
 }

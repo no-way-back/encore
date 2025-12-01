@@ -1,0 +1,40 @@
+package com.nowayback.payment.application.payment.dto.result;
+
+import com.nowayback.payment.domain.payment.entity.Payment;
+import com.nowayback.payment.domain.payment.vo.PaymentStatus;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record PaymentResult (
+        UUID paymentId,
+        UUID userId,
+        UUID fundingId,
+        Long amount,
+        PaymentStatus status,
+        String pgMethod,
+        String pgPaymentKey,
+        String pgOrderId,
+        String refundAccountBank,
+        String refundAccountNumber,
+        String refundAccountHolderName,
+        LocalDateTime approvedAt
+) {
+
+    public static PaymentResult from(Payment payment) {
+        return new PaymentResult(
+                payment.getId(),
+                payment.getUserId().getId(),
+                payment.getFundingId().getId(),
+                payment.getAmount().getAmount(),
+                payment.getStatus(),
+                payment.getPgInfo().getPgMethod(),
+                payment.getPgInfo().getPgPaymentKey(),
+                payment.getPgInfo().getPgOrderId(),
+                payment.getRefundAccountInfo() != null ? payment.getRefundAccountInfo().getRefundAccountBank() : null,
+                payment.getRefundAccountInfo() != null ? payment.getRefundAccountInfo().getRefundAccountNumber() : null,
+                payment.getRefundAccountInfo() != null ? payment.getRefundAccountInfo().getRefundAccountHolderName() : null,
+                payment.getApprovedAt()
+        );
+    }
+}

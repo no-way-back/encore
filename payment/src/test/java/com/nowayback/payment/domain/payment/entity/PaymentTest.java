@@ -1,13 +1,15 @@
 package com.nowayback.payment.domain.payment.entity;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 import static com.nowayback.payment.fixture.PaymentFixture.*;
@@ -42,8 +44,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Payment.create(null, FUNDING_ID, AMOUNT, PG_INFO))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_USER_ID_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_USER_ID_OBJECT.getMessage());
         }
 
         @Test
@@ -53,8 +55,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Payment.create(USER_ID, null, AMOUNT, PG_INFO))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_FUNDING_ID_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_FUNDING_ID_OBJECT.getMessage());
         }
 
         @Test
@@ -64,8 +66,8 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, null, PG_INFO))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_PAYMENT_MONEY_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_PAYMENT_MONEY_OBJECT.getMessage());
         }
 
         @Test
@@ -75,95 +77,76 @@ class PaymentTest {
             /* when */
             /* then */
             assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, AMOUNT, null))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_PG_INFO_OBJECT.getMessage());
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_PG_INFO_OBJECT.getMessage());
         }
     }
 
     @Nested
-    @DisplayName("결제 상태 변경")
-    class ChangeStatus {
+    @DisplayName("결제 승인")
+    class Complete {
 
         @Test
-        @DisplayName("null 결제 상태로 변경 시 예외가 발생한다.")
-        void changeStatus_givenNullStatus_thenThrow() {
+        @DisplayName("상태가 PENDING인 결제를 승인하면 상태가 COMPLETED로 변경되고 승인 시간이 설정된다.")
+        void complete_givenPendingPayment_thenStatusChangedToCompletedAndApprovedAtSet() {
             /* given */
             Payment payment = createPayment();
+            LocalDateTime now = LocalDateTime.now();
 
             /* when */
+            payment.complete(now);
+
             /* then */
-            assertThatThrownBy(() -> payment.changeStatus(null))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_PAYMENT_STATUS_OBJECT.getMessage());
+            assertThat(payment.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
+            assertThat(payment.getApprovedAt()).isEqualTo(now);
         }
 
-        @ParameterizedTest(name = "{0} 상태에서 {1} 상태로 변경 시도")
-        @DisplayName("유효한 상태 전이 시 결제 상태 변경에 성공한다.")
-        @CsvSource({
-                "PENDING, COMPLETED",
-                "PENDING, FAILED",
-                "COMPLETED, REFUNDED",
-        })
-        void changeStatus_givenValidTransition_thenSuccess(PaymentStatus initialStatus, PaymentStatus newStatus) {
+        @ParameterizedTest(name = "상태가 {0}인 결제를 승인 시도")
+        @DisplayName("PENDING 상태가 아닌 결제를 승인하면 예외가 발생한다.")
+        @EnumSource(value = PaymentStatus.class, names = {"COMPLETED", "REFUNDED"})
+        void complete_givenNonPendingPayment_thenThrowException(PaymentStatus status) {
             /* given */
-            Payment payment = createPaymentWithStatus(initialStatus);
-
-            /* when */
-            payment.changeStatus(newStatus);
-
-            /* then */
-            assertThat(payment.getStatus()).isEqualTo(newStatus);
-        }
-
-        @ParameterizedTest(name = "{0} 상태에서 {1} 상태로 변경 시도")
-        @DisplayName("유효하지 않은 상태 전이 시 예외가 발생한다.")
-        @CsvSource({
-                "PENDING, PENDING",
-                "PENDING, REFUNDED",
-                "COMPLETED, PENDING",
-                "FAILED, COMPLETED",
-                "REFUNDED, PENDING",
-        })
-        void changeStatus_givenInvalidTransition_thenThrowException(PaymentStatus initialStatus, PaymentStatus newStatus) {
-            /* given */
-            Payment payment = createPaymentWithStatus(initialStatus);
+            Payment payment = createPaymentWithStatus(status);
+            LocalDateTime now = LocalDateTime.now();
 
             /* when */
             /* then */
-            assertThatThrownBy(() -> payment.changeStatus(newStatus))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
+            assertThatThrownBy(() -> payment.complete(now))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
         }
     }
 
     @Nested
-    @DisplayName("환불 계좌 정보 설정")
-    class RefundAccount {
+    @DisplayName("결제 환불")
+    class Refund {
 
         @Test
-        @DisplayName("유효한 환불 계좌 정보를 설정하면 성공한다.")
-        void setRefundAccountInfo_givenValidInfo_thenSuccess() {
+        @DisplayName("상태가 COMPLETED인 결제를 환불하면 상태가 REFUNDED로 변경되고 환불 계좌 정보가 설정된다.")
+        void refund_givenCompletedPayment_thenStatusChangedToRefundedAndRefundAccountInfoSet() {
             /* given */
-            Payment payment = createPayment();
+            Payment payment = createPaymentWithStatus(PaymentStatus.COMPLETED);
 
             /* when */
-            payment.setRefundAccountInfo(REFUND_ACCOUNT_INFO);
+            payment.refund(REFUND_ACCOUNT_INFO);
 
             /* then */
+            assertThat(payment.getStatus()).isEqualTo(PaymentStatus.REFUNDED);
             assertThat(payment.getRefundAccountInfo()).isEqualTo(REFUND_ACCOUNT_INFO);
         }
 
-        @Test
-        @DisplayName("null 환불 계좌 정보 설정 시 예외가 발생한다.")
-        void setRefundAccountInfo_givenNull_thenThrow() {
+        @ParameterizedTest(name = "상태가 {0}인 결제를 환불 시도")
+        @DisplayName("COMPLETED 상태가 아닌 결제를 환불하면 예외가 발생한다.")
+        @EnumSource(value = PaymentStatus.class, names = {"PENDING", "REFUNDED"})
+        void refund_givenNonCompletedPayment_thenThrowException(PaymentStatus status) {
             /* given */
-            Payment payment = createPayment();
+            Payment payment = createPaymentWithStatus(status);
 
             /* when */
             /* then */
-            assertThatThrownBy(() -> payment.setRefundAccountInfo(null))
-                    .isInstanceOf(PaymentDomainException.class)
-                    .hasMessage(PaymentDomainErrorCode.NULL_REFUND_ACCOUNT_INFO_OBJECT.getMessage());
+            assertThatThrownBy(() -> payment.refund(REFUND_ACCOUNT_INFO))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
         }
     }
 }

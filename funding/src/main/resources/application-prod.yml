@@ -1,0 +1,50 @@
+server:
+  port: 18082
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show-sql: true
+
+logging:
+  level:
+    com.nowayback.funding: DEBUG
+    org.hibernate.SQL: DEBUG
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+feign:
+  client:
+    config:
+      reward-service:
+        url: ${REWARD_SERVICE_URL:http://localhost:18083}
+        connectTimeout: 3000
+        readTimeout: 5000
+
+      payment-service:
+        url: ${PAYMENT_SERVICE_URL:http://localhost:18084}
+        connectTimeout: 3000
+        readTimeout: 10000

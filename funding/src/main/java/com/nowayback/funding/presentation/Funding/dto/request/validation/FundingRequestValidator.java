@@ -16,7 +16,7 @@ public class FundingRequestValidator implements ConstraintValidator<ValidFunding
 		}
 
 		boolean hasRewards = request.rewardItems() != null && !request.rewardItems().isEmpty();
-		boolean hasAmount = request.amount() != null && request.amount() > 0;
+		boolean hasAmount = request.donationAmount() != null && request.donationAmount() > 0;
 
 		if (!hasRewards && !hasAmount) {
 			context.disableDefaultConstraintViolation();
@@ -27,7 +27,7 @@ public class FundingRequestValidator implements ConstraintValidator<ValidFunding
 			return false;
 		}
 
-		if (!hasRewards && request.amount() < MIN_DONATION_AMOUNT) {
+		if (!hasRewards && request.donationAmount() < MIN_DONATION_AMOUNT) {
 			context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate(
 					"순수 후원 금액은 최소 " + MIN_DONATION_AMOUNT + "원 이상이어야 합니다."
@@ -39,5 +39,4 @@ public class FundingRequestValidator implements ConstraintValidator<ValidFunding
 
 		return true;
 	}
-
 }

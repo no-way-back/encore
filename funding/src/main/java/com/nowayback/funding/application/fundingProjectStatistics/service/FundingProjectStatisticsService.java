@@ -1,8 +1,18 @@
 package com.nowayback.funding.application.fundingProjectStatistics.service;
 
-import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
+import java.util.UUID;
+
+import com.nowayback.funding.application.fundingProjectStatistics.dto.result.FundingProjectStatisticsResult;
 
 public interface FundingProjectStatisticsService {
 
-	void updateFundingStatusRate(CreateFundingCommand command);
+	void increaseFundingStatusRate(UUID projectId, Long amount);
+
+	void decreaseFundingStatusRate(UUID projectId, Long amount);
+
+	FundingProjectStatisticsResult getFundingProjectStatistics(UUID projectId);
+
+	void startScheduledProjects();
+
+	void closeProcessingProjects();
 }

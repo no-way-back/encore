@@ -20,7 +20,7 @@ public record CreateFundingRequest(
 	List<RewardItemRequest> rewardItems,
 
 	@Min(value = 1000, message = "후원 금액은 최소 1,000원 이상이어야 합니다.")
-	Long amount,
+	Long donationAmount,
 
 	@NotNull(message = "PG 결제 키는 필수입니다.")
 	String pgPaymentKey,
@@ -44,11 +44,13 @@ public record CreateFundingRequest(
 				.toList();
 		}
 
+		long safeDonationAmount = donationAmount != null ? donationAmount : 0L;
+
 		return new CreateFundingCommand(
 			projectId,
 			userId,
 			commandRewardItems,
-			amount,
+			safeDonationAmount,
 			pgPaymentKey,
 			pgOrderId,
 			pgMethod,
@@ -57,13 +59,8 @@ public record CreateFundingRequest(
 	}
 
 	public record RewardItemRequest(
-		@NotNull(message = "리워드 ID는 필수입니다.")
-		Long rewardId,
-
-		@NotNull(message = "옵션 ID는 필수입니다.")
-		Long optionId,
-
-		@NotNull(message = "수량은 필수입니다.")
+		UUID rewardId,
+		UUID optionId,
 		@Positive(message = "수량은 0보다 커야 합니다.")
 		Integer quantity
 	) {}

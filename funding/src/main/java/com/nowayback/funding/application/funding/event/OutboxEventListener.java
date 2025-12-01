@@ -1,6 +1,7 @@
 package com.nowayback.funding.application.funding.event;
 
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
+import static com.nowayback.funding.infrastructure.config.KafkaTopics.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.nowayback.funding.application.funding.event.dto.OutboxEventCreated;
-import com.nowayback.funding.application.funding.service.OutboxService;
+import com.nowayback.funding.domain.funding.event.OutboxEventCreated;
+import com.nowayback.funding.domain.service.OutboxService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.OutboxRepository;
@@ -30,21 +31,31 @@ public class OutboxEventListener {
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	@Async("outboxTaskExecutor")
-	public void handleOutboxEventCreated(OutboxEventCreated event) {
+	public void handleOutboxEvent(OutboxEventCreated event) {
 
 		Outbox outboxEvent = outboxRepository.findById(event.eventId())
 			.orElseThrow(() -> new FundingException(OUTBOX_EVENT_NOT_FOUND));
 
 		try {
-			kafkaTemplate.send("reward-cancellation", outboxEvent.getPayload())
+			String topic = getTopicName(outboxEvent.getEventType());
+
+			kafkaTemplate.send(topic, outboxEvent.getPayload())
 				.get(3, TimeUnit.SECONDS);
 
 			outboxService.markAsPublished(outboxEvent.getId());
 
-			log.info("Outbox 이벤트 발행 성공: eventId={}", event.eventId());
-
+			log.info("Outbox 이벤트 발행 성공: eventId={}, topic={}", event.eventId(), topic);
 		} catch (Exception e) {
 			log.warn("Outbox 이벤트 발행 실패 (스케줄러가 재시도): eventId={}", event.eventId(), e);
 		}
+	}
+
+	private String getTopicName(String eventType) {
+		return switch (eventType) {
+			case "FUNDING_FAILED" -> FUNDING_FAILED;
+			case "FUNDING_CANCELLED" -> FUNDING_CANCELLED;
+			case "FUNDING_COMPLETED" -> FUNDING_COMPLETED;
+			default -> "funding-events";
+		};
 	}
 }

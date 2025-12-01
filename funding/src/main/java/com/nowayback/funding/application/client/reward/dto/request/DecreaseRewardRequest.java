@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 
+import jakarta.validation.constraints.NotNull;
+
 public record DecreaseRewardRequest(
 	UUID fundingId,
 	List<RewardItem> items
@@ -22,8 +24,8 @@ public record DecreaseRewardRequest(
 	}
 
 	public record RewardItem(
-		Long rewardId,
-		Long optionId,
+		@NotNull(message = "리워드 ID는 필수입니다.") UUID rewardId,
+		@NotNull(message = "옵션 ID는 필수입니다.") UUID optionId,
 		Integer quantity
 	) {}
 }

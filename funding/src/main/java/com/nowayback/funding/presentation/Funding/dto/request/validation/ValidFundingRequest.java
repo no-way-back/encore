@@ -5,9 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.messaging.handler.annotation.Payload;
-
 import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

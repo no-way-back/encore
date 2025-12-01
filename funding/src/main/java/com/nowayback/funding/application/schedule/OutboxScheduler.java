@@ -1,5 +1,7 @@
 package com.nowayback.funding.application.schedule;
 
+import static com.nowayback.funding.infrastructure.config.KafkaTopics.*;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -8,7 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nowayback.funding.application.funding.service.OutboxService;
+import com.nowayback.funding.domain.service.OutboxService;
 import com.nowayback.funding.domain.funding.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.OutboxRepository;
 
@@ -24,9 +26,6 @@ public class OutboxScheduler {
 	private final OutboxService outboxService;
 	private final KafkaTemplate<String, String> kafkaTemplate;
 
-	/**
-	 * 5분마다 미발행 이벤트 재시도
-	 */
 	@Scheduled(fixedDelay = 300000)
 	@Transactional
 	public void retryPendingEvents() {
@@ -68,9 +67,9 @@ public class OutboxScheduler {
 
 	private String getTopicName(String eventType) {
 		return switch (eventType) {
-			case "REWARD_CANCELLATION_REQUESTED" -> "reward-cancellation";
-			case "FUNDING_COMPLETED" -> "funding-completed";
-			case "FUNDING_CANCELLED" -> "funding-cancelled";
+			case "FUNDING_FAILED" -> FUNDING_FAILED;
+			case "FUNDING_CANCELLED" -> FUNDING_CANCELLED;
+			case "FUNDING_COMPLETED" -> FUNDING_COMPLETED;
 			default -> "funding-events";
 		};
 	}

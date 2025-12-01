@@ -30,7 +30,7 @@ public class RoleCheckInterceptor implements HandlerInterceptor {
 
         String roleHeader = request.getHeader(HEADER_USER_ROLE);
         if (roleHeader == null) {
-            throw new UserException(UserErrorCode.FORBIDDEN);
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
         }
 
         String[] allowedRoles = requiredRole.value();

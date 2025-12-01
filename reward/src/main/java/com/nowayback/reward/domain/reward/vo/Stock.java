@@ -25,6 +25,17 @@ public class Stock {
         return new Stock(quantity);
     }
 
+    /**
+     * 품절 처리용 - 재고 0 생성
+     * MINIMUM_QUANTITY 검증으로 0을 허용하지 않아
+     * 품절 처리를 위한 별도 메서드 구현
+     */
+    public static Stock zero() {
+        Stock stock = new Stock();
+        stock.quantity = 0;
+        return stock;
+    }
+
     private void validateQuantity(Integer quantity) {
         if (quantity == null) {
             throw new RewardException(INVALID_STOCK_QUANTITY);

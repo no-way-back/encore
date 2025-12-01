@@ -1,5 +1,7 @@
 package com.nowayback.reward.fixture;
 
+import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
+import com.nowayback.reward.application.reward.command.UpdateRewardOptionCommand;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.command.CreateRewardOptionCommand;
 import com.nowayback.reward.application.reward.command.RewardCreateCommand;
@@ -140,5 +142,57 @@ public class RewardFixture {
         return java.util.stream.IntStream.range(0, count)
                 .mapToObj(i -> createRequest("리워드" + i, 25000, 100))
                 .toList();
+    }
+
+    public static UpdateRewardCommand createUpdateCommand(UUID rewardId) {
+        return new UpdateRewardCommand(
+                rewardId,
+                "수정된 리워드",
+                "수정된 설명",
+                30000,
+                10,
+                4000,
+                60000,
+                10,
+                RewardType.GENERAL,
+                null
+        );
+    }
+
+    public static UpdateRewardCommand createUpdateCommand(UUID rewardId, String name, Integer price, Integer stock) {
+        return new UpdateRewardCommand(
+                rewardId,
+                name,
+                null,
+                price,
+                stock,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    public static UpdateRewardOptionCommand createUpdateOptionCommand(UUID optionId) {
+        return new UpdateRewardOptionCommand(
+                optionId,
+                "수정된 옵션",
+                1000,
+                10,
+                true,
+                1
+        );
+    }
+
+    public static UpdateRewardOptionCommand createUpdateOptionCommand(UUID optionId, String name, Integer price, Integer stock) {
+        return new UpdateRewardOptionCommand(
+                optionId,
+                name,
+                price,
+                stock,
+                null,
+                null
+        );
     }
 }

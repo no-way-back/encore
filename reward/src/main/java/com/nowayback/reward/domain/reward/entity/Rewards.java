@@ -1,5 +1,7 @@
 package com.nowayback.reward.domain.reward.entity;
 
+import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
+import com.nowayback.reward.application.reward.command.UpdateRewardOptionCommand;
 import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
@@ -103,6 +105,38 @@ public class Rewards extends BaseEntity {
     }
 
     /**
+     * 리워드 수정
+     * - null 값은 기존값 유지
+     */
+    public void update(UpdateRewardCommand command) {
+        updateFields(command);
+        updateShippingPolicy(command);
+        updateOptions(command.options());
+    }
+
+    /**
+     * 옵션 수정
+     */
+    private void updateOptions(List<UpdateRewardOptionCommand> commands) {
+        if (commands == null) {
+            return;
+        }
+
+        for (UpdateRewardOptionCommand command : commands) {
+            RewardOptions option = findOption(command.optionId());
+
+            if (command.name() != null && !command.name().equals(option.getName())) {
+                validateOptionName(command.name());
+            }
+            if (command.displayOrder() != null && !command.displayOrder().equals(option.getDisplayOrder())) {
+                validateDisplayOrder(command.displayOrder());
+            }
+
+            option.update(command);
+        }
+    }
+
+    /**
      * 여러 옵션을 한 번에 추가
      * 각 옵션에 대해 도메인 규칙 검증 수행
      *
@@ -178,6 +212,82 @@ public class Rewards extends BaseEntity {
 
         if (isConflict) {
             throw new RewardException(DUPLICATE_DISPLAY_ORDER);
+        }
+    }
+
+    /**
+     * 옵션 ID로 리워드의 옵션 조회
+     */
+    private RewardOptions findOption(UUID optionId) {
+        return this.optionList.stream()
+                .filter(o -> o.getId().equals(optionId))
+                .findFirst()
+                .orElseThrow(() -> new RewardException(OPTION_NOT_FOUND));
+    }
+
+    private void updateFields(UpdateRewardCommand command) {
+        updateName(command.name());
+        updateDescription(command.description());
+        updatePrice(command.price());
+        updateStock(command.stockQuantity());
+        updatePurchaseLimit(command.purchaseLimitPerPerson());
+        updateRewardType(command.rewardType());
+    }
+
+    private void updateName(String name) {
+        if (name != null) {
+            this.name = name;
+        }
+    }
+
+    private void updateDescription(String description) {
+        if (description != null) {
+            this.description = description;
+        }
+    }
+
+    private void updatePrice(Integer price) {
+        if (price != null) {
+            if (price < MINIMUM_AMOUNT) {
+                throw new RewardException(PRICE_BELOW_MINIMUM);
+            }
+            this.price = Money.of(price);
+        }
+    }
+
+    private void updateStock(Integer stockQuantity) {
+        if (stockQuantity != null) {
+            this.stock = Stock.of(stockQuantity);
+        }
+    }
+
+    private void updatePurchaseLimit(Integer purchaseLimitPerPerson) {
+        if (purchaseLimitPerPerson != null) {
+            this.purchaseLimitPerPerson = purchaseLimitPerPerson;
+        }
+    }
+
+    private void updateRewardType(RewardType rewardType) {
+        if (rewardType != null) {
+            this.rewardType = rewardType;
+        }
+    }
+
+    /**
+     * 배송 정책 업데이트
+     * - 각 필드가 null이면 기존 값 유지
+     */
+    private void updateShippingPolicy(UpdateRewardCommand command) {
+        if (command.shippingFee() != null || command.freeShippingAmount() != null) {
+            Integer newShippingFee = command.shippingFee() != null
+                    ? command.shippingFee()
+                    : this.shippingPolicy.getShippingFee();
+
+            Integer newFreeShippingAmount = command.freeShippingAmount() != null
+                    ? command.freeShippingAmount()
+                    : this.shippingPolicy.getFreeShippingAmount();
+
+            this.shippingPolicy = ShippingPolicy.of(newShippingFee, newFreeShippingAmount);
         }
     }
 

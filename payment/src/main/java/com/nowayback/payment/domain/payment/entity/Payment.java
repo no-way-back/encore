@@ -31,6 +31,10 @@ public class Payment extends BaseEntity {
     private FundingId fundingId;
 
     @Embedded
+    @AttributeOverride(name = "id", column = @Column(name = "project_id", updatable = false, nullable = false))
+    private ProjectId projectId;
+
+    @Embedded
     @AttributeOverride(name = "amount", column = @Column(name = "amount", updatable = false, nullable = false))
     private Money amount;
 
@@ -57,9 +61,10 @@ public class Payment extends BaseEntity {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    private Payment(UserId userId, FundingId fundingId, Money amount, PgInfo pgInfo, RefundAccountInfo refundAccountInfo) {
+    private Payment(UserId userId, FundingId fundingId, ProjectId projectId, Money amount, PgInfo pgInfo, RefundAccountInfo refundAccountInfo) {
         this.userId = userId;
         this.fundingId = fundingId;
+        this.projectId = projectId;
         this.amount = amount;
         this.status = PaymentStatus.PENDING;
         this.pgInfo = pgInfo;
@@ -68,9 +73,9 @@ public class Payment extends BaseEntity {
 
     /* Factory Method */
 
-    public static Payment create(UserId userId, FundingId fundingId, Money amount, PgInfo pgInfo) {
-        validatePayment(userId, fundingId, amount, pgInfo);
-        return new Payment(userId, fundingId, amount, pgInfo, null);
+    public static Payment create(UserId userId, FundingId fundingId, ProjectId projectId, Money amount, PgInfo pgInfo) {
+        validatePayment(userId, fundingId, projectId, amount, pgInfo);
+        return new Payment(userId, fundingId, projectId, amount, pgInfo, null);
     }
 
     /* Business Methods */
@@ -95,9 +100,10 @@ public class Payment extends BaseEntity {
 
     /* Validation Methods */
 
-    private static void validatePayment(UserId userId, FundingId fundingId, Money amount, PgInfo pgInfo) {
+    private static void validatePayment(UserId userId, FundingId fundingId, ProjectId projectId, Money amount, PgInfo pgInfo) {
         validateUserId(userId);
         validateFundingId(fundingId);
+        validateProjectId(projectId);
         validateAmount(amount);
         validatePgInfo(pgInfo);
     }
@@ -111,6 +117,12 @@ public class Payment extends BaseEntity {
     private static void validateFundingId(FundingId fundingId) {
         if (fundingId == null) {
             throw new PaymentException(PaymentErrorCode.NULL_FUNDING_ID_OBJECT);
+        }
+    }
+
+    private static void validateProjectId(ProjectId projectId) {
+        if (projectId == null) {
+            throw new PaymentException(PaymentErrorCode.NULL_PAYMENT_PROJECT_ID_OBJECT);
         }
     }
 

@@ -10,26 +10,28 @@ public enum PaymentErrorCode {
      */
     NULL_USER_ID_VALUE("PAYMENT1001", "유저 ID는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_FUNDING_ID_VALUE("PAYMENT1002", "펀딩 ID는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    INVALID_PAYMENT_MONEY_VALUE("PAYMENT1003", "유효하지 않은 금액 값입니다.", HttpStatus.BAD_REQUEST),
+    NULL_PAYMENT_PROJECT_ID_VALUE("PAYMENT1003", "결제 프로젝트 ID는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_PAYMENT_MONEY_VALUE("PAYMENT1004", "유효하지 않은 금액 값입니다.", HttpStatus.BAD_REQUEST),
 
     /* Payment - PgInfo */
-    NULL_PG_METHOD_VALUE("PAYMENT1004", "PG 결제 수단은 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_PG_PAYMENT_KEY_VALUE("PAYMENT1005", "PG 결제 키는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_PG_ORDER_ID_VALUE("PAYMENT1006", "PG 주문 ID는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PG_METHOD_VALUE("PAYMENT1005", "PG 결제 수단은 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PG_PAYMENT_KEY_VALUE("PAYMENT1006", "PG 결제 키는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PG_ORDER_ID_VALUE("PAYMENT1007", "PG 주문 ID는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     /* Payment - RefundAccountInfo */
-    NULL_REFUND_ACCOUNT_BANK_VALUE("PAYMENT1007", "환불 계좌 은행은 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_REFUND_ACCOUNT_NUMBER_VALUE("PAYMENT1008", "환불 계좌 번호는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_REFUND_ACCOUNT_HOLDER_NAME_VALUE("PAYMENT1009", "환불 계좌 예금주 이름은 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_REFUND_ACCOUNT_BANK_VALUE("PAYMENT1008", "환불 계좌 은행은 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_REFUND_ACCOUNT_NUMBER_VALUE("PAYMENT1009", "환불 계좌 번호는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_REFUND_ACCOUNT_HOLDER_NAME_VALUE("PAYMENT1010", "환불 계좌 예금주 이름은 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     /* Payment Value Objects */
-    NULL_USER_ID_OBJECT("PAYMENT1010", "유저 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_FUNDING_ID_OBJECT("PAYMENT1011", "펀딩 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_PAYMENT_MONEY_OBJECT("PAYMENT1012", "금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_PAYMENT_STATUS_OBJECT("PAYMENT1013", "결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_PG_INFO_OBJECT("PAYMENT1014", "PG 정보 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_USER_ID_OBJECT("PAYMENT1011", "유저 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_FUNDING_ID_OBJECT("PAYMENT1012", "펀딩 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PAYMENT_PROJECT_ID_OBJECT("PAYMENT1013", "결제 프로젝트 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PAYMENT_MONEY_OBJECT("PAYMENT1014", "금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PAYMENT_STATUS_OBJECT("PAYMENT1015", "결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PG_INFO_OBJECT("PAYMENT1016", "PG 정보 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
-    INVALID_PAYMENT_STATUS_TRANSITION("PAYMENT1015", "유효하지 않은 결제 상태 전환입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_PAYMENT_STATUS_TRANSITION("PAYMENT1017", "유효하지 않은 결제 상태 전환입니다.", HttpStatus.BAD_REQUEST),
 
     /**
      * Settlement Domain Error Codes

@@ -1,7 +1,6 @@
 package com.nowayback.reward.infrastructure.kafka.consumer;
 
 import com.nowayback.reward.application.reward.RewardService;
-import com.nowayback.reward.domain.reward.handler.ProjectEventHandler;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.ProjectCreatedPayload;
 import org.junit.jupiter.api.BeforeEach;

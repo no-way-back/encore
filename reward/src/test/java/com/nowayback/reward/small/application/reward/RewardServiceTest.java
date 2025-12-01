@@ -1,6 +1,7 @@
 package com.nowayback.reward.small.application.reward;
 
 import com.nowayback.reward.application.reward.RewardService;
+import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.entity.Rewards;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.nowayback.reward.fixture.RewardFixture.*;
@@ -192,6 +194,58 @@ class RewardServiceTest {
                         .isEqualTo(RewardErrorCode.STOCK_BELOW_MINIMUM);
 
                 verify(rewardRepository, never()).save(any());
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("리워드 수정 테스트")
+    class UpdateReward {
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class Success {
+
+            @Test
+            @DisplayName("리워드 수정 성공")
+            void updateReward() {
+                // given
+                UUID rewardId = UUID.randomUUID();
+                Rewards existingReward = Rewards.create(createCommand());
+                UpdateRewardCommand command = createUpdateCommand(rewardId);
+
+                when(rewardRepository.findById(rewardId))
+                        .thenReturn(Optional.of(existingReward));
+
+                // when
+                rewardService.update(command);
+
+                // then
+                verify(rewardRepository, times(1)).findById(rewardId);
+                assertThat(existingReward.getName()).isEqualTo("수정된 리워드");
+                assertThat(existingReward.getPrice().getAmount()).isEqualTo(30000);
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 케이스")
+        class Failure {
+
+            @Test
+            @DisplayName("존재하지 않는 리워드 수정 시 예외 발생")
+            void updateNonExistentReward() {
+                // given
+                UUID rewardId = UUID.randomUUID();
+                UpdateRewardCommand command = createUpdateCommand(rewardId);
+
+                when(rewardRepository.findById(rewardId))
+                        .thenReturn(Optional.empty());
+
+                // when & then
+                assertThatThrownBy(() -> rewardService.update(command))
+                        .isInstanceOf(RewardException.class)
+                        .extracting("errorCode")
+                        .isEqualTo(RewardErrorCode.REWARD_NOT_FOUND);
             }
         }
     }

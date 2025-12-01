@@ -13,8 +13,8 @@ public enum RewardErrorCode {
     VALIDATION_FAILED("RW-000", "입력 검증에 실패했습니다", HttpStatus.BAD_REQUEST),
 
     // Reward Option
-    DUPLICATE_OPTION_NAME("RW-001", "이미 존재하는 옵션명입니다", HttpStatus.BAD_REQUEST),
-    DUPLICATE_DISPLAY_ORDER("RW-002", "이미 사용 중인 표시 순서입니다", HttpStatus.BAD_REQUEST),
+    DUPLICATE_OPTION_NAME("RW-001", "이미 존재하는 옵션명입니다", HttpStatus.CONFLICT),
+    DUPLICATE_DISPLAY_ORDER("RW-002", "이미 사용 중인 표시 순서입니다", HttpStatus.CONFLICT),
 
     // Value Object - Money
     INVALID_MONEY_AMOUNT("RW-100", "금액을 입력해주세요", HttpStatus.BAD_REQUEST),
@@ -35,6 +35,9 @@ public enum RewardErrorCode {
     PRICE_BELOW_MINIMUM("RW-201", "금액은 최소 1,000원 이상이어야 합니다", HttpStatus.BAD_REQUEST),
     STOCK_BELOW_MINIMUM("RW-202", "재고는 최소 1개 이상이어야 합니다", HttpStatus.BAD_REQUEST),
     OPTION_COUNT_EXCEEDED("RW-203", "옵션은 최대 20개까지 추가 가능합니다", HttpStatus.BAD_REQUEST),
+    OPTION_SOLD_OUT_ONLY("RW-204", "판매 이력이 있는 옵션은 품절 처리만 가능합니다", HttpStatus.BAD_REQUEST),
+    OPTION_NOT_FOUND("RW-205", "존재하지 않는 옵션입니다", HttpStatus.NOT_FOUND),
+    REWARD_NOT_FOUND("RW-206", "존재하지 않는 리워드입니다", HttpStatus.NOT_FOUND),
 
     // System Error
     INTERNAL_SERVER_ERROR("RW-999", "일시적인 오류가 발생했습니다", HttpStatus.INTERNAL_SERVER_ERROR);

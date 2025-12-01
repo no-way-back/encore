@@ -1,5 +1,6 @@
 package com.nowayback.reward.application.reward;
 
+import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.entity.Rewards;
@@ -46,6 +47,20 @@ public class RewardService {
 
         log.info("프로젝트 {} 총 {}개 리워드 생성 완료", projectId, createdRewards.size());
         return createdRewards;
+    }
+
+    /**
+     * 리워드 수정
+     * 옵션 수정의 경우 내부 Cascade 설정으로 변경감지 활용
+     * @param command 리워드, 리워드 옵션 수정 요청 데이터
+     */
+    @Transactional
+    public void update(UpdateRewardCommand command) {
+        Rewards reward = rewardRepository.findById(command.rewardId()).orElseThrow(
+                () -> new RewardException(REWARD_NOT_FOUND)
+        );
+
+        reward.update(command);
     }
 
     /**

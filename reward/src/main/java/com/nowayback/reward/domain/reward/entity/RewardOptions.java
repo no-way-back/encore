@@ -1,5 +1,6 @@
 package com.nowayback.reward.domain.reward.entity;
 
+import com.nowayback.reward.application.reward.command.UpdateRewardOptionCommand;
 import com.nowayback.reward.domain.reward.vo.Money;
 import com.nowayback.reward.domain.reward.vo.Stock;
 import com.nowayback.reward.domain.shared.BaseEntity;
@@ -51,5 +52,23 @@ public class RewardOptions extends BaseEntity {
         this.isRequired = isRequired;
         this.displayOrder = displayOrder;
         this.reward = reward;
+    }
+
+    public void update(UpdateRewardOptionCommand command) {
+        if (command.name() != null) {
+            this.name = command.name();
+        }
+        if (command.additionalPrice() != null) {
+            this.additionalPrice = Money.of(command.additionalPrice());
+        }
+        if (command.stockQuantity() != null) {
+            this.stock = Stock.of(command.stockQuantity());
+        }
+        if (command.isRequired() != null) {
+            this.isRequired = command.isRequired();
+        }
+        if (command.displayOrder() != null) {
+            this.displayOrder = command.displayOrder();
+        }
     }
 }

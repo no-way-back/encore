@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,5 +23,10 @@ public class RewardRepositoryImpl implements RewardRepository {
     @Override
     public List<Rewards> saveAll(List<Rewards> rewards) {
         return jpaRepository.saveAll(rewards);
+    }
+
+    @Override
+    public Optional<Rewards> findById(UUID rewardId) {
+        return jpaRepository.findById(rewardId);
     }
 }

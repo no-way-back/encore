@@ -43,7 +43,7 @@ class PaymentTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> Payment.create(null, FUNDING_ID, AMOUNT, PG_INFO))
+            assertThatThrownBy(() -> Payment.create(null, FUNDING_ID, PROJECT_ID, AMOUNT, PG_INFO))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.NULL_USER_ID_OBJECT.getMessage());
         }
@@ -54,9 +54,20 @@ class PaymentTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> Payment.create(USER_ID, null, AMOUNT, PG_INFO))
+            assertThatThrownBy(() -> Payment.create(USER_ID, null, PROJECT_ID, AMOUNT, PG_INFO))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.NULL_FUNDING_ID_OBJECT.getMessage());
+        }
+
+        @Test
+        @DisplayName("null 프로젝트 아이디로 생성 시 예외가 발생한다.")
+        void create_givenNullProjectId_thenThrow() {
+            /* given */
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, null, AMOUNT, PG_INFO))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_PAYMENT_PROJECT_ID_OBJECT.getMessage());
         }
 
         @Test
@@ -65,7 +76,7 @@ class PaymentTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, null, PG_INFO))
+            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, PROJECT_ID, null, PG_INFO))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.NULL_PAYMENT_MONEY_OBJECT.getMessage());
         }
@@ -76,7 +87,7 @@ class PaymentTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, AMOUNT, null))
+            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, PROJECT_ID, AMOUNT, null))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.NULL_PG_INFO_OBJECT.getMessage());
         }

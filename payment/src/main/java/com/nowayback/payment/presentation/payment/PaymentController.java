@@ -30,6 +30,7 @@ public class PaymentController {
         ConfirmPaymentCommand command = ConfirmPaymentCommand.of(
                 userId,
                 request.fundingId(),
+                request.projectId(),
                 request.amount(),
                 request.pgMethod(),
                 request.pgPaymentKey(),

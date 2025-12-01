@@ -34,6 +34,7 @@ public class PaymentService {
         Payment payment = Payment.create(
                 command.userId(),
                 command.fundingId(),
+                command.projectId(),
                 command.amount(),
                 command.pgInfo()
         );

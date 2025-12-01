@@ -7,6 +7,7 @@ public interface ProjectEventHandler {
 
 	void handleProjectCreated(
 		UUID projectId,
+		UUID creatorId,
 		Long targetAmount,
 		LocalDateTime startDate,
 		LocalDateTime endDate

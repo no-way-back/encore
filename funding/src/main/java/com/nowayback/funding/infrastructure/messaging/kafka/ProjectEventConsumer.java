@@ -30,6 +30,7 @@ public class ProjectEventConsumer {
 
 			projectEventPort.handleProjectCreated(
 				event.projectId(),
+				event.creatorId(),
 				event.targetAmount(),
 				event.startDate(),
 				event.endDate()

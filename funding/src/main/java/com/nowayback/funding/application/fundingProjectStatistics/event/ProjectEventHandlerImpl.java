@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nowayback.funding.domain.eventHandler.ProjectEventHandler;
 import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
 import com.nowayback.funding.domain.fundingProjectStatistics.repository.FundingProjectStatisticsRepository;
 
@@ -15,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ProjectEventHandlerImpl implements com.nowayback.funding.domain.eventHandler.ProjectEventHandler {
+public class ProjectEventHandlerImpl implements ProjectEventHandler {
 
 	private final FundingProjectStatisticsRepository fundingProjectStatisticsRepository;
 
@@ -23,6 +24,7 @@ public class ProjectEventHandlerImpl implements com.nowayback.funding.domain.eve
 	@Transactional
 	public void handleProjectCreated(
 		UUID projectId,
+		UUID creatorId,
 		Long targetAmount,
 		LocalDateTime startDate,
 		LocalDateTime endDate
@@ -36,6 +38,7 @@ public class ProjectEventHandlerImpl implements com.nowayback.funding.domain.eve
 
 		FundingProjectStatistics statistics = FundingProjectStatistics.create(
 			projectId,
+			creatorId,
 			targetAmount,
 			startDate,
 			endDate

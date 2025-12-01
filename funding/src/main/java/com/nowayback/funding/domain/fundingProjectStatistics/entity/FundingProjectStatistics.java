@@ -34,6 +34,9 @@ public class FundingProjectStatistics extends BaseEntity {
 	@Column(name = "project_id", nullable = false, unique = true)
 	private UUID projectId;
 
+	@Column(name = "creator_id", nullable = false)
+	private UUID creatorId;
+
 	@Column(name = "target_amount", nullable = false)
 	private Long targetAmount;
 
@@ -55,12 +58,14 @@ public class FundingProjectStatistics extends BaseEntity {
 
 	public static FundingProjectStatistics create(
 		UUID projectId,
+		UUID creatorId,
 		Long targetAmount,
 		LocalDateTime startDate,
 		LocalDateTime endDate
 	) {
 		FundingProjectStatistics statistics = new FundingProjectStatistics();
 		statistics.projectId = projectId;
+		statistics.creatorId = creatorId;
 		statistics.targetAmount = targetAmount;
 		statistics.currentAmount = 0L;
 		statistics.participantCount = 0;
@@ -151,5 +156,9 @@ public class FundingProjectStatistics extends BaseEntity {
 			throw new FundingException(INVALID_STATUS_TRANSITION);
 		}
 		this.status = FundingProjectStatus.FAILED;
+	}
+
+	public boolean isCreator(UUID userId) {
+		return this.creatorId.equals(userId);
 	}
 }

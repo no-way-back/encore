@@ -18,6 +18,11 @@ spring:
         default_schema: payment_service
     show-sql: true
 
+payment:
+  toss:
+    secret-key: ${PAYMENT_SECRET_KEY}
+    base-url: https://api.tosspayments.com/v1
+
 eureka:
   client:
     service-url:

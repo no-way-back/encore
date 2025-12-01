@@ -1,4 +1,4 @@
-package com.nowayback.payment.presentation.exception;
+package com.nowayback.payment.domain.exception;
 
 import lombok.Getter;
 

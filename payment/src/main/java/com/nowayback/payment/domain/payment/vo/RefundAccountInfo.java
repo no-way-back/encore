@@ -1,7 +1,7 @@
 package com.nowayback.payment.domain.payment.vo;
 
-import com.nowayback.payment.domain.exception.PaymentDomainErrorCode;
-import com.nowayback.payment.domain.exception.PaymentDomainException;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -37,19 +37,19 @@ public class RefundAccountInfo {
 
     private static void validateRefundAccountBank(String refundAccountBank) {
         if (refundAccountBank == null || refundAccountBank.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_REFUND_ACCOUNT_BANK_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_REFUND_ACCOUNT_BANK_VALUE);
         }
     }
 
     private static void validateRefundAccountNumber(String refundAccountNumber) {
         if (refundAccountNumber == null || refundAccountNumber.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_REFUND_ACCOUNT_NUMBER_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_REFUND_ACCOUNT_NUMBER_VALUE);
         }
     }
 
     private static void validateRefundAccountHolderName(String refundAccountHolderName) {
         if (refundAccountHolderName == null || refundAccountHolderName.trim().isEmpty()) {
-            throw new PaymentDomainException(PaymentDomainErrorCode.NULL_REFUND_ACCOUNT_HOLDER_NAME_VALUE);
+            throw new PaymentException(PaymentErrorCode.NULL_REFUND_ACCOUNT_HOLDER_NAME_VALUE);
         }
     }
 }

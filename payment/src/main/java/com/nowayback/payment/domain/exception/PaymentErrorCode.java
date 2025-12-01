@@ -62,10 +62,22 @@ public enum PaymentErrorCode {
     PAYMENT_NOT_FOUND("PAYMENT2001", "결제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     /**
+     * Settlement Application Error Codes
+     */
+    SETTLEMENT_NOT_FOUND("PAYMENT2002", "정산을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    DUPLICATE_SETTLEMENT("PAYMENT2003", "이미 정산이 처리된 프로젝트입니다.", HttpStatus.CONFLICT),
+
+    /**
      * Payment Infrastructure Error Codes
      */
     PG_CONFIRMATION_FAILED("PAYMENT3001", "PG 결제 승인에 실패했습니다.", HttpStatus.BAD_GATEWAY),
     PG_REFUND_FAILED("PAYMENT3002", "PG 결제 환불에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+
+    /**
+     * Settlement Infrastructure Error Codes
+     */
+    PROJECT_CLIENT_REQUEST_FAILED("SETTLEMENT3001", "프로젝트 외부 서비스 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+    OPEN_BANKING_TRANSFER_FAILED("SETTLEMENT3002", "오픈뱅킹 외부 서비스 이체 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
     ;
 
     private final String code;

@@ -40,8 +40,12 @@ public enum ProjectErrorCode {
     INVALID_STORY_DRAFT_SUBMISSION("PROJECT1033", "스토리 정보가 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     PROJECT_DRAFT_NOT_FOUND("PROJECT2001", "프로젝트 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    INVALID_PROJECT_DRAFT_STATUS("PROJECT2002", "프로젝트 드래프트를 업데이트 할 수 없습니다.", HttpStatus.CONFLICT),
+    STORY_DRAFT_NOT_FOUND("PROJECT2003", "스토리 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    FUNDING_DRAFT_NOT_FOUND("PROJECT2004", "펀딩 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    SETTLEMENT_DRAFT_NOT_FOUND("PROJECT2005", "정산 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    REWARD_DRAFT_NOT_FOUND("PROJECT2006", "리워드 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
-    INVALID_PROJECT_DRAFT_STATUS("PROJECT2002", "프로젝트 드래프트를 업데이트 할 수 없습니다.", HttpStatus.CONFLICT)
     ;
 
     private final String code;

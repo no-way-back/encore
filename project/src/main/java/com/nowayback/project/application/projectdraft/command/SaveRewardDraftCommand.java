@@ -1,4 +1,4 @@
-package com.nowayback.project.application.command;
+package com.nowayback.project.application.projectdraft.command;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.nowayback.project.application.dto;
+package com.nowayback.project.application.projectdraft.dto;
 
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
 import java.time.LocalDate;

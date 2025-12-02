@@ -1,5 +1,7 @@
 package com.nowayback.project.domain.projectDraft.vo;
 
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -21,19 +23,15 @@ public class RewardPrice {
     private Integer freeShippingAmount;
 
     public RewardPrice(Long price, Integer shippingFee, Integer freeShippingAmount) {
-        if (price == null || price <= 0) {
-            throw new IllegalArgumentException("Invalid price");
-        }
-        if (shippingFee != null && shippingFee < 0) {
-            throw new IllegalArgumentException("Invalid shipping fee");
-        }
-        if (freeShippingAmount != null && freeShippingAmount < 0) {
-            throw new IllegalArgumentException("Invalid free shipping amount");
-        }
-
         this.price = price;
         this.shippingFee = shippingFee;
         this.freeShippingAmount = freeShippingAmount;
+    }
+
+    public void validateForSubmission() {
+        if (price != null || price <= 0) {
+            throw new ProjectException(ProjectErrorCode.INVALID_REWARD_PRICE);
+        }
     }
 }
 

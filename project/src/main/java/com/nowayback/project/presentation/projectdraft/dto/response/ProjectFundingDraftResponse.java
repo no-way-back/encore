@@ -1,6 +1,6 @@
 package com.nowayback.project.presentation.projectdraft.dto.response;
 
-import com.nowayback.project.application.dto.ProjectFundingDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftResult;
 import java.time.LocalDate;
 import java.util.UUID;
 

@@ -1,6 +1,6 @@
 package com.nowayback.project.presentation.projectdraft.dto.request;
 
-import com.nowayback.project.application.command.SaveSettlementDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveSettlementDraftCommand;
 import java.util.UUID;
 
 public record SaveProjectSettlementDraft(

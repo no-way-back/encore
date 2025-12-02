@@ -170,9 +170,9 @@ public class FundingServiceImpl implements FundingService {
 					reservationId,
 					"FUNDING_FAILED",
 					Map.of(
-						"reservationId", reservationId,
 						"projectId", command.projectId(),
-						"userId", command.userId()
+						"userId", command.userId(),
+						"reservationId", reservationId
 					)
 				);
 			}
@@ -222,10 +222,10 @@ public class FundingServiceImpl implements FundingService {
 				funding.getId(),
 				"FUNDING_REFUND",
 				Map.of(
-					"reservationId", funding.getReservationId(),
 					"fundingId", funding.getId(),
 					"projectId", funding.getProjectId(),
-					"userId", funding.getUserId()
+					"userId", funding.getUserId(),
+					"reservationId", funding.getReservationId()
 				)
 			);
 		}

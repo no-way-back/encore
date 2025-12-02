@@ -1,6 +1,6 @@
-package com.nowayback.funding.presentation.Funding.dto.request.validation;
+package com.nowayback.funding.presentation.funding.dto.request.validation;
 
-import com.nowayback.funding.presentation.Funding.dto.request.CreateFundingRequest;
+import com.nowayback.funding.presentation.funding.dto.request.CreateFundingRequest;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

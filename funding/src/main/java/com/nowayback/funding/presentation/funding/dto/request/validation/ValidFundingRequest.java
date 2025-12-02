@@ -1,4 +1,4 @@
-package com.nowayback.funding.presentation.Funding.dto.request.validation;
+package com.nowayback.funding.presentation.funding.dto.request.validation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

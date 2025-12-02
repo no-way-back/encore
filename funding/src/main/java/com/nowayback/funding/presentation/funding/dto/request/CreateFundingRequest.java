@@ -1,10 +1,10 @@
-package com.nowayback.funding.presentation.Funding.dto.request;
+package com.nowayback.funding.presentation.funding.dto.request;
 
 import java.util.List;
 import java.util.UUID;
 
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
-import com.nowayback.funding.presentation.Funding.dto.request.validation.ValidFundingRequest;
+import com.nowayback.funding.presentation.funding.dto.request.validation.ValidFundingRequest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

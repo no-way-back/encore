@@ -212,4 +212,23 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 			}
 		}
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public void validateProjectCreator(UUID projectId, UUID creatorId) {
+		log.debug("프로젝트 생성자 권한 검증 - projectId: {}, creatorId: {}",
+			projectId, creatorId);
+
+		FundingProjectStatistics stats = fundingProjectStatisticsRepository
+			.findByProjectId(projectId)
+			.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
+
+		if (!stats.isCreator(creatorId)) {
+			log.warn("프로젝트 생성자 권한 없음 - projectId: {}, requestUserId: {}, actualCreatorId: {}",
+				projectId, creatorId, stats.getCreatorId());
+			throw new FundingException(FORBIDDEN_PROJECT_ACCESS);
+		}
+
+		log.debug("프로젝트 생성자 권한 확인 완료 - projectId: {}", projectId);
+	}
 }

@@ -29,9 +29,11 @@ import com.nowayback.funding.application.client.reward.dto.response.RewardDetail
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
+import com.nowayback.funding.application.funding.dto.command.GetProjectSponsorsCommand;
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
+import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
 import com.nowayback.funding.domain.event.OutboxEventCreated;
 import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
 import com.nowayback.funding.domain.exception.FundingException;
@@ -242,6 +244,43 @@ public class FundingServiceImpl implements FundingService {
 		return GetMyFundingsResult.of(
 			fundingPage.getContent(),
 			fundingPage.getTotalElements(),
+			command.page(),
+			command.size()
+		);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public GetProjectSponsorsResult getProjectSponsors(GetProjectSponsorsCommand command) {
+		log.info("프로젝트 후원자 조회 - projectId: {}, creatorId: {}",
+			command.projectId(), command.creatorId());
+
+		fundingProjectStatisticsService.validateProjectCreator(
+			command.projectId(),
+			command.creatorId()
+		);
+
+		Pageable pageable = PageRequest.of(command.page(), command.size());
+
+		Page<Funding> fundingPage = fundingRepository.findProjectSponsors(
+			command.projectId(),
+			FundingStatus.COMPLETED,
+			pageable
+		);
+
+		Long totalAmount = fundingRepository.sumAmountByProjectIdAndStatus(
+			command.projectId(),
+			FundingStatus.COMPLETED
+		);
+
+		log.info("프로젝트 후원자 조회 완료 - projectId: {}, totalSponsors: {}, totalAmount: {}",
+			command.projectId(), fundingPage.getTotalElements(), totalAmount);
+
+		return GetProjectSponsorsResult.of(
+			command.projectId(),
+			fundingPage.getContent(),
+			fundingPage.getTotalElements(),
+			totalAmount,
 			command.page(),
 			command.size()
 		);

@@ -15,4 +15,6 @@ public interface FundingProjectStatisticsService {
 	void startScheduledProjects();
 
 	void closeProcessingProjects();
+
+	void validateProjectCreator(UUID projectId, UUID creatorId);
 }

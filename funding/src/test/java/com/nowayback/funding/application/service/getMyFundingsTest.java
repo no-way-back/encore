@@ -26,7 +26,7 @@ import com.nowayback.funding.domain.funding.repository.FundingRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FundingService - 내 후원 내역 조회 테스트")
-class GetMyFundingsTest {
+class getMyFundingsTest {
 
 	@InjectMocks
 	private FundingServiceImpl fundingService;
@@ -157,3 +157,5 @@ class GetMyFundingsTest {
 		return funding;
 	}
 }
+
+

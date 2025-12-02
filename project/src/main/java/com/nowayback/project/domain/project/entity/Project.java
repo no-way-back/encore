@@ -164,4 +164,8 @@ public class Project extends BaseEntity {
     public void markAsUpcoming() {
         this.status = ProjectStatus.UPCOMING;
     }
+
+    public void markAsCreationFailed() {
+        this.status = ProjectStatus.CREATION_FAILED;
+    }
 }

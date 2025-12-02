@@ -64,7 +64,4 @@ public class ProjectService {
 
         project.markAsUpcoming();
     }
-
-    public void createFunding(UUID projectDraftId) {
-    }
 }

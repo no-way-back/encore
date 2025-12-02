@@ -1,6 +1,5 @@
 package com.nowayback.project.infrastructure.config;
 
-import com.nowayback.project.infrastructure.messaging.kafka.KafkaTopics;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

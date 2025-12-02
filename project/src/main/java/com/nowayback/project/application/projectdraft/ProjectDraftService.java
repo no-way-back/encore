@@ -201,6 +201,8 @@ public class ProjectDraftService {
             )
         );
 
+        projectDraft.linkProjectId(projectId);
+
         outboxEventPublisher.publish(
             EventType.PROJECT_REWARD_CREATION,
             EventDestination.KAFKA,
@@ -208,6 +210,12 @@ public class ProjectDraftService {
             AggregateType.PROJECT_DRAFT,
             projectDraft.getId()
         );
+    }
+
+    public ProjectDraftResult getProjectDraft(UUID projectDraftId) {
+        ProjectDraft projectDraft = findProjectDraftOrThrow(projectDraftId);
+
+        return ProjectDraftResult.of(projectDraft);
     }
 
     private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {

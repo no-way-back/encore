@@ -3,7 +3,8 @@ package com.nowayback.reward.infrastructure.kafka.constant;
 public enum EventType {
     PROJECT_CREATED("PROJECT_CREATED"),
     REWARD_CREATION_SUCCESS("REWARD_CREATION_SUCCESS"),
-    REWARD_CREATION_FAILED("REWARD_CREATION_FAILED");
+    REWARD_CREATION_FAILED("REWARD_CREATION_FAILED"),
+    UNSUPPORTED_TYPE("ONLY_TEST");
 
     private final String value;
 

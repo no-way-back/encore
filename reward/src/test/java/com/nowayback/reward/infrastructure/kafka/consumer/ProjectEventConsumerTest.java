@@ -1,8 +1,10 @@
 package com.nowayback.reward.infrastructure.kafka.consumer;
 
 import com.nowayback.reward.application.reward.RewardService;
+import com.nowayback.reward.infrastructure.kafka.constant.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.ProjectCreatedPayload;
+import com.nowayback.reward.infrastructure.kafka.producer.ProjectEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 import static com.nowayback.reward.fixture.KafkaFixture.createProjectCreatedEvent;
 import static com.nowayback.reward.fixture.KafkaFixture.createProjectCreatedPayload;
+import static com.nowayback.reward.infrastructure.kafka.constant.EventType.*;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,11 +29,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProjectEventConsumerTest {
 
-    @Mock
-    private RewardService rewardService;
+    @Mock private RewardService rewardService;
 
-    @Mock
-    private Acknowledgment acknowledgment;
+    @Mock private Acknowledgment acknowledgment;
+
+    @Mock private ProjectEventPublisher eventPublisher;
 
     @InjectMocks
     private ProjectEventListener projectEventConsumer;
@@ -46,7 +49,7 @@ class ProjectEventConsumerTest {
         creatorId = UUID.randomUUID();
 
         payload = createProjectCreatedPayload(projectId, creatorId, 3);
-        validEvent = createProjectCreatedEvent("PROJECT_CREATED", payload);
+        validEvent = createProjectCreatedEvent(PROJECT_CREATED, payload);
     }
 
     @Nested
@@ -80,7 +83,7 @@ class ProjectEventConsumerTest {
         void consumeProjectEvent_unsupportedEventType() {
             // given
             ProjectCreatedEvent invalidEvent = createProjectCreatedEvent(
-                    "UNSUPPORTED_TYPE", payload
+                    EventType.UNSUPPORTED_TYPE, payload
             );
 
             // when
@@ -94,19 +97,22 @@ class ProjectEventConsumerTest {
         }
 
         @Test
-        @DisplayName("EventHandler 처리 중 예외 발생 시 Acknowledge 미호출 및 예외 전파")
+        @DisplayName("EventHandler 처리 중 예외 발생 시 실패 이벤트 발행 및 Acknowledge 처리")
         void consumeProjectEvent_handlerThrowsException() {
             // given
             doThrow(new RuntimeException("DB 저장 실패"))
                     .when(rewardService).createRewardsForProject(eq(projectId), eq(creatorId), any(List.class));
 
-            // when & then
-            assertThatThrownBy(() -> projectEventConsumer.consumeProjectEvent(validEvent, acknowledgment))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining("DB 저장 실패");
+            // when
+            assertThatCode(() -> projectEventConsumer.consumeProjectEvent(validEvent, acknowledgment))
+                    .doesNotThrowAnyException();
 
+            // then
             verify(rewardService, times(1)).createRewardsForProject(eq(projectId), eq(creatorId), any(List.class));
-            verify(acknowledgment, never()).acknowledge();
+            verify(eventPublisher, times(1)).rewardCreationResult(
+                    argThat(event -> REWARD_CREATION_FAILED.equals(event.eventType()) && !event.payload().success())
+            );
+            verify(acknowledgment, times(1)).acknowledge();
         }
     }
 }

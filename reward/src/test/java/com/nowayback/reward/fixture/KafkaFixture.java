@@ -1,6 +1,7 @@
 package com.nowayback.reward.fixture;
 
 import com.nowayback.reward.domain.reward.vo.RewardType;
+import com.nowayback.reward.infrastructure.kafka.constant.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.data.RewardCreateData;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.ProjectCreatedPayload;
@@ -19,7 +20,7 @@ public class KafkaFixture {
         return new ProjectCreatedPayload(projectId, creatorId, rewardData);
     }
 
-    public static ProjectCreatedEvent createProjectCreatedEvent(String eventType, ProjectCreatedPayload payload) {
+    public static ProjectCreatedEvent createProjectCreatedEvent(EventType eventType, ProjectCreatedPayload payload) {
         return new ProjectCreatedEvent(
                 UUID.randomUUID().toString(),
                 eventType,

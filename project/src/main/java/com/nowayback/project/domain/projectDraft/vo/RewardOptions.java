@@ -1,6 +1,7 @@
 package com.nowayback.project.domain.projectDraft.vo;
 
 import com.nowayback.project.domain.projectDraft.entity.ProjectRewardOptionDraft;
+import com.nowayback.project.domain.projectDraft.spec.RewardOptionSpec;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
@@ -29,5 +30,14 @@ public class RewardOptions {
 
     public void add(ProjectRewardOptionDraft rewardOptionDraft) {
         optionDrafts.add(rewardOptionDraft);
+    }
+
+    public void replace(List<RewardOptionSpec> specs) {
+        optionDrafts.clear();
+        specs.forEach(spec -> {
+            ProjectRewardOptionDraft o = ProjectRewardOptionDraft.create();
+            o.update(spec.additionalPrice(), spec.stockQuantity(), spec.displayOrder());
+            optionDrafts.add(o);
+        });
     }
 }

@@ -153,4 +153,8 @@ public class Project extends BaseEntity {
         }
         this.status = success ? ProjectStatus.SUCCESS : ProjectStatus.FAIL;
     }
+
+    public void markAsUpcoming() {
+        this.status = ProjectStatus.UPCOMING;
+    }
 }

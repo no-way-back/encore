@@ -1,6 +1,6 @@
 package com.nowayback.project.presentation.projectdraft.dto.request;
 
-import com.nowayback.project.application.command.SaveFundingDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveFundingDraftCommand;
 import java.time.LocalDate;
 import java.util.UUID;
 

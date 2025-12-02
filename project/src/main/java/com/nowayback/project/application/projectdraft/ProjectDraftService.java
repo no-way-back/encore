@@ -13,8 +13,12 @@ import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftRes
 import com.nowayback.project.application.projectdraft.dto.ProjectRewardDraftResult;
 import com.nowayback.project.application.projectdraft.dto.ProjectSettlementDraftResult;
 import com.nowayback.project.application.projectdraft.dto.ProjectStoryDraftResult;
+import com.nowayback.project.application.projectdraft.event.payload.RewardCreationEventPayload;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
+import com.nowayback.project.domain.outbox.vo.AggregateType;
+import com.nowayback.project.domain.outbox.vo.EventDestination;
+import com.nowayback.project.domain.outbox.vo.EventType;
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectFundingDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectRewardDraft;
@@ -184,6 +188,7 @@ public class ProjectDraftService {
 
         UUID projectId = projectService.createProject(
             CreateProjectCommand.of(
+                projectDraft.getId(),
                 projectDraft.getUserId(),
                 projectDraft.getStoryDraft().getTitle(),
                 projectDraft.getStoryDraft().getSummary(),
@@ -196,15 +201,13 @@ public class ProjectDraftService {
             )
         );
 
-        // TODO: 이벤트처리시 주석 삭제
-        /*
         outboxEventPublisher.publish(
-            EventType.REWARD_CREATE_REQUESTED,
-            RewardCreateRequestEventPayload.from(projectId, projectDraft.getRewardDrafts()),
+            EventType.PROJECT_REWARD_CREATION,
+            EventDestination.KAFKA,
+            RewardCreationEventPayload.from(projectId, projectDraft.getRewardDrafts()),
             AggregateType.PROJECT_DRAFT,
             projectDraft.getId()
         );
-         */
     }
 
     private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {

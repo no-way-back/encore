@@ -4,17 +4,20 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record CreateProjectCommand(
-     UUID userId,
-     String title,
-     String summary,
-     String category,
-     String thumbnailUrl,
-     String contentHtml,
-     Long goalAmount,
-     LocalDate fundingStartDate,
-     LocalDate fundingEndDate
+    UUID projectDraftId,
+    UUID userId,
+    String title,
+    String summary,
+    String category,
+    String thumbnailUrl,
+    String contentHtml,
+    Long goalAmount,
+    LocalDate fundingStartDate,
+    LocalDate fundingEndDate
 ) {
+
     public static CreateProjectCommand of(
+        UUID projectDraftId,
         UUID userId,
         String title,
         String summary,
@@ -26,6 +29,7 @@ public record CreateProjectCommand(
         LocalDate fundingEndDate
     ) {
         return new CreateProjectCommand(
+            projectDraftId,
             userId,
             title,
             summary,

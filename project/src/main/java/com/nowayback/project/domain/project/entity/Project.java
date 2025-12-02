@@ -32,6 +32,9 @@ public class Project extends BaseEntity {
     private UUID userId;
 
     @Column(nullable = false)
+    private UUID projectDraftId;
+
+    @Column(nullable = false)
     private String title;
 
     @Column(nullable = false)
@@ -61,6 +64,7 @@ public class Project extends BaseEntity {
 
 
     private Project(
+        UUID projectDraftId,
         UUID userId,
         String title,
         String summary,
@@ -74,6 +78,7 @@ public class Project extends BaseEntity {
         validateRequired(userId, title, summary, category, contentHtml, goalAmount, fundingStartDate, fundingEndDate);
         validateFundingPeriod(fundingStartDate, fundingEndDate);
 
+        this.projectDraftId = projectDraftId;
         this.userId = userId;
         this.title = title;
         this.summary = summary;
@@ -88,6 +93,7 @@ public class Project extends BaseEntity {
     }
 
     public static Project create(
+        UUID projectDraftId,
         UUID userId,
         String title,
         String summary,
@@ -99,6 +105,7 @@ public class Project extends BaseEntity {
         LocalDate fundingEndDate
     ) {
         return new Project(
+            projectDraftId,
             userId,
             title,
             summary,

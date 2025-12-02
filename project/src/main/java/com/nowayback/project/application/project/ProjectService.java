@@ -2,15 +2,11 @@ package com.nowayback.project.application.project;
 
 import com.nowayback.project.application.project.command.CreateProjectCommand;
 import com.nowayback.project.application.project.dto.ProjectResult;
-import com.nowayback.project.application.projectdraft.dto.ProjectDraftResult;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.project.entity.Project;
 import com.nowayback.project.domain.project.repository.ProjectRepository;
 import com.nowayback.project.domain.project.vo.ProjectStatus;
-import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
-import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +22,7 @@ public class ProjectService {
     @Transactional
     public UUID createProject(CreateProjectCommand command) {
         Project project = Project.create(
+            command.projectDraftId(),
             command.userId(),
             command.title(),
             command.summary(),
@@ -66,5 +63,8 @@ public class ProjectService {
             .orElseThrow(() -> new ProjectException(ProjectErrorCode.FUNDING_DRAFT_NOT_FOUND));
 
         project.markAsUpcoming();
+    }
+
+    public void createFunding(UUID projectDraftId) {
     }
 }

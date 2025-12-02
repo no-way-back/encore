@@ -1,4 +1,4 @@
-package com.nowayback.funding.application.service;
+package com.nowayback.funding.service.funding;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
 import static org.mockito.BDDMockito.*;

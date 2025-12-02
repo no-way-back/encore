@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,29 +33,34 @@ import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
 import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
-import com.nowayback.funding.domain.event.OutboxEventCreated;
+import com.nowayback.funding.application.outbox.service.OutboxService;
 import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
-import com.nowayback.funding.domain.outbox.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
-import com.nowayback.funding.domain.outbox.repository.OutboxRepository;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class FundingServiceImpl implements FundingService {
 
 	private final FundingRepository fundingRepository;
 	private final FundingProjectStatisticsService fundingProjectStatisticsService;
 	private final RewardClient rewardClient;
 	private final PaymentClient paymentClient;
-	private final OutboxRepository outboxRepository;
-	private final ApplicationEventPublisher eventPublisher;
+	private final OutboxService outboxService;
+
+	public FundingServiceImpl(FundingRepository fundingRepository,
+		FundingProjectStatisticsService fundingProjectStatisticsService, RewardClient rewardClient,
+		PaymentClient paymentClient, OutboxService outboxService) {
+		this.fundingRepository = fundingRepository;
+		this.fundingProjectStatisticsService = fundingProjectStatisticsService;
+		this.rewardClient = rewardClient;
+		this.paymentClient = paymentClient;
+		this.outboxService = outboxService;
+	}
 
 	@Override
 	@Transactional
@@ -110,7 +114,7 @@ public class FundingServiceImpl implements FundingService {
 
 		Long totalAmount = calculatedRewardPrice + command.amount();
 
-			Funding funding = Funding.createFunding(
+		Funding funding = Funding.createFunding(
 			command.projectId(),
 			command.userId(),
 			command.idempotencyKey(),
@@ -123,14 +127,14 @@ public class FundingServiceImpl implements FundingService {
 
 		UUID reservationId = null;
 
-		try {
-			if (command.hasRewards()) {
-				DecreaseRewardRequest rewardRequest = DecreaseRewardRequest.from(funding.getId(), command);
-				DecreaseRewardResponse rewardResponse = rewardClient.decreaseReward(rewardRequest);
-				reservationId = rewardResponse.reservationId();
-				log.info("재고 감소 성공 - reservationId: {}", reservationId);
-			}
+		if (command.hasRewards()) {
+			DecreaseRewardRequest rewardRequest = DecreaseRewardRequest.from(command);
+			DecreaseRewardResponse rewardResponse = rewardClient.decreaseReward(rewardRequest);
+			reservationId = rewardResponse.reservationId();
+			log.info("재고 감소 성공 - reservationId: {}", reservationId);
+		}
 
+		try {
 			ProcessPaymentRequest paymentRequest = ProcessPaymentRequest.from(funding.getId(), command);
 			ProcessPaymentResponse paymentResponse = paymentClient.processPayment(paymentRequest);
 			UUID paymentId = paymentResponse.paymentId();
@@ -141,19 +145,37 @@ public class FundingServiceImpl implements FundingService {
 
 			fundingProjectStatisticsService.increaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
 
-			// TODO: 펀딩 성공 이벤트 발행 -> 리워드 서비스에서 QR 생성 목적
+			if (funding.hasReservation()) {
+				outboxService.publishSuccessEvent(
+					"FUNDING",
+					funding.getId(),
+					"FUNDING_COMPLETED",
+					Map.of(
+						"fundingId", funding.getId(),
+						"userId", funding.getUserId(),
+						"projectId", funding.getProjectId(),
+						"reservationId", funding.getReservationId(),
+						"amount", funding.getAmount()
+					)
+				);
+			}
 
 			return CreateFundingResult.success(funding.getId());
-		} catch (FundingException e) {
-			log.error("외부 서비스 호출 실패 - funding: {}, error: {}", funding.getId(), e.getMessage(), e);
-
-			handleFundingFailure(funding, reservationId, e.getMessage());
-
-			return CreateFundingResult.failure(e.getErrorCode().getMessage());
 		} catch (Exception e) {
 			log.error("예상치 못한 오류 - funding: {}, error: {}", funding.getId(), e.getMessage(), e);
 
-			handleFundingFailure(funding, reservationId, e.getMessage());
+			if (reservationId != null) {
+				outboxService.publishCompensationEvent(
+					"FUNDING",
+					reservationId,
+					"FUNDING_FAILED",
+					Map.of(
+						"reservationId", reservationId,
+						"projectId", command.projectId(),
+						"userId", command.userId()
+					)
+				);
+			}
 
 			return CreateFundingResult.failure("후원 처리 중 오류가 발생했습니다.");
 		}
@@ -184,42 +206,31 @@ public class FundingServiceImpl implements FundingService {
 			throw new FundingException(CANNOT_CANCEL_NON_COMPLETED);
 		}
 
-		try {
-			ProcessRefundRequest refundRequest = ProcessRefundRequest.of(funding.getPaymentId(), command.reason());
-			ProcessRefundResponse refundResponse = paymentClient.processRefund(refundRequest);
-			log.info("환불 성공 - paymentId: {}", refundResponse.paymentId());
+		ProcessRefundRequest refundRequest = ProcessRefundRequest.of(funding.getPaymentId(), command.reason());
+		ProcessRefundResponse refundResponse = paymentClient.processRefund(refundRequest);
+		log.info("환불 성공 - paymentId: {}", refundResponse.paymentId());
 
-			funding.cancelFunding();
-			fundingRepository.save(funding);
-			log.info("펀딩 상태 변경 완료 - fundingId: {}, status: CANCELLED", funding.getId());
+		funding.cancelFunding();
+		fundingRepository.save(funding);
+		log.info("펀딩 상태 변경 완료 - fundingId: {}, status: CANCELLED", funding.getId());
 
-			if (funding.hasReservation()) {
-				Outbox event = Outbox.createOutbox(
-					"FUNDING",
-					funding.getId(),
-					"FUNDING_CANCELLED",
-					Map.of(
-						"reservationId", funding.getReservationId(),
-						"fundingId", funding.getId(),
-						"projectId", funding.getProjectId(),
-						"userId", funding.getUserId()
-					)
-				);
+		fundingProjectStatisticsService.decreaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
 
-				Outbox savedOutbox = outboxRepository.save(event);
-				eventPublisher.publishEvent(new OutboxEventCreated(savedOutbox.getId()));
-			}
-
-			fundingProjectStatisticsService.decreaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
-
-			return CancelFundingResult.success(funding.getId());
-		} catch (FundingException e) {
-			log.error("후원 취소 실패 - fundingId: {}, error: {}", command.fundingId(), e.getMessage(), e);
-			throw e;
-		} catch (Exception e) {
-			log.error("후원 취소 중 예상치 못한 오류 - fundingId: {}", command.fundingId(), e);
-			throw new FundingException(REFUND_FAILED);
+		if (funding.hasReservation()) {
+			outboxService.publishSuccessEvent(
+				"FUNDING",
+				funding.getId(),
+				"FUNDING_REFUND",
+				Map.of(
+					"reservationId", funding.getReservationId(),
+					"fundingId", funding.getId(),
+					"projectId", funding.getProjectId(),
+					"userId", funding.getUserId()
+				)
+			);
 		}
+
+		return CancelFundingResult.success(funding.getId());
 	}
 
 	@Override
@@ -287,17 +298,15 @@ public class FundingServiceImpl implements FundingService {
 	}
 
 	private LocalDateTime calculateStartDate(GetMyFundingsCommand.FundingPeriod period) {
-		if (period == null || period == GetMyFundingsCommand.FundingPeriod.ALL) {
-			return null;
-		}
 
 		LocalDateTime now = LocalDateTime.now();
 
 		return switch (period) {
+			case ALL -> null;
+			case null -> null;
 			case ONE_MONTH -> now.minusMonths(1);
 			case THREE_MONTHS -> now.minusMonths(3);
 			case ONE_YEAR -> now.minusYears(1);
-			case ALL -> null;
 		};
 	}
 
@@ -309,24 +318,5 @@ public class FundingServiceImpl implements FundingService {
 		};
 
 		return PageRequest.of(command.page(), command.size(), sort);
-	}
-
-	private void handleFundingFailure(Funding funding, UUID reservationId, String errorMessage) {
-		funding.failFunding(errorMessage);
-
-		if (reservationId != null) {
-			Outbox event = Outbox.createOutbox(
-				"FUNDING",
-				funding.getId(),
-				"FUNDING_FAILED",
-				Map.of(
-					"reservationId", reservationId,
-					"fundingId", funding.getId()
-				)
-			);
-
-			Outbox savedOutbox = outboxRepository.save(event);
-			eventPublisher.publishEvent(new OutboxEventCreated(savedOutbox.getId()));
-		}
 	}
 }

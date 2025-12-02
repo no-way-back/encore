@@ -31,7 +31,8 @@ public class ProjectEventConsumer {
         log.info("이벤트 수신 - ID: {}, 타입: {}, 프로젝트: {}",
             event.eventId(),
             event.eventType(),
-            event.payload().projectId());
+            event.payload().projectId()
+        );
 
         if (!"PROJECT_CREATED".equals(event.eventType())) {
             log.warn("처리 불가능한 이벤트 타입: {}", event.eventType());

@@ -7,7 +7,7 @@ public final class KafkaTopics {
 	}
 
 	// Consumer Topics (외부에서 수신)
-	public static final String PROJECT_CREATED = "project-created";
+	public static final String PROJECT_FUNDING_CREATION = "project-funding-creation";
 
 	// Producer Topics (외부로 발행)
 	public static final String FUNDING_FAILED = "funding-failed";

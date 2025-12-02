@@ -33,7 +33,7 @@ class ProjectEventConsumerTest {
     private Acknowledgment acknowledgment;
 
     @InjectMocks
-    private ProjectEventConsumer projectEventConsumer;
+    private ProjectEventListener projectEventConsumer;
 
     private UUID projectId;
     private UUID creatorId;

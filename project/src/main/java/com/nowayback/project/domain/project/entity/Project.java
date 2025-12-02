@@ -62,6 +62,8 @@ public class Project extends BaseEntity {
     @Column(nullable = false, length = 20)
     private ProjectStatus status;
 
+    @Column(name = "creation_failed_reason")
+    private String creationFailedReason;
 
     private Project(
         UUID projectDraftId,
@@ -165,7 +167,8 @@ public class Project extends BaseEntity {
         this.status = ProjectStatus.UPCOMING;
     }
 
-    public void markAsCreationFailed() {
+    public void markAsCreationFailed(String reason) {
         this.status = ProjectStatus.CREATION_FAILED;
+        this.creationFailedReason = reason;
     }
 }

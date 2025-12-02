@@ -8,7 +8,7 @@ public final class KafkaTopics {
 
     // 프로젝트 → 리워드 / 펀딩 생성 요청
     public static final String PROJECT_REWARD_CREATION = "project-reward-creation";
-    public static final String FUNDING_CREATE_CREATION = "funding-create-creation";
+    public static final String PROJECT_FUNDING_CREATION = "project-funding-creation";
 
     // 리워드 생성 결과
     public static final String REWARD_CREATED = "reward-created";
@@ -16,7 +16,7 @@ public final class KafkaTopics {
 
     // 펀딩 생성 결과
     public static final String FUNDING_CREATED = "funding-created";
-    public static final String FUNDING_CREATION_FAILED = "funding-creation-failed";
+    public static final String FUNDING_CREATION_FAILED = "project-funding-created-failed";
 
     // 프로젝트 최종 상태
     public static final String PROJECT_ACTIVATED = "project-activated";

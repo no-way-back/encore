@@ -123,7 +123,7 @@ public class ProjectDraftService {
         projectDraft.ensureUpdatable();
 
         List<ProjectRewardDraft> drafts = command.saveRewardCommands().stream()
-            .map(spec -> toRewardDraft(spec))
+            .map(this::toRewardDraft)
             .toList();
 
         projectDraft.replaceRewardDrafts(drafts);
@@ -183,39 +183,12 @@ public class ProjectDraftService {
     public void submit(UUID projectDraftId) {
         ProjectDraft projectDraft = findProjectDraftOrThrow(projectDraftId);
         projectDraft.ensureUpdatable();
-
         projectDraft.submit();
 
-        UUID projectId = projectService.createProject(
-            CreateProjectCommand.of(
-                projectDraft.getId(),
-                projectDraft.getUserId(),
-                projectDraft.getStoryDraft().getTitle(),
-                projectDraft.getStoryDraft().getSummary(),
-                projectDraft.getStoryDraft().getCategory(),
-                projectDraft.getStoryDraft().getThumbnailUrl(),
-                projectDraft.getStoryDraft().getContentJson(),
-                projectDraft.getFundingDraft().getGoalAmount(),
-                projectDraft.getFundingDraft().getFundingStartDate(),
-                projectDraft.getFundingDraft().getFundingEndDate()
-            )
-        );
-
+        UUID projectId = createProject(projectDraft);
         projectDraft.linkProjectId(projectId);
 
-        outboxEventPublisher.publish(
-            EventType.PROJECT_REWARD_CREATION,
-            EventDestination.KAFKA,
-            RewardCreationEventPayload.from(projectId, projectDraft.getRewardDrafts()),
-            AggregateType.PROJECT_DRAFT,
-            projectDraft.getId()
-        );
-    }
-
-    public ProjectDraftResult getProjectDraft(UUID projectDraftId) {
-        ProjectDraft projectDraft = findProjectDraftOrThrow(projectDraftId);
-
-        return ProjectDraftResult.of(projectDraft);
+        publishRewardCreateEvent(projectId,  projectDraft);
     }
 
     private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {
@@ -245,5 +218,32 @@ public class ProjectDraftService {
         );
 
         return draft;
+    }
+
+    private UUID createProject(ProjectDraft projectDraft) {
+        return projectService.createProject(
+            CreateProjectCommand.of(
+                projectDraft.getId(),
+                projectDraft.getUserId(),
+                projectDraft.getStoryDraft().getTitle(),
+                projectDraft.getStoryDraft().getSummary(),
+                projectDraft.getStoryDraft().getCategory(),
+                projectDraft.getStoryDraft().getThumbnailUrl(),
+                projectDraft.getStoryDraft().getContentJson(),
+                projectDraft.getFundingDraft().getGoalAmount(),
+                projectDraft.getFundingDraft().getFundingStartDate(),
+                projectDraft.getFundingDraft().getFundingEndDate()
+            )
+        );
+    }
+
+    private void publishRewardCreateEvent(UUID projectId, ProjectDraft projectDraft) {
+        outboxEventPublisher.publish(
+            EventType.PROJECT_REWARD_CREATION,
+            EventDestination.KAFKA,
+            RewardCreationEventPayload.from(projectId, projectDraft.getRewardDrafts()),
+            AggregateType.PROJECT_DRAFT,
+            projectDraft.getId()
+        );
     }
 }

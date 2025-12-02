@@ -38,7 +38,8 @@ public class RewardCreateFailedHandler implements EventHandler<RewardCreateFaile
     public void handle(RewardCreateFailedEventPayload payload) {
         log.info("[RewardCreateFailedHandler.handle] 이벤트 수신 payload: {}", payload);
         Project project = readProject(payload.getProjectId());
-        project.markAsCreationFailed();
+        // TODO
+        project.markAsCreationFailed("RewardCreateFailed");
 
         ProjectDraft draft =readProjectDraft(project.getProjectDraftId());
         draft.markAsDraft();

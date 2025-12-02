@@ -12,7 +12,7 @@ public class KafkaTopicMapper {
             case PROJECT_REWARD_CREATION ->
                 KafkaTopics.PROJECT_REWARD_CREATION;
             case PROJECT_FUNDING_CREATION ->
-                KafkaTopics.FUNDING_CREATE_CREATION;
+                KafkaTopics.PROJECT_FUNDING_CREATION;
             case REWARD_CREATED ->
                 KafkaTopics.REWARD_CREATED;
             case REWARD_CREATION_FAILED ->

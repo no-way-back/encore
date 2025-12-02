@@ -2,6 +2,7 @@ package com.nowayback.reward.infrastructure.reward.persistence;
 
 import com.nowayback.reward.domain.reward.entity.Rewards;
 import com.nowayback.reward.domain.reward.repository.RewardRepository;
+import com.nowayback.reward.domain.vo.ProjectId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -28,5 +29,10 @@ public class RewardRepositoryImpl implements RewardRepository {
     @Override
     public Optional<Rewards> findById(UUID rewardId) {
         return jpaRepository.findById(rewardId);
+    }
+
+    @Override
+    public List<Rewards> findAvailableReward(UUID projectId) {
+        return jpaRepository.findAvailableReward(ProjectId.of(projectId));
     }
 }

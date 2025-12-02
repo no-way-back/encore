@@ -71,6 +71,7 @@ public class Outbox {
 		this.aggregateType = aggregateType;
 		this.aggregateId = aggregateId;
 		this.eventType = eventType;
+        this.destination = destination;
 		this.payload = payload;
 		this.status = status;
 		this.retryCount = retryCount;

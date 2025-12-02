@@ -4,7 +4,13 @@ import com.nowayback.project.application.event.EventPayload;
 import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftResult;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@Getter
+@ToString
+@NoArgsConstructor
 public class FundingCreationEventPayload implements EventPayload {
     private UUID projectId;
     private UUID creatorId;

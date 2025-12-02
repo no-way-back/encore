@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.project.application.event.EventPayload;
 import com.nowayback.project.domain.outbox.Outbox;
 import com.nowayback.project.domain.outbox.vo.AggregateType;
+import com.nowayback.project.domain.outbox.vo.EventDestination;
 import com.nowayback.project.domain.outbox.vo.EventType;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,13 @@ public class OutboxEventPublisher {
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public void publish(EventType type, EventPayload payload, AggregateType aggregateType, UUID aggregateId) {
+    public void publish(
+        EventType type,
+        EventDestination eventDestination,
+        EventPayload payload,
+        AggregateType aggregateType,
+        UUID aggregateId
+    ) {
         log.info(
             "[OutboxEventPublisher.publish] type={}, payload={}, AggregateType={}, aggregateId={}",
             type, payload, aggregateType, aggregateId);
@@ -28,6 +35,7 @@ public class OutboxEventPublisher {
             aggregateType,
             aggregateId,
             type,
+            eventDestination,
             toJson(payload)
         );
 

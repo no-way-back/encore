@@ -170,6 +170,7 @@ public class FundingServiceImpl implements FundingService {
 					reservationId,
 					"FUNDING_FAILED",
 					Map.of(
+						"fundingId", funding.getId(),
 						"projectId", command.projectId(),
 						"userId", command.userId(),
 						"reservationId", reservationId

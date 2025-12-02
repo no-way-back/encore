@@ -39,7 +39,6 @@ import com.nowayback.funding.application.fundingProjectStatistics.service.Fundin
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
-import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
 import com.nowayback.funding.domain.outbox.entity.Outbox;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
 import com.nowayback.funding.domain.outbox.repository.OutboxRepository;

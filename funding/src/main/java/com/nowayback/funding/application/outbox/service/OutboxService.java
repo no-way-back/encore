@@ -15,6 +15,12 @@ public interface OutboxService {
 	void markAsPublished(UUID eventId);
 
 	/**
+	 * Outbox 이벤트를 발생 실패 상태로 변경
+	 * @param eventId Outbox 이벤트 ID
+	 */
+	void markAsFailed(UUID eventId);
+
+	/**
 	 * Outbox 이벤트의 재시도 횟수 증가
 	 * @param eventId Outbox 이벤트 ID
 	 */

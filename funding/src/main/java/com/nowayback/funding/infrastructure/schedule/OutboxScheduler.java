@@ -49,6 +49,15 @@ public class OutboxScheduler {
 					if (event.getRetryCount() >= 5) {
 						log.error("Outbox 이벤트 최대 재시도 횟수 초과 - eventId: {}, 수동 처리 필요",
 							event.getId());
+
+						outboxService.markAsFailed(event.getId());
+
+						// TODO: 알림 발송 (Slack, Email 등)
+						// - 이벤트 ID
+						// - 이벤트 타입
+						// - 재시도 횟수
+						// - 수동 복구 필요 메시지
+
 						continue;
 					}
 

@@ -34,16 +34,15 @@ public class DistributedLockAop {
 		Method method = signature.getMethod();
 		DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
 
-		Objects.requireNonNull(distributedLock, "@DistributedLock annotation not found");
+		Objects.requireNonNull(distributedLock, "@DistributedLock 어노테이션을 찾을 수 없습니다.");
 
 		String lockKey = distributedLock.key();
 		if (lockKey == null || lockKey.trim().isEmpty()) {
 			throw new IllegalArgumentException(
-				"Lock key cannot be null or empty in method: " + method.getName()
+				"락 키가 비어 있습니다. method=" + method.getName()
 			);
 		}
 
-		// SpEL 파싱
 		Object dynamicValue = CustomSpringELParser.getDynamicValue(
 			signature.getParameterNames(),
 			joinPoint.getArgs(),
@@ -52,7 +51,7 @@ public class DistributedLockAop {
 
 		if (dynamicValue == null) {
 			throw new IllegalArgumentException(
-				"Lock key parsing failed. Check SpEL expression: " + lockKey
+				"SpEL 파싱 실패. expression=" + lockKey
 			);
 		}
 
@@ -60,39 +59,35 @@ public class DistributedLockAop {
 		RLock rLock = redissonClient.getLock(key);
 
 		try {
-			boolean available = rLock.tryLock(
-				distributedLock.waitTime(),
-				distributedLock.leaseTime(),
-				distributedLock.timeUnit()
-			);
+			boolean available = rLock.tryLock(distributedLock.waitTime(), distributedLock.leaseTime(), distributedLock.timeUnit());
 
 			if (!available) {
-				log.warn("락 획득 실패 - key: {}", key);
+				log.warn("분산 락 획득 실패 - key={}", key);
 				return null;
 			}
 
-			log.debug("락 획득 성공 - key: {}", key);
+			log.debug("분산 락 획득 성공 - key={}", key);
 
-			// useTransaction 옵션 확인
 			if (distributedLock.useTransaction() && aopForTransaction != null) {
 				return aopForTransaction.proceed(joinPoint);
-			} else {
-				return joinPoint.proceed();
 			}
+			return joinPoint.proceed();
 
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			log.error("락 획득 중 인터럽트 - key: {}", key, e);
-			throw new InterruptedException();
+			log.error("락 획득 중 인터럽트 발생 - key={}", key, e);
+			throw e;
+
 		} finally {
 			try {
 				if (rLock.isHeldByCurrentThread()) {
 					rLock.unlock();
-					log.debug("락 해제 - key: {}", key);
+					log.debug("분산 락 해제 - key={}", key);
 				}
 			} catch (IllegalMonitorStateException e) {
-				log.info("Redisson Lock Already Unlock - method: {}, key: {}",
-					method.getName(), key);
+				log.warn("이미 해제된 락입니다. method={}, key={}",
+					method.getName(), key
+				);
 			}
 		}
 	}

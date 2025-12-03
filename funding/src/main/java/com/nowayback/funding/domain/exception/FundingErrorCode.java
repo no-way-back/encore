@@ -30,6 +30,7 @@ public enum FundingErrorCode implements ErrorCode {
 	UNAUTHORIZED_CANCEL("FD-APP-012", "본인의 후원 내역만 취소할 수 있습니다.", HttpStatus.FORBIDDEN),
 	ALREADY_CANCELLED("FD-APP-013", "이미 취소된 후원입니다.", HttpStatus.CONFLICT),
 	FORBIDDEN_PROJECT_ACCESS("FD-APP-014", "프로젝트 생성자만 후원자 목록을 조회할 수 있습니다.", HttpStatus.FORBIDDEN),
+	PROJECT_ALREADY_EXISTS("FD-APP-015", "이미 존재하는 프로젝트입니다.", HttpStatus.CONFLICT),
 
 	// ================= Infrastructure / External Errors =================
 	REWARD_SERVICE_UNAVAILABLE("FD-INF-001", "티켓 서비스에 연결할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE),

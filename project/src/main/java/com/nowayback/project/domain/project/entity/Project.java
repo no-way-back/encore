@@ -2,9 +2,13 @@ package com.nowayback.project.domain.project.entity;
 
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
+import com.nowayback.project.domain.project.vo.Account;
 import com.nowayback.project.domain.project.vo.ProjectStatus;
 import com.nowayback.project.domain.shard.BaseEntity;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -65,9 +69,18 @@ public class Project extends BaseEntity {
     @Column(name = "creation_failed_reason")
     private String creationFailedReason;
 
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "accountBank", column = @Column(name = "account_bank")),
+        @AttributeOverride(name = "accountNumber", column = @Column(name = "account_number")),
+        @AttributeOverride(name = "accountHolderName", column = @Column(name = "account_holder_name")),
+    })
+    private Account account;
+
+
     private Project(
-        UUID projectDraftId,
         UUID userId,
+        UUID projectDraftId,
         String title,
         String summary,
         String category,
@@ -75,13 +88,14 @@ public class Project extends BaseEntity {
         String contentHtml,
         Long goalAmount,
         LocalDate fundingStartDate,
-        LocalDate fundingEndDate
+        LocalDate fundingEndDate,
+        Account account
     ) {
         validateRequired(userId, title, summary, category, contentHtml, goalAmount, fundingStartDate, fundingEndDate);
         validateFundingPeriod(fundingStartDate, fundingEndDate);
 
-        this.projectDraftId = projectDraftId;
         this.userId = userId;
+        this.projectDraftId = projectDraftId;
         this.title = title;
         this.summary = summary;
         this.category = category;
@@ -90,13 +104,13 @@ public class Project extends BaseEntity {
         this.goalAmount = goalAmount;
         this.fundingStartDate = fundingStartDate;
         this.fundingEndDate = fundingEndDate;
-
         this.status = ProjectStatus.CREATE_PENDING;
+        this.account = account;
     }
 
     public static Project create(
-        UUID projectDraftId,
         UUID userId,
+        UUID  projectDraftId,
         String title,
         String summary,
         String category,
@@ -104,11 +118,12 @@ public class Project extends BaseEntity {
         String contentHtml,
         Long goalAmount,
         LocalDate fundingStartDate,
-        LocalDate fundingEndDate
+        LocalDate fundingEndDate,
+        Account account
     ) {
         return new Project(
-            projectDraftId,
             userId,
+            projectDraftId,
             title,
             summary,
             category,
@@ -116,7 +131,8 @@ public class Project extends BaseEntity {
             contentHtml,
             goalAmount,
             fundingStartDate,
-            fundingEndDate
+            fundingEndDate,
+            account
         );
     }
 

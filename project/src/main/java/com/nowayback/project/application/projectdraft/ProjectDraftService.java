@@ -19,6 +19,7 @@ import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.outbox.vo.AggregateType;
 import com.nowayback.project.domain.outbox.vo.EventDestination;
 import com.nowayback.project.domain.outbox.vo.EventType;
+import com.nowayback.project.domain.project.vo.Account;
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectFundingDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectRewardDraft;
@@ -188,7 +189,7 @@ public class ProjectDraftService {
         UUID projectId = createProject(projectDraft);
         projectDraft.linkProjectId(projectId);
 
-        publishRewardCreateEvent(projectId,  projectDraft);
+        publishRewardCreateEvent(projectId, projectDraft);
     }
 
     private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {
@@ -223,8 +224,8 @@ public class ProjectDraftService {
     private UUID createProject(ProjectDraft projectDraft) {
         return projectService.createProject(
             CreateProjectCommand.of(
-                projectDraft.getId(),
                 projectDraft.getUserId(),
+                projectDraft.getId(),
                 projectDraft.getStoryDraft().getTitle(),
                 projectDraft.getStoryDraft().getSummary(),
                 projectDraft.getStoryDraft().getCategory(),
@@ -232,7 +233,12 @@ public class ProjectDraftService {
                 projectDraft.getStoryDraft().getContentJson(),
                 projectDraft.getFundingDraft().getGoalAmount(),
                 projectDraft.getFundingDraft().getFundingStartDate(),
-                projectDraft.getFundingDraft().getFundingEndDate()
+                projectDraft.getFundingDraft().getFundingEndDate(),
+                Account.create(
+                    projectDraft.getSettlementDraft().getAccountBank(),
+                    projectDraft.getSettlementDraft().getAccountNumber(),
+                    projectDraft.getSettlementDraft().getAccountHolder()
+                )
             )
         );
     }

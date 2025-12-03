@@ -2,6 +2,7 @@ package com.nowayback.project.application.project;
 
 import com.nowayback.project.application.project.command.CreateProjectCommand;
 import com.nowayback.project.application.project.dto.ProjectResult;
+import com.nowayback.project.application.project.dto.SettlementResult;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.project.entity.Project;
@@ -22,8 +23,8 @@ public class ProjectService {
     @Transactional
     public UUID createProject(CreateProjectCommand command) {
         Project project = Project.create(
-            command.projectDraftId(),
             command.userId(),
+            command.projectDraftId(),
             command.title(),
             command.summary(),
             command.category(),
@@ -31,7 +32,8 @@ public class ProjectService {
             command.contentHtml(),
             command.goalAmount(),
             command.fundingStartDate(),
-            command.fundingEndDate()
+            command.fundingEndDate(),
+            command.account()
         );
 
         projectRepository.save(project);
@@ -58,7 +60,13 @@ public class ProjectService {
         return ProjectResult.of(project);
     }
 
-    @Transactional
+    public SettlementResult getProjectSettlement(UUID projectId) {
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.FUNDING_DRAFT_NOT_FOUND));
+
+        return SettlementResult.from(project);
+    }
+
     public void markAsUpcoming(UUID projectId) {
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));

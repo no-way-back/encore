@@ -1,24 +1,26 @@
 package com.nowayback.project.application.project.command;
 
+import com.nowayback.project.domain.project.vo.Account;
 import java.time.LocalDate;
 import java.util.UUID;
 
 public record CreateProjectCommand(
-    UUID projectDraftId,
-    UUID userId,
-    String title,
-    String summary,
-    String category,
-    String thumbnailUrl,
-    String contentHtml,
-    Long goalAmount,
-    LocalDate fundingStartDate,
-    LocalDate fundingEndDate
+     UUID userId,
+     UUID projectDraftId,
+     String title,
+     String summary,
+     String category,
+     String thumbnailUrl,
+     String contentHtml,
+     Long goalAmount,
+     LocalDate fundingStartDate,
+     LocalDate fundingEndDate,
+     Account account
 ) {
 
     public static CreateProjectCommand of(
-        UUID projectDraftId,
         UUID userId,
+        UUID projectDraftId,
         String title,
         String summary,
         String category,
@@ -26,11 +28,12 @@ public record CreateProjectCommand(
         String contentHtml,
         Long goalAmount,
         LocalDate fundingStartDate,
-        LocalDate fundingEndDate
+        LocalDate fundingEndDate,
+        Account account
     ) {
         return new CreateProjectCommand(
-            projectDraftId,
             userId,
+            projectDraftId,
             title,
             summary,
             category,
@@ -38,7 +41,8 @@ public record CreateProjectCommand(
             contentHtml,
             goalAmount,
             fundingStartDate,
-            fundingEndDate
+            fundingEndDate,
+            account
         );
     }
 }

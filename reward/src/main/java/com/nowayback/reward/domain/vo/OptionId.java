@@ -27,7 +27,7 @@ public class OptionId implements Serializable {
         return new OptionId(id);
     }
 
-    public static OptionId ofNullable(UUID value) {
-        return value != null ? new OptionId(value) : null;
+    public static OptionId ofNullable(UUID id) {
+        return id != null ? new OptionId(id) : null;
     }
 }

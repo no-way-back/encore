@@ -6,6 +6,7 @@ import com.nowayback.reward.domain.reward.command.CreateRewardOptionCommand;
 import com.nowayback.reward.domain.reward.entity.Rewards;
 import com.nowayback.reward.domain.reward.vo.RewardType;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,7 +29,9 @@ public class StockReserveFixture {
                 RewardType.GENERAL,
                 null
         );
-        return Rewards.create(command);
+        Rewards reward = Rewards.create(command);
+        setRewardId(reward, UUID.randomUUID());
+        return reward;
     }
 
     /**
@@ -47,16 +50,23 @@ public class StockReserveFixture {
                 "프리미엄 티셔츠",
                 "사이즈를 선택할 수 있는 티셔츠입니다",
                 50000,
-                0,
+                100, // 옵션이 있어도 리워드 자체 재고는 1 이상이어야 함
                 3000,
                 50000,
                 3,
                 RewardType.GENERAL,
-                options
+                null // options는 addOptionList로 추가
         );
 
         Rewards reward = Rewards.create(command);
+        setRewardId(reward, UUID.randomUUID());
         reward.addOptionList(options);
+
+        // 각 옵션에도 ID 설정
+        for (int i = 0; i < reward.getOptionList().size(); i++) {
+            setOptionId(reward.getOptionList().get(i), UUID.randomUUID());
+        }
+
         return reward;
     }
 
@@ -75,16 +85,23 @@ public class StockReserveFixture {
                 "커스텀 후드",
                 "필수 옵션이 있는 상품입니다",
                 80000,
-                0,
+                100, // 옵션이 있어도 리워드 자체 재고는 1 이상이어야 함
                 5000,
                 null,
                 2,
                 RewardType.GENERAL,
-                options
+                null
         );
 
         Rewards reward = Rewards.create(command);
+        setRewardId(reward, UUID.randomUUID());
         reward.addOptionList(options);
+
+        // 각 옵션에도 ID 설정
+        for (int i = 0; i < reward.getOptionList().size(); i++) {
+            setOptionId(reward.getOptionList().get(i), UUID.randomUUID());
+        }
+
         return reward;
     }
 
@@ -130,5 +147,31 @@ public class StockReserveFixture {
                 new StockReserveCommand.StockReserveItemCommand(rewardId2, optionId2, quantity2)
         );
         return new StockReserveCommand(fundingId, items);
+    }
+
+    /**
+     * Reflection을 사용하여 Rewards의 ID 설정
+     */
+    private static void setRewardId(Rewards reward, UUID id) {
+        try {
+            Field idField = Rewards.class.getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(reward, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set reward id", e);
+        }
+    }
+
+    /**
+     * Reflection을 사용하여 RewardOptions의 ID 설정
+     */
+    private static void setOptionId(com.nowayback.reward.domain.reward.entity.RewardOptions option, UUID id) {
+        try {
+            Field idField = com.nowayback.reward.domain.reward.entity.RewardOptions.class.getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(option, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set option id", e);
+        }
     }
 }

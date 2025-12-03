@@ -1,4 +1,4 @@
-package com.nowayback.reward.infrastructure.kafka.producer;
+package com.nowayback.reward.infrastructure.kafka.publisher;
 
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.RewardCreationResultEvent;
 import lombok.RequiredArgsConstructor;

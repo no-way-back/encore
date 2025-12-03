@@ -1,4 +1,4 @@
-package com.nowayback.reward.infrastructure.kafka.consumer;
+package com.nowayback.reward.infrastructure.kafka.listener;
 
 import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.application.reward.command.RewardCreateCommand;
@@ -6,7 +6,7 @@ import com.nowayback.reward.infrastructure.kafka.constant.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.data.RewardCreateData;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.RewardCreationResultEvent;
-import com.nowayback.reward.infrastructure.kafka.producer.ProjectEventPublisher;
+import com.nowayback.reward.infrastructure.kafka.publisher.ProjectEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

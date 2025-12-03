@@ -8,10 +8,9 @@ import com.nowayback.funding.application.funding.dto.command.CreateFundingComman
 import jakarta.validation.constraints.NotNull;
 
 public record DecreaseRewardRequest(
-	UUID fundingId,
 	List<RewardItem> items
 ) {
-	public static DecreaseRewardRequest from(UUID fundingId, CreateFundingCommand command) {
+	public static DecreaseRewardRequest from(CreateFundingCommand command) {
 		List<RewardItem> rewardItems = command.rewardItems().stream()
 			.map(item -> new RewardItem(
 				item.rewardId(),
@@ -20,7 +19,7 @@ public record DecreaseRewardRequest(
 			))
 			.toList();
 
-		return new DecreaseRewardRequest(fundingId, rewardItems);
+		return new DecreaseRewardRequest(rewardItems);
 	}
 
 	public record RewardItem(

@@ -1,4 +1,4 @@
-package com.nowayback.funding.presentation.Funding.dto.request;
+package com.nowayback.funding.presentation.funding.dto.request;
 
 import java.util.UUID;
 

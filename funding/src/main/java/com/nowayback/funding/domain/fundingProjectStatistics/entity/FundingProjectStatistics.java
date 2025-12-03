@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "funding_project_statistics)")
+@Table(name = "p_funding_project_statistics")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FundingProjectStatistics extends BaseEntity {

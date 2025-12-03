@@ -1,4 +1,4 @@
-package com.nowayback.funding.presentation.Funding;
+package com.nowayback.funding.presentation.funding;
 
 import java.util.UUID;
 
@@ -24,14 +24,14 @@ import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
 import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
 import com.nowayback.funding.application.funding.service.FundingService;
-import com.nowayback.funding.presentation.Funding.dto.request.CancelFundingRequest;
-import com.nowayback.funding.presentation.Funding.dto.request.CreateFundingRequest;
-import com.nowayback.funding.presentation.Funding.dto.request.GetMyFundingsRequest;
-import com.nowayback.funding.presentation.Funding.dto.request.GetProjectSponsorsRequest;
-import com.nowayback.funding.presentation.Funding.dto.response.CancelFundingResponse;
-import com.nowayback.funding.presentation.Funding.dto.response.CreateFundingResponse;
-import com.nowayback.funding.presentation.Funding.dto.response.GetMyFundingsResponse;
-import com.nowayback.funding.presentation.Funding.dto.response.GetProjectSponsorsResponse;
+import com.nowayback.funding.presentation.funding.dto.request.CancelFundingRequest;
+import com.nowayback.funding.presentation.funding.dto.request.CreateFundingRequest;
+import com.nowayback.funding.presentation.funding.dto.request.GetMyFundingsRequest;
+import com.nowayback.funding.presentation.funding.dto.request.GetProjectSponsorsRequest;
+import com.nowayback.funding.presentation.funding.dto.response.CancelFundingResponse;
+import com.nowayback.funding.presentation.funding.dto.response.CreateFundingResponse;
+import com.nowayback.funding.presentation.funding.dto.response.GetMyFundingsResponse;
+import com.nowayback.funding.presentation.funding.dto.response.GetProjectSponsorsResponse;
 
 @RestController
 @RequestMapping("/fundings")

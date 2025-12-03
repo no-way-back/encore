@@ -1,13 +1,15 @@
 package com.nowayback.reward.presentation.reward;
 
 import com.nowayback.reward.application.reward.RewardService;
+import com.nowayback.reward.application.reward.command.StockReserveCommand;
+import com.nowayback.reward.application.reward.dto.StockReserveResult;
+import com.nowayback.reward.presentation.reward.dto.request.StockReserveRequest;
 import com.nowayback.reward.presentation.reward.dto.response.RewardListResponse;
+import com.nowayback.reward.presentation.reward.dto.response.StockReserveResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -23,5 +25,15 @@ public class InternalRewardController {
         return ResponseEntity.ok(
                 RewardListResponse.from(rewardService.getRewardsForProject(projectId))
         );
+    }
+
+    @PostMapping("/reserve-stock")
+    public ResponseEntity<StockReserveResponse> reserveStock(
+            @Valid @RequestBody StockReserveRequest request
+    ) {
+        StockReserveCommand command = StockReserveCommand.from(request);
+        StockReserveResult result = rewardService.reserveStock(command);
+
+        return ResponseEntity.ok(StockReserveResponse.from(result));
     }
 }

@@ -1,5 +1,6 @@
 package com.nowayback.payment.fixture;
 
+import com.nowayback.payment.application.payment.dto.result.PaymentStatusLogResult;
 import com.nowayback.payment.domain.payment.entity.PaymentStatusLog;
 import com.nowayback.payment.domain.payment.vo.Money;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
@@ -41,7 +42,9 @@ public class PaymentStatusLogFixture {
             createPaymentStatusLog()
     );
 
+    public static final Page<PaymentStatusLog> PAYMENT_STATUS_LOGS_PAGE = new PageImpl<>(PAYMENT_STATUS_LOGS, PAGEABLE, PAYMENT_STATUS_LOGS.size());
+
     /* Payment Status Log Result */
 
-    public static final Page<PaymentStatusLog> PAYMENT_STATUS_LOGS_PAGE = new PageImpl<>(PAYMENT_STATUS_LOGS, PAGEABLE, PAYMENT_STATUS_LOGS.size());
+    public static final Page<PaymentStatusLogResult> PAYMENT_STATUS_LOG_RESULT_PAGE = PAYMENT_STATUS_LOGS_PAGE.map(PaymentStatusLogResult::from);
 }

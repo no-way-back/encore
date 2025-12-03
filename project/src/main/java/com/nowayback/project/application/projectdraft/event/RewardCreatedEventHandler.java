@@ -2,6 +2,7 @@ package com.nowayback.project.application.projectdraft.event;
 
 import com.nowayback.project.application.event.EventHandler;
 import com.nowayback.project.application.outbox.event.OutboxEventPublisher;
+import com.nowayback.project.application.project.ProjectService;
 import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftResult;
 import com.nowayback.project.application.projectdraft.event.payload.FundingCreationEventPayload;
 import com.nowayback.project.application.projectdraft.event.payload.RewardCreatedEventPayload;
@@ -26,6 +27,7 @@ public class RewardCreatedEventHandler implements EventHandler<RewardCreatedEven
     private final ProjectRepository projectRepository;
     private final ProjectDraftRepository projectDraftRepository;
     private final OutboxEventPublisher outboxEventPublisher;
+    private final ProjectService projectService;
 
     @Override
     public boolean supports(EventType eventType) {
@@ -46,7 +48,10 @@ public class RewardCreatedEventHandler implements EventHandler<RewardCreatedEven
         ProjectDraft projectDraft = readProjectDraft(project.getProjectDraftId());
         validateFundingDraft(projectDraft);
 
-        publishFundingCreationEvent(project, projectDraft);
+        projectService.markAsUpcoming(projectId);
+
+        publishFundingCreationEvent(projectId, projectDraft);
+        log.info("[RewardCreatedEventHandler.handle] 펀딩 생성 이벤트 발행 완료 - projectId: {}", projectId);
     }
 
     private Project readProject(UUID projectId) {
@@ -65,17 +70,17 @@ public class RewardCreatedEventHandler implements EventHandler<RewardCreatedEven
         }
     }
 
-    private void publishFundingCreationEvent(Project project, ProjectDraft projectDraft) {
+    private void publishFundingCreationEvent(UUID projectId, ProjectDraft projectDraft) {
         outboxEventPublisher.publish(
             EventType.PROJECT_FUNDING_CREATION,
             EventDestination.KAFKA,
             FundingCreationEventPayload.from(
-                project.getId(),
+                projectId,
                 projectDraft.getUserId(),
                 ProjectFundingDraftResult.of(projectDraft)
             ),
             AggregateType.PROJECT,
-            project.getId()
+            projectId
         );
     }
 }

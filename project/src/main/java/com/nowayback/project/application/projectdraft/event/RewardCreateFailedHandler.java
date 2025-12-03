@@ -41,7 +41,7 @@ public class RewardCreateFailedHandler implements EventHandler<RewardCreateFaile
         // TODO
         project.markAsCreationFailed("RewardCreateFailed");
 
-        ProjectDraft draft =readProjectDraft(project.getProjectDraftId());
+        ProjectDraft draft = readProjectDraft(project.getProjectDraftId());
         draft.markAsDraft();
     }
 

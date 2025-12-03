@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+import static com.nowayback.reward.domain.reward.vo.SaleStatus.*;
 
 @Entity
 @Table(name = "p_rewards")
@@ -103,7 +104,7 @@ public class Rewards extends BaseEntity {
                 ShippingPolicy.of(command.shippingFee(), command.freeShippingAmount()),
                 command.purchaseLimitPerPerson(),
                 command.rewardType(),
-                SaleStatus.AVAILABLE
+                AVAILABLE
         );
     }
 
@@ -246,17 +247,27 @@ public class Rewards extends BaseEntity {
 
     /**
      * 재고 차감
-     * 옵션이 없는 리워드만 재고가 0이면 SOLD_OUT 처리
+     * - 재고가 0이되면 품절 상태로 변경
      */
     public void decreaseStock(Integer quantity) {
         this.stock = this.stock.decrease(quantity);
 
-        // 옵션이 없는 리워드만 자동 품절 처리
-        if (!hasOptions() && this.stock.getQuantity() == 0) {
-            this.status = SaleStatus.SOLD_OUT;
+        if (this.stock.isSoldOut()) {
+            this.status = SOLD_OUT;
         }
     }
 
+    /**
+     * 재고 복원
+     * - 품절 상태 였다면 판매 가능 상태로 변경
+     */
+    public void restoreStock(Integer quantity) {
+        this.stock = this.stock.restore(quantity);
+
+        if (this.status == SOLD_OUT && this.stock.hasStock()) {
+            this.status = AVAILABLE;
+        }
+    }
     /**
      * 필수 옵션 존재 여부 확인
      */
@@ -288,7 +299,7 @@ public class Rewards extends BaseEntity {
      */
     public void syncStatus() {
         if (hasOptions() && areAllOptionsSoldOut()) {
-            this.status = SaleStatus.SOLD_OUT;
+            this.status = SOLD_OUT;
         }
     }
 
@@ -297,7 +308,7 @@ public class Rewards extends BaseEntity {
      */
     private boolean areAllOptionsSoldOut() {
         return this.optionList.stream()
-                .allMatch(option -> option.getStatus() == SaleStatus.SOLD_OUT);
+                .allMatch(option -> option.getStatus() == SOLD_OUT);
     }
 
     private void updateFields(UpdateRewardCommand command) {

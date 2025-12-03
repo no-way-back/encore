@@ -24,6 +24,7 @@ spring:
     topic:
       reward-creation-result: reward-creation-result
       project-reward-creation: project-reward-creation
+      funding-failed: funding-failed
 
 logging:
   level:

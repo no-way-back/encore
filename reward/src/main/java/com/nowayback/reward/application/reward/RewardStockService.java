@@ -8,6 +8,7 @@ import com.nowayback.reward.domain.reward.entity.RewardOptions;
 import com.nowayback.reward.domain.reward.entity.Rewards;
 import com.nowayback.reward.domain.reward.repository.RewardRepository;
 import com.nowayback.reward.domain.stockreservation.entity.StockReservation;
+import com.nowayback.reward.domain.vo.FundingId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,32 @@ public class RewardStockService {
         return result;
     }
 
-    // ========== 재고 차감 Private 메서드 ==========
+    /**
+     * 재고 복원 (증가)
+     * - fundingId로 모든 StockReservation 조회
+     * - 옵션이 있는 경우: 옵션의 재고 복원
+     * - 옵션이 없는 경우: 리워드의 재고 복원
+     * - StockReservation 상태를 RESTORED로 변경
+     */
+    @Transactional
+    public void restoreStock(UUID fundingId) {
+        log.info("재고 복원 시작 - fundingId: {}", fundingId);
+
+        List<StockReservation> reservations = stockReservationRepository.findByFundingId(FundingId.of(fundingId));
+
+        if (reservations.isEmpty()) {
+            log.warn("펀딩에 해당하는 예약이 없습니다 - fundingId: {}", fundingId);
+            return;
+        }
+
+        log.info("복원 대상 예약 수: {}", reservations.size());
+
+        reservations.forEach(this::restoreStockForReservation);
+
+        log.info("재고 복원 완료 - fundingId: {}, 처리된 예약 수: {}", fundingId, reservations.size());
+    }
+
+    // ========== private 메서드 ==========
 
     /**
      * 개별 아이템의 재고 예약 처리
@@ -131,6 +157,59 @@ public class RewardStockService {
 
         return StockReserveResult.ReservationWithPrice
                 .of(saveReservation, itemAmount);
+    }
+
+    /**
+     * 개별 예약의 재고 복원 처리
+     * - 이미 복원된 예약은 건너뜀
+     * - 옵션 ID가 있으면: 옵션 재고 복원
+     * - 옵션 ID가 없으면: 리워드 재고 복원
+     * - 품절 상태였다면 상태 동기화
+     */
+    private void restoreStockForReservation(StockReservation reservation) {
+        if (reservation.isRestored()) {
+            log.warn("이미 복원된 예약 건너뜀 - reservationId: {}", reservation.getId());
+            return;
+        }
+
+        Rewards reward = getById(reservation.getRewardId().getId());
+
+        if (reservation.getOptionId() != null) {
+            restoreWithOption(reward, reservation);
+        } else {
+            restoreWithoutOption(reward, reservation);
+        }
+
+        reservation.restore();
+    }
+
+    /**
+     * 옵션 재고 복원
+     * - 옵션의 재고 증가
+     * - 품절 → 판매중 상태 변경
+     * - 리워드 상태 동기화
+     */
+    private void restoreWithOption(Rewards reward, StockReservation reservation) {
+        RewardOptions option = reward.findOption(reservation.getOptionId().getId());
+        option.restoreStock(reservation.getQuantity());
+        reward.syncStatus();
+
+        log.info("옵션 재고 복원 완료 - fundingId: {}, rewardId: {}, optionId: {}, quantity: {}, optionStatus: {}, rewardStatus: {}",
+                reservation.getFundingId(), reward.getId(), option.getId(),
+                reservation.getQuantity(), option.getStatus(), reward.getStatus());
+    }
+
+    /**
+     * 리워드 재고 복원
+     * - 리워드의 재고 증가
+     * - 품절 → 판매중 상태 변경
+     */
+    private void restoreWithoutOption(Rewards reward, StockReservation reservation) {
+        reward.restoreStock(reservation.getQuantity());
+
+        log.info("리워드 재고 복원 완료 - fundingId: {}, rewardId: {}, quantity: {}, rewardStatus: {}",
+                reservation.getFundingId(), reward.getId(),
+                reservation.getQuantity(), reward.getStatus());
     }
 
     /**

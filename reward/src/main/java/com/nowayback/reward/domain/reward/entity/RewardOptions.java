@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+import static com.nowayback.reward.domain.reward.vo.SaleStatus.*;
+
 @Entity
 @Table(name = "p_reward_option")
 @Getter
@@ -41,7 +43,7 @@ public class RewardOptions extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private SaleStatus status = SaleStatus.AVAILABLE;
+    private SaleStatus status = AVAILABLE;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reward_id", nullable = false)
@@ -57,7 +59,7 @@ public class RewardOptions extends BaseEntity {
         this.isRequired = isRequired;
         this.displayOrder = displayOrder;
         this.reward = reward;
-        this.status = SaleStatus.AVAILABLE;
+        this.status = AVAILABLE;
     }
 
     public void update(UpdateRewardOptionCommand command) {
@@ -80,13 +82,25 @@ public class RewardOptions extends BaseEntity {
 
     /**
      * 재고 차감
-     * 재고가 0이 되면 SOLD_OUT 상태로 변경
+     * - 재고가 0이되면 품절 상태로 변경
      */
     public void decreaseStock(Integer quantity) {
         this.stock = this.stock.decrease(quantity);
 
-        if (this.stock.getQuantity() == 0) {
-            this.status = SaleStatus.SOLD_OUT;
+        if (this.stock.isSoldOut()) {
+            this.status = SOLD_OUT;
+        }
+    }
+
+    /**
+     * 재고 복원
+     * - 품절 상태 였다면 판매 가능 상태로 변경
+     */
+    public void restoreStock(Integer quantity) {
+        this.stock = this.stock.restore(quantity);
+
+        if (this.status == SOLD_OUT && this.stock.hasStock()) {
+            this.status = AVAILABLE;
         }
     }
 
@@ -102,6 +116,6 @@ public class RewardOptions extends BaseEntity {
      * 판매 가능 여부 확인
      */
     public boolean isAvailableForSale() {
-        return this.status == SaleStatus.AVAILABLE && this.stock.getQuantity() > 0;
+        return this.status == AVAILABLE && this.stock.getQuantity() > 0;
     }
 }

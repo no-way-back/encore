@@ -57,6 +57,15 @@ public enum PaymentErrorCode {
     INVALID_SETTLEMENT_STATUS_TRANSITION("SETTLEMENT1011", "유효하지 않은 정산 상태 전환입니다.", HttpStatus.BAD_REQUEST),
 
     /**
+     * Payment Status Log Domain Error Codes
+     */
+    NULL_PAYMENT_ID_OBJECT("PL1001", "결제 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PREV_PAYMENT_STATUS_OBJECT("PL1002", "이전 결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_CURR_PAYMENT_STATUS_OBJECT("PL1003", "현재 결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PAYMENT_STATUS_LOG_REASON("PL1004", "결제 상태 로그 사유는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PAYMENT_AMOUNT_OBJECT("PL1005", "결제 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    /**
      * Payment Application Error Codes
      */
     PAYMENT_NOT_FOUND("PAYMENT2001", "결제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),

@@ -87,6 +87,12 @@ public enum PaymentErrorCode {
      */
     PROJECT_CLIENT_REQUEST_FAILED("SETTLEMENT3001", "프로젝트 외부 서비스 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
     OPEN_BANKING_TRANSFER_FAILED("SETTLEMENT3002", "오픈뱅킹 외부 서비스 이체 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+
+    /**
+     * Presentation Error Codes
+     */
+    UNAUTHORIZED("PAYMENT4001", "인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
+    FORBIDDEN("PAYMENT4002", "권한이 없는 사용자입니다.", HttpStatus.FORBIDDEN),
     ;
 
     private final String code;

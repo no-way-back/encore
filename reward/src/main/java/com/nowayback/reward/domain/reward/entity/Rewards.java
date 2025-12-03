@@ -71,6 +71,9 @@ public class Rewards extends BaseEntity {
     @Column(nullable = false, length = 20)
     private SaleStatus status;
 
+    @Column(nullable = false)
+    private boolean isDeleted;
+
     @OneToMany(
             mappedBy = "reward",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE}
@@ -223,6 +226,22 @@ public class Rewards extends BaseEntity {
                 .filter(o -> o.getId().equals(optionId))
                 .findFirst()
                 .orElseThrow(() -> new RewardException(OPTION_NOT_FOUND));
+    }
+
+    /**
+     * 리워드 삭제
+     * - soft delete
+     */
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    /**
+     * 옵션이 있는 리워드인이 확인
+     * - UI 표현 확인 용도
+     */
+    public boolean hasOptions() {
+        return !this.optionList.isEmpty();
     }
 
     private void updateFields(UpdateRewardCommand command) {

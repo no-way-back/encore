@@ -79,4 +79,23 @@ class PaymentServiceTest {
             verify(paymentGatewayClient, times(1)).refundPayment(anyString(), anyString(), any(RefundAccountInfo.class));
         }
     }
+
+    @Nested
+    @DisplayName("프로젝트 ID로 총 결제 금액 조회")
+    class GetTotalAmountByProjectId {
+
+        @Test
+        @DisplayName("프로젝트 ID에 대한 총 결제 금액을 반환한다.")
+        void getTotalAmountByProjectId_returnTotalAmount() {
+            /* given */
+            when(paymentRepository.sumAmountByProjectId(any()))
+                    .thenReturn(150000L);
+
+            /* when */
+            Long totalAmount = paymentService.getTotalAmountByProjectId(PROJECT_UUID);
+
+            /* then */
+            assertThat(totalAmount).isEqualTo(150000L);
+        }
+    }
 }

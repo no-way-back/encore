@@ -1,6 +1,7 @@
 package com.nowayback.reward.application.reward;
 
 import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
+import com.nowayback.reward.application.reward.dto.RewardListResult;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.entity.Rewards;
@@ -50,18 +51,35 @@ public class RewardService {
     }
 
     /**
+     * 리워드 목록 조회
+     * - isDelete 상태는 포함하지 않고 반환
+     * - SOLD_OUT 상태는 포함하여 반환
+     */
+    @Transactional(readOnly = true)
+    public RewardListResult getRewardsForProject(UUID projectId) {
+        List<Rewards> rewardList = rewardRepository.findAvailableReward(projectId);
+
+        return RewardListResult.from(rewardList);
+    }
+
+    /**
      * 리워드 수정
      * 옵션 수정의 경우 내부 Cascade 설정으로 변경감지 활용
      * @param command 리워드, 리워드 옵션 수정 요청 데이터
      */
     @Transactional
     public void update(UpdateRewardCommand command) {
-        Rewards reward = rewardRepository.findById(command.rewardId()).orElseThrow(
-                () -> new RewardException(REWARD_NOT_FOUND)
-        );
-
+        Rewards reward = getById(command.rewardId());
         reward.update(command);
     }
+
+    @Transactional
+    public void delete(UUID rewardId) {
+        Rewards reward = getById(rewardId);
+        reward.delete();
+    }
+
+    // private 헬퍼 메서드
 
     /**
      * 단일 리워드를 생성 후 옵션 추가
@@ -85,5 +103,11 @@ public class RewardService {
                 savedReward.getOptionList().size());
 
         return savedReward;
+    }
+
+    private Rewards getById(UUID rewardId) {
+        return rewardRepository.findById(rewardId).orElseThrow(
+                () -> new RewardException(REWARD_NOT_FOUND)
+        );
     }
 }

@@ -9,6 +9,9 @@ public record ConfirmPaymentRequest (
         @NotNull(message = "펀딩 ID는 필수 값입니다.")
         UUID fundingId,
 
+        @NotNull(message = "프로젝트 ID는 필수 값입니다.")
+        UUID projectId,
+
         @NotNull(message = "결제 금액은 필수 값입니다.")
         Long amount,
 

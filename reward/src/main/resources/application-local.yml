@@ -22,12 +22,12 @@ spring:
     consumer:
       group-id: reward-service-group-test
     topic:
-      project-events: project-events
+      reward-creation-result: reward-creation-result
+      project-reward-creation: project-reward-creation
 
 logging:
   level:
     root: INFO
     com.nowayback.reward: DEBUG
-    org.springframework.kafka: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE

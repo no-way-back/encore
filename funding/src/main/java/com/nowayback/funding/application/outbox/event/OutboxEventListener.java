@@ -52,9 +52,12 @@ public class OutboxEventListener {
 
 	private String getTopicName(String eventType) {
 		return switch (eventType) {
-			case "FUNDING_FAILED" -> FUNDING_FAILED;
-			case "FUNDING_CANCELLED" -> FUNDING_CANCELLED;
-			case "FUNDING_COMPLETED" -> FUNDING_COMPLETED;
+			case "FUNDING_FAILED" -> FUNDING_FAILED; // 리워드 - 재고 복구
+			case "FUNDING_REFUND" -> FUNDING_REFUND; // 리워드 - 재고 복구
+			case "FUNDING_COMPLETED" -> FUNDING_COMPLETED; // 리워드 - QR 생성
+			case "PROJECT_FUNDING_CREATED_FAILED" -> PROJECT_FUNDING_CREATED_FAILED; // 프로젝트 - 엔티티 생성 실패 -> 복구에 필요
+			case "PROJECT_FUNDING_SUCCESS" -> PROJECT_FUNDING_SUCCESS; // 프로젝트, 리워드 - 상태변경 / 리워드 제공
+			case "PROJECT_FUNDING_FAILED" -> PROJECT_FUNDING_FAILED; // 프로젝트, 결제 : 상태변경 / 전액 환불 진행
 			default -> "funding-events";
 		};
 	}

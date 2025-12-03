@@ -2,6 +2,7 @@ package com.nowayback.payment.infrastructure.payment.repository;
 
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
+import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -84,6 +85,29 @@ class PaymentRepositoryTest {
 
             /* then */
             assertThat(foundPayment).isNotPresent();
+        }
+    }
+
+    @Nested
+    @DisplayName("프로젝트 ID로 결제 금액 합계 조회")
+    class SumAmountByProjectId {
+
+        @Test
+        @DisplayName("프로젝트 ID에 대한 결제 금액 합계를 반환한다.")
+        void sumAmountByProjectId_returnSum() {
+            /* given */
+            Payment payment1 = createPaymentWithStatus(PaymentStatus.COMPLETED);
+            Payment payment2 = createPaymentWithStatus(PaymentStatus.COMPLETED);
+
+            entityManager.persist(payment1);
+            entityManager.persist(payment2);
+            entityManager.flush();
+
+            /* when */
+            Long sum = paymentRepository.sumAmountByProjectId(PROJECT_ID);
+
+            /* then */
+            assertThat(sum).isEqualTo(payment1.getAmount().add(payment2.getAmount()).getAmount());
         }
     }
 }

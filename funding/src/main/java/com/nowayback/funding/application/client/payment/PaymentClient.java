@@ -13,10 +13,13 @@ import com.nowayback.funding.application.client.payment.dto.request.ProcessRefun
 import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
 import com.nowayback.funding.application.client.payment.dto.response.SettlementResponse;
 
-@FeignClient(name = "payment-service", url = "${feign.client.config.payment-service.url}")
+@FeignClient(
+	name = "payment-service",
+	url = "${feign.client.config.payment-service.url}"
+)
 public interface PaymentClient {
 
-	@PostMapping("/payments")
+	@PostMapping("/payments/confirm")
 	ProcessPaymentResponse processPayment(
 		@RequestBody ProcessPaymentRequest request
 	);

@@ -24,6 +24,9 @@ public class PaymentFixture {
     public static final UUID FUNDING_UUID = UUID.randomUUID();
     public static final FundingId FUNDING_ID = FundingId.of(FUNDING_UUID);
 
+    public static final UUID PROJECT_UUID = UUID.randomUUID();
+    public static final ProjectId PROJECT_ID = ProjectId.of(PROJECT_UUID);
+
     public static final long AMOUNT_VALUE = 20_000L;
     public static final Money AMOUNT = Money.of(AMOUNT_VALUE);
 
@@ -47,6 +50,7 @@ public class PaymentFixture {
         return Payment.create(
                 USER_ID,
                 FUNDING_ID,
+                PROJECT_ID,
                 AMOUNT,
                 PG_INFO
         );
@@ -63,6 +67,7 @@ public class PaymentFixture {
     public static final ConfirmPaymentCommand CONFIRM_PAYMENT_COMMAND = ConfirmPaymentCommand.of(
             USER_UUID,
             FUNDING_UUID,
+            PROJECT_UUID,
             AMOUNT_VALUE,
             PG_METHOD,
             PG_PAYMENT_KEY,
@@ -87,6 +92,7 @@ public class PaymentFixture {
 
     public static final ConfirmPaymentRequest VALID_CONFIRM_PAYMENT_REQUEST = new ConfirmPaymentRequest(
             FUNDING_UUID,
+            PROJECT_UUID,
             AMOUNT_VALUE,
             PG_METHOD,
             PG_PAYMENT_KEY,
@@ -94,6 +100,7 @@ public class PaymentFixture {
     );
 
     public static final ConfirmPaymentRequest INVALID_CONFIRM_PAYMENT_REQUEST = new ConfirmPaymentRequest(
+            null,
             null,
             null,
             "",

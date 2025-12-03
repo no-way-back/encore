@@ -2,15 +2,12 @@ package com.nowayback.project.application.project;
 
 import com.nowayback.project.application.project.command.CreateProjectCommand;
 import com.nowayback.project.application.project.dto.ProjectResult;
-import com.nowayback.project.application.projectdraft.dto.ProjectDraftResult;
+import com.nowayback.project.application.project.dto.SettlementResult;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.project.entity.Project;
 import com.nowayback.project.domain.project.repository.ProjectRepository;
 import com.nowayback.project.domain.project.vo.ProjectStatus;
-import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
-import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +24,7 @@ public class ProjectService {
     public UUID createProject(CreateProjectCommand command) {
         Project project = Project.create(
             command.userId(),
+            command.projectDraftId(),
             command.title(),
             command.summary(),
             command.category(),
@@ -34,7 +32,8 @@ public class ProjectService {
             command.contentHtml(),
             command.goalAmount(),
             command.fundingStartDate(),
-            command.fundingEndDate()
+            command.fundingEndDate(),
+            command.account()
         );
 
         projectRepository.save(project);
@@ -59,6 +58,13 @@ public class ProjectService {
             .orElseThrow(() -> new ProjectException(ProjectErrorCode.FUNDING_DRAFT_NOT_FOUND));
 
         return ProjectResult.of(project);
+    }
+
+    public SettlementResult getProjectSettlement(UUID projectId) {
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.FUNDING_DRAFT_NOT_FOUND));
+
+        return SettlementResult.from(project);
     }
 
     public void markAsUpcoming(UUID projectId) {

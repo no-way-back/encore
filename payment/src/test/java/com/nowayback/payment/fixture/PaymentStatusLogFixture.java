@@ -3,10 +3,9 @@ package com.nowayback.payment.fixture;
 import com.nowayback.payment.domain.payment.entity.PaymentStatusLog;
 import com.nowayback.payment.domain.payment.vo.Money;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 
+import java.util.List;
 import java.util.UUID;
 
 public class PaymentStatusLogFixture {
@@ -20,8 +19,10 @@ public class PaymentStatusLogFixture {
     public static final long AMOUNT_VALUE = 10_000L;
     public static final Money AMOUNT = Money.of(AMOUNT_VALUE);
 
+    public static final int PAGE = 0;
+    public static final int SIZE = 10;
     private static final Sort SORT = Sort.by(Sort.Direction.DESC, "createdAt");
-    public static final Pageable PAGEABLE = PageRequest.of(0, 10, SORT);
+    public static final Pageable PAGEABLE = PageRequest.of(PAGE, SIZE, SORT);
 
     /* Payment Status Log Entity */
 
@@ -34,4 +35,13 @@ public class PaymentStatusLogFixture {
                 AMOUNT
         );
     }
+
+    public static final List<PaymentStatusLog> PAYMENT_STATUS_LOGS = List.of(
+            createPaymentStatusLog(),
+            createPaymentStatusLog()
+    );
+
+    /* Payment Status Log Result */
+
+    public static final Page<PaymentStatusLog> PAYMENT_STATUS_LOGS_PAGE = new PageImpl<>(PAYMENT_STATUS_LOGS, PAGEABLE, PAYMENT_STATUS_LOGS.size());
 }

@@ -15,7 +15,6 @@ public record StockReserveResult(
             UUID rewardId,
             UUID optionId,
             Integer quantity,
-            Integer unitPrice,
             Integer itemAmount
     ) {}
 
@@ -29,7 +28,6 @@ public record StockReserveResult(
                         r.reservation().getRewardId().getId(),
                         r.reservation().getOptionId() != null ? r.reservation().getOptionId().getId() : null,
                         r.reservation().getQuantity(),
-                        r.unitPrice(),
                         r.itemAmount()
                 ))
                 .toList();
@@ -43,15 +41,13 @@ public record StockReserveResult(
 
     public record ReservationWithPrice(
             StockReservation reservation,
-            Integer unitPrice,
             Integer itemAmount
     ) {
         public static ReservationWithPrice of(
                 StockReservation reservation,
-                Integer unitPrice,
                 Integer itemAmount
         ) {
-            return new ReservationWithPrice(reservation, unitPrice, itemAmount);
+            return new ReservationWithPrice(reservation, itemAmount);
         }
     }
 }

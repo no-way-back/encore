@@ -2,6 +2,7 @@ package com.nowayback.reward.domain.reward.entity;
 
 import com.nowayback.reward.application.reward.command.UpdateRewardOptionCommand;
 import com.nowayback.reward.domain.reward.vo.Money;
+import com.nowayback.reward.domain.reward.vo.SaleStatus;
 import com.nowayback.reward.domain.reward.vo.Stock;
 import com.nowayback.reward.domain.shared.BaseEntity;
 import jakarta.persistence.*;
@@ -38,9 +39,26 @@ public class RewardOptions extends BaseEntity {
     @Column(nullable = false)
     private Integer displayOrder;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private SaleStatus status = SaleStatus.AVAILABLE;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reward_id", nullable = false)
     private Rewards reward;
+
+    /**
+     * 리워드 옵션 생성자
+     */
+    RewardOptions(String name, Money additionalPrice, Stock stock, Boolean isRequired, Integer displayOrder, Rewards reward) {
+        this.name = name;
+        this.additionalPrice = additionalPrice;
+        this.stock = stock;
+        this.isRequired = isRequired;
+        this.displayOrder = displayOrder;
+        this.reward = reward;
+        this.status = SaleStatus.AVAILABLE;
+    }
 
     public void update(UpdateRewardOptionCommand command) {
         if (command.name() != null) {
@@ -62,24 +80,28 @@ public class RewardOptions extends BaseEntity {
 
     /**
      * 재고 차감
+     * 재고가 0이 되면 SOLD_OUT 상태로 변경
      */
     public void decreaseStock(Integer quantity) {
         this.stock = this.stock.decrease(quantity);
+
+        if (this.stock.getQuantity() == 0) {
+            this.status = SaleStatus.SOLD_OUT;
+        }
     }
 
     /**
      * 옵션 포함 총 가격 계산 (리워드 가격 + 옵션 추가금)
      */
-    public Integer calculateTotalPrice() {
-        return this.reward.getPrice().getAmount() + this.additionalPrice.getAmount();
+    public Integer calculateTotalAmount(Integer quantity) {
+        Integer unitPrice = this.reward.getPrice().getAmount() + this.additionalPrice.getAmount();
+        return unitPrice * quantity;
     }
 
-    RewardOptions(String name, Money additionalPrice, Stock stock, Boolean isRequired, Integer displayOrder, Rewards reward) {
-        this.name = name;
-        this.additionalPrice = additionalPrice;
-        this.stock = stock;
-        this.isRequired = isRequired;
-        this.displayOrder = displayOrder;
-        this.reward = reward;
+    /**
+     * 판매 가능 여부 확인
+     */
+    public boolean isAvailableForSale() {
+        return this.status == SaleStatus.AVAILABLE && this.stock.getQuantity() > 0;
     }
 }

@@ -15,7 +15,6 @@ public record StockReserveResponse(
             UUID rewardId,
             UUID optionId,
             Integer quantity,
-            Integer unitPrice,
             Integer itemAmount
     ) {}
 
@@ -26,7 +25,6 @@ public record StockReserveResponse(
                         r.rewardId(),
                         r.optionId(),
                         r.quantity(),
-                        r.unitPrice(),
                         r.itemAmount()
                 ))
                 .toList();

@@ -9,6 +9,7 @@ import com.nowayback.reward.domain.repository.StockReservationRepository;
 import com.nowayback.reward.domain.reward.entity.RewardOptions;
 import com.nowayback.reward.domain.reward.entity.Rewards;
 import com.nowayback.reward.domain.reward.repository.RewardRepository;
+import com.nowayback.reward.domain.reward.vo.SaleStatus;
 import com.nowayback.reward.domain.stockreservation.entity.StockReservation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -65,12 +66,35 @@ class RewardServiceStockReserveTest {
                 assertThat(result.fundingId()).isEqualTo(fundingId);
                 assertThat(result.reservedItems()).hasSize(1);
                 assertThat(result.reservedItems().get(0).quantity()).isEqualTo(2);
-                assertThat(result.reservedItems().get(0).unitPrice()).isEqualTo(30000);
                 assertThat(result.reservedItems().get(0).itemAmount()).isEqualTo(60000);
                 assertThat(result.totalAmount()).isEqualTo(60000);
 
-                // 재고가 차감되었는지 확인
                 assertThat(reward.getStock().getQuantity()).isEqualTo(98);
+                assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
+
+                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
+            }
+
+            @Test
+            @DisplayName("옵션 없는 리워드 마지막 재고 구매 - SOLD_OUT 처리")
+            void reserveLastStockWithoutOption() {
+                // given
+                UUID fundingId = UUID.randomUUID();
+                Rewards reward = createRewardWithoutOption(5);
+                StockReserveCommand command = createCommandWithoutOption(fundingId, reward.getId(), 5);
+
+                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(stockReservationRepository.save(any(StockReservation.class)))
+                        .thenAnswer(invocation -> invocation.getArgument(0));
+
+                // when
+                StockReserveResult result = rewardService.reserveStock(command);
+
+                // then
+                assertThat(result.fundingId()).isEqualTo(fundingId);
+                assertThat(reward.getStock().getQuantity()).isEqualTo(0);
+                assertThat(reward.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
 
                 verify(rewardRepository, times(1)).findById(reward.getId());
                 verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
@@ -82,7 +106,7 @@ class RewardServiceStockReserveTest {
                 // given
                 UUID fundingId = UUID.randomUUID();
                 Rewards reward = createRewardWithOptions();
-                RewardOptions option = reward.getOptionList().get(0); // S 사이즈 (추가금 0)
+                RewardOptions option = reward.getOptionList().get(0);
                 StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), option.getId(), 2);
 
                 when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
@@ -96,15 +120,78 @@ class RewardServiceStockReserveTest {
                 assertThat(result.fundingId()).isEqualTo(fundingId);
                 assertThat(result.reservedItems()).hasSize(1);
                 assertThat(result.reservedItems().get(0).quantity()).isEqualTo(2);
-                assertThat(result.reservedItems().get(0).unitPrice()).isEqualTo(50000); // 50000 + 0
                 assertThat(result.reservedItems().get(0).itemAmount()).isEqualTo(100000);
                 assertThat(result.totalAmount()).isEqualTo(100000);
 
-                // 옵션 재고가 차감되었는지 확인
                 assertThat(option.getStock().getQuantity()).isEqualTo(28);
+                assertThat(option.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
+                assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
 
                 verify(rewardRepository, times(1)).findById(reward.getId());
                 verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
+            }
+
+            @Test
+            @DisplayName("옵션 마지막 재고 구매 - 옵션만 SOLD_OUT 처리")
+            void reserveLastStockOption() {
+                // given
+                UUID fundingId = UUID.randomUUID();
+                Rewards reward = createRewardWithOptions();
+                RewardOptions option = reward.getOptionList().get(2);
+                StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), option.getId(), 20);
+
+                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(stockReservationRepository.save(any(StockReservation.class)))
+                        .thenAnswer(invocation -> invocation.getArgument(0));
+
+                // when
+                StockReserveResult result = rewardService.reserveStock(command);
+
+                // then
+                assertThat(option.getStock().getQuantity()).isEqualTo(0);
+                assertThat(option.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
+                assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
+
+                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
+            }
+
+            @Test
+            @DisplayName("모든 옵션 품절 시 리워드도 SOLD_OUT 처리")
+            void allOptionsSoldOut() {
+                // given
+                UUID fundingId = UUID.randomUUID();
+                Rewards reward = createRewardWithOptions();
+
+                RewardOptions option1 = reward.getOptionList().get(0);
+                RewardOptions option2 = reward.getOptionList().get(1);
+                RewardOptions option3 = reward.getOptionList().get(2);
+
+                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(stockReservationRepository.save(any(StockReservation.class)))
+                        .thenAnswer(invocation -> invocation.getArgument(0));
+
+                // when - S 품절
+                StockReserveCommand command1 = createCommandWithOption(fundingId, reward.getId(), option1.getId(), 30);
+                rewardService.reserveStock(command1);
+
+                assertThat(option1.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
+                assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
+
+                // when - M 품절
+                StockReserveCommand command2 = createCommandWithOption(fundingId, reward.getId(), option2.getId(), 50);
+                rewardService.reserveStock(command2);
+
+                assertThat(option2.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
+                assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
+
+                // when - L 품절 (마지막 옵션)
+                StockReserveCommand command3 = createCommandWithOption(fundingId, reward.getId(), option3.getId(), 20);
+                rewardService.reserveStock(command3);
+
+                // then - 모든 옵션 품절 → 리워드도 품절
+                assertThat(option3.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
+                assertThat(reward.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
             }
 
             @Test
@@ -113,7 +200,7 @@ class RewardServiceStockReserveTest {
                 // given
                 UUID fundingId = UUID.randomUUID();
                 Rewards reward = createRewardWithOptions();
-                RewardOptions option = reward.getOptionList().get(2); // L 사이즈 (추가금 4000)
+                RewardOptions option = reward.getOptionList().get(2);
                 StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), option.getId(), 3);
 
                 when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
@@ -127,11 +214,8 @@ class RewardServiceStockReserveTest {
                 assertThat(result.fundingId()).isEqualTo(fundingId);
                 assertThat(result.reservedItems()).hasSize(1);
                 assertThat(result.reservedItems().get(0).quantity()).isEqualTo(3);
-                assertThat(result.reservedItems().get(0).unitPrice()).isEqualTo(54000); // 50000 + 4000
                 assertThat(result.reservedItems().get(0).itemAmount()).isEqualTo(162000);
                 assertThat(result.totalAmount()).isEqualTo(162000);
-
-                // 옵션 재고가 차감되었는지 확인
                 assertThat(option.getStock().getQuantity()).isEqualTo(17);
 
                 verify(rewardRepository, times(1)).findById(reward.getId());
@@ -145,7 +229,7 @@ class RewardServiceStockReserveTest {
                 UUID fundingId = UUID.randomUUID();
                 Rewards reward1 = createRewardWithoutOption(100);
                 Rewards reward2 = createRewardWithOptions();
-                RewardOptions option = reward2.getOptionList().get(1); // M 사이즈 (추가금 2000)
+                RewardOptions option = reward2.getOptionList().get(1);
 
                 StockReserveCommand command = createCommandWithMultipleItems(
                         fundingId,
@@ -164,12 +248,8 @@ class RewardServiceStockReserveTest {
                 // then
                 assertThat(result.fundingId()).isEqualTo(fundingId);
                 assertThat(result.reservedItems()).hasSize(2);
-                assertThat(result.totalAmount()).isEqualTo(134000); // 30000 + (52000 * 2)
-
-                // 각 아이템 검증
-                assertThat(result.reservedItems().get(0).unitPrice()).isEqualTo(30000);
+                assertThat(result.totalAmount()).isEqualTo(134000);
                 assertThat(result.reservedItems().get(0).itemAmount()).isEqualTo(30000);
-                assertThat(result.reservedItems().get(1).unitPrice()).isEqualTo(52000); // 50000 + 2000
                 assertThat(result.reservedItems().get(1).itemAmount()).isEqualTo(104000);
 
                 verify(rewardRepository, times(2)).findById(any(UUID.class));
@@ -268,7 +348,7 @@ class RewardServiceStockReserveTest {
                 // given
                 UUID fundingId = UUID.randomUUID();
                 Rewards reward = createRewardWithOptions();
-                RewardOptions option = reward.getOptionList().get(2); // L 사이즈 (재고 20)
+                RewardOptions option = reward.getOptionList().get(2);
                 StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), option.getId(), 30);
 
                 when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));

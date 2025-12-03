@@ -79,6 +79,12 @@ public class RewardService {
         reward.update(command);
     }
 
+    @Transactional
+    public void delete(UUID rewardId) {
+        Rewards reward = getById(rewardId);
+        reward.delete();
+    }
+
     /**
      * 재고 예약 (차감)
      * - 옵션이 있는 경우: 옵션의 재고 차감
@@ -104,12 +110,6 @@ public class RewardService {
                 command.fundingId(), reservations.size(), result.totalAmount());
 
         return result;
-    }
-
-    @Transactional
-    public void delete(UUID rewardId) {
-        Rewards reward = getById(rewardId);
-        reward.delete();
     }
 
     // private 헬퍼 메서드
@@ -157,21 +157,23 @@ public class RewardService {
             UUID fundingId,
             StockReserveCommand.StockReserveItemCommand item
     ) {
-            Rewards reward = getById(item.rewardId());
+        Rewards reward = getById(item.rewardId());
 
-            if (item.optionId() != null) {
-                return reserveWithOption(fundingId, reward, item);
-            }
+        if (item.optionId() != null) {
+            return reserveWithOption(fundingId, reward, item);
+        }
 
-            reward.validateRequiredOption();
+        reward.validateRequiredOption();
 
-            return reserveWithoutOption(fundingId, reward, item);
+        return reserveWithoutOption(fundingId, reward, item);
     }
 
     /**
      * 옵션이 존재할 경우
      * - 옵션의 재고 감소
      * - 리워드 가격 + 옵션 추가금액 반환
+     * - 옵션 품절 시 옵션 상태 변경
+     * - 모든 옵션 품절 시 리워드 상태 동기화
      */
     private StockReserveResult.ReservationWithPrice reserveWithOption(
             UUID fundingId,
@@ -179,27 +181,27 @@ public class RewardService {
             StockReserveCommand.StockReserveItemCommand item
     ) {
         RewardOptions option = reward.findOption(item.optionId());
-
         option.decreaseStock(item.quantity());
+        reward.syncStatus();
 
-        Integer unitPrice = option.calculateTotalPrice();
-        Integer itemAmount = unitPrice * item.quantity();
+        Integer itemAmount = option.calculateTotalAmount(item.quantity());
 
         StockReservation saveReservation = createAndSaveReservation(
                 fundingId, reward.getId(), option.getId(), item.quantity()
         );
 
-        log.info("재고 예약 완료 - fundingId: {}, rewardId: {}, optionId: {}, quantity: {}, unitPrice: {}",
-                fundingId, reward.getId(), option.getId(), item.quantity(), unitPrice);
+        log.info("재고 예약 완료 - fundingId: {}, rewardId: {}, optionId: {}, quantity: {}, optionStatus: {}, rewardStatus: {}",
+                fundingId, reward.getId(), option.getId(), item.quantity(), option.getStatus(), reward.getStatus());
 
         return StockReserveResult.ReservationWithPrice
-                .of(saveReservation, unitPrice, itemAmount);
+                .of(saveReservation, itemAmount);
     }
 
     /**
      * 옵션이 존재하지 않을 경우
      * - 리워드의 재고 감소
      * - 리워드 가격 반환
+     * - 재고 0일 시 리워드 상태 변경
      */
     private StockReserveResult.ReservationWithPrice reserveWithoutOption(
             UUID fundingId,
@@ -208,18 +210,16 @@ public class RewardService {
     ) {
         reward.decreaseStock(item.quantity());
 
-        Integer unitPrice = reward.getBasePrice();
-        Integer itemAmount = unitPrice * item.quantity();
-
+        Integer itemAmount = reward.calculateTotalAmount(item.quantity());
         StockReservation saveReservation = createAndSaveReservation(
                 fundingId, reward.getId(), null, item.quantity()
         );
 
-        log.info("재고 예약 완료 - fundingId: {}, rewardId: {}, quantity: {}, unitPrice: {}",
-                fundingId, reward.getId(), item.quantity(), unitPrice);
+        log.info("재고 예약 완료 - fundingId: {}, rewardId: {}, quantity: {}, rewardStatus: {}",
+                fundingId, reward.getId(), item.quantity(), reward.getStatus());
 
         return StockReserveResult.ReservationWithPrice
-                .of(saveReservation, unitPrice, itemAmount);
+                .of(saveReservation, itemAmount);
     }
 
     /**

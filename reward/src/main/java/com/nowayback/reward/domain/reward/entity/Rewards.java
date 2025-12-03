@@ -246,9 +246,15 @@ public class Rewards extends BaseEntity {
 
     /**
      * 재고 차감
+     * 옵션이 없는 리워드만 재고가 0이면 SOLD_OUT 처리
      */
     public void decreaseStock(Integer quantity) {
         this.stock = this.stock.decrease(quantity);
+
+        // 옵션이 없는 리워드만 자동 품절 처리
+        if (!hasOptions() && this.stock.getQuantity() == 0) {
+            this.status = SaleStatus.SOLD_OUT;
+        }
     }
 
     /**
@@ -270,10 +276,28 @@ public class Rewards extends BaseEntity {
     }
 
     /**
-     * 리워드 기본 가격 반환
+     * 리워드 총 금액 계산 (단가 * 수량)
      */
-    public Integer getBasePrice() {
-        return this.price.getAmount();
+    public Integer calculateTotalAmount(Integer quantity) {
+        return this.price.getAmount() * quantity;
+    }
+
+    /**
+     * 리워드 상태 동기화
+     * 모든 옵션이 품절되면 리워드도 SOLD_OUT 처리
+     */
+    public void syncStatus() {
+        if (hasOptions() && areAllOptionsSoldOut()) {
+            this.status = SaleStatus.SOLD_OUT;
+        }
+    }
+
+    /**
+     * 모든 옵션이 품절되었는지 확인
+     */
+    private boolean areAllOptionsSoldOut() {
+        return this.optionList.stream()
+                .allMatch(option -> option.getStatus() == SaleStatus.SOLD_OUT);
     }
 
     private void updateFields(UpdateRewardCommand command) {
@@ -342,6 +366,9 @@ public class Rewards extends BaseEntity {
         }
     }
 
+    /**
+     * 리워드 생성자
+     */
     private Rewards(ProjectId projectId, CreatorId creatorId, String name, String description,
                     Money price, Stock stock, ShippingPolicy shippingPolicy,
                     Integer purchaseLimitPerPerson, RewardType rewardType,

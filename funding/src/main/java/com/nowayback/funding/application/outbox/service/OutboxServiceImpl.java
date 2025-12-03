@@ -2,8 +2,10 @@ package com.nowayback.funding.application.outbox.service;
 
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -95,5 +97,11 @@ public class OutboxServiceImpl implements OutboxService {
 
 		log.info("보상 트랜잭션 이벤트 발행 - aggregateType: {}, aggregateId: {}, eventType: {}",
 			aggregateType, aggregateId, eventType);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Outbox> getPendingEvents() {
+		return outboxRepository.findPendingEvents();
 	}
 }

@@ -17,14 +17,14 @@ import java.util.UUID;
 public class OptionId implements Serializable {
 
     @Column(name = "option_id")
-    private UUID value;  // nullable
+    private UUID id;  // nullable
 
-    private OptionId(UUID value) {
-        this.value = value;
+    private OptionId(UUID id) {
+        this.id = id;
     }
 
-    public static OptionId of(UUID value) {
-        return new OptionId(value);
+    public static OptionId of(UUID id) {
+        return new OptionId(id);
     }
 
     public static OptionId ofNullable(UUID value) {

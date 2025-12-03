@@ -42,18 +42,6 @@ public class RewardOptions extends BaseEntity {
     @JoinColumn(name = "reward_id", nullable = false)
     private Rewards reward;
 
-    /**
-     * 리워드 옵션 생성자
-     */
-    RewardOptions(String name, Money additionalPrice, Stock stock, Boolean isRequired, Integer displayOrder, Rewards reward) {
-        this.name = name;
-        this.additionalPrice = additionalPrice;
-        this.stock = stock;
-        this.isRequired = isRequired;
-        this.displayOrder = displayOrder;
-        this.reward = reward;
-    }
-
     public void update(UpdateRewardOptionCommand command) {
         if (command.name() != null) {
             this.name = command.name();
@@ -70,5 +58,28 @@ public class RewardOptions extends BaseEntity {
         if (command.displayOrder() != null) {
             this.displayOrder = command.displayOrder();
         }
+    }
+
+    /**
+     * 재고 차감
+     */
+    public void decreaseStock(Integer quantity) {
+        this.stock = this.stock.decrease(quantity);
+    }
+
+    /**
+     * 옵션 포함 총 가격 계산 (리워드 가격 + 옵션 추가금)
+     */
+    public Integer calculateTotalPrice() {
+        return this.reward.getPrice().getAmount() + this.additionalPrice.getAmount();
+    }
+
+    RewardOptions(String name, Money additionalPrice, Stock stock, Boolean isRequired, Integer displayOrder, Rewards reward) {
+        this.name = name;
+        this.additionalPrice = additionalPrice;
+        this.stock = stock;
+        this.isRequired = isRequired;
+        this.displayOrder = displayOrder;
+        this.reward = reward;
     }
 }

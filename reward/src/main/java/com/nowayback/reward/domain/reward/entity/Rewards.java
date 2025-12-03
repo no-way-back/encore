@@ -221,7 +221,7 @@ public class Rewards extends BaseEntity {
     /**
      * 옵션 ID로 리워드의 옵션 조회
      */
-    private RewardOptions findOption(UUID optionId) {
+    public RewardOptions findOption(UUID optionId) {
         return this.optionList.stream()
                 .filter(o -> o.getId().equals(optionId))
                 .findFirst()
@@ -237,11 +237,43 @@ public class Rewards extends BaseEntity {
     }
 
     /**
-     * 옵션이 있는 리워드인이 확인
+     * 옵션이 있는 리워드인지 확인
      * - UI 표현 확인 용도
      */
     public boolean hasOptions() {
         return !this.optionList.isEmpty();
+    }
+
+    /**
+     * 재고 차감
+     */
+    public void decreaseStock(Integer quantity) {
+        this.stock = this.stock.decrease(quantity);
+    }
+
+    /**
+     * 필수 옵션 존재 여부 확인
+     */
+    public boolean hasRequiredOption() {
+        return this.optionList.stream()
+                .anyMatch(RewardOptions::getIsRequired);
+    }
+
+    /**
+     * 필수 옵션 검증
+     * 필수 옵션이 있는데 옵션을 선택하지 않은 경우 예외 발생
+     */
+    public void validateRequiredOption() {
+        if (hasRequiredOption()) {
+            throw new RewardException(REQUIRED_OPTION_NOT_SELECTED);
+        }
+    }
+
+    /**
+     * 리워드 기본 가격 반환
+     */
+    public Integer getBasePrice() {
+        return this.price.getAmount();
     }
 
     private void updateFields(UpdateRewardCommand command) {
@@ -310,9 +342,6 @@ public class Rewards extends BaseEntity {
         }
     }
 
-    /**
-     * 리워드 생성자
-     */
     private Rewards(ProjectId projectId, CreatorId creatorId, String name, String description,
                     Money price, Stock stock, ShippingPolicy shippingPolicy,
                     Integer purchaseLimitPerPerson, RewardType rewardType,

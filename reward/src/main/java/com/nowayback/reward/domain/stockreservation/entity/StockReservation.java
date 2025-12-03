@@ -36,4 +36,22 @@ public class StockReservation extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ReservationStatus status;
+
+    /**
+     * 재고 예약 생성
+     */
+    public static StockReservation create(
+            UUID fundingId,
+            UUID rewardId,
+            UUID optionId,
+            Integer quantity
+    ) {
+        StockReservation reservation = new StockReservation();
+        reservation.fundingId = FundingId.of(fundingId);
+        reservation.rewardId = RewardId.of(rewardId);
+        reservation.optionId = optionId != null ? OptionId.of(optionId) : null;
+        reservation.quantity = quantity;
+        reservation.status = ReservationStatus.DEDUCTED;
+        return reservation;
+    }
 }

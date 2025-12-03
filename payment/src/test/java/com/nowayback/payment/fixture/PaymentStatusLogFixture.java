@@ -3,6 +3,9 @@ package com.nowayback.payment.fixture;
 import com.nowayback.payment.domain.payment.entity.PaymentStatusLog;
 import com.nowayback.payment.domain.payment.vo.Money;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.UUID;
 
@@ -16,6 +19,9 @@ public class PaymentStatusLogFixture {
 
     public static final long AMOUNT_VALUE = 10_000L;
     public static final Money AMOUNT = Money.of(AMOUNT_VALUE);
+
+    private static final Sort SORT = Sort.by(Sort.Direction.DESC, "createdAt");
+    public static final Pageable PAGEABLE = PageRequest.of(0, 10, SORT);
 
     /* Payment Status Log Entity */
 

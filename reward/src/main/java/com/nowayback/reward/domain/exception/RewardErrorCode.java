@@ -15,6 +15,7 @@ public enum RewardErrorCode {
     // Reward Option
     DUPLICATE_OPTION_NAME("RW-001", "이미 존재하는 옵션명입니다", HttpStatus.CONFLICT),
     DUPLICATE_DISPLAY_ORDER("RW-002", "이미 사용 중인 표시 순서입니다", HttpStatus.CONFLICT),
+    REQUIRED_OPTION_NOT_SELECTED("RW-003", "필수 옵션을 선택해야 합니다", HttpStatus.BAD_REQUEST),
 
     // Value Object - Money
     INVALID_MONEY_AMOUNT("RW-100", "금액을 입력해주세요", HttpStatus.BAD_REQUEST),
@@ -38,6 +39,13 @@ public enum RewardErrorCode {
     OPTION_SOLD_OUT_ONLY("RW-204", "판매 이력이 있는 옵션은 품절 처리만 가능합니다", HttpStatus.BAD_REQUEST),
     OPTION_NOT_FOUND("RW-205", "존재하지 않는 옵션입니다", HttpStatus.NOT_FOUND),
     REWARD_NOT_FOUND("RW-206", "존재하지 않는 리워드입니다", HttpStatus.NOT_FOUND),
+
+    // Required ID Validation (새로 추가된 섹션)
+    CREATOR_ID_IS_NULL("RW-300", "생성자 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
+    REWARD_ID_IS_NULL("RW-301", "리워드 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
+    FUNDING_ID_IS_NULL("RW-302", "펀딩 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
+    PROJECT_ID_IS_NULL("RW-303", "프로젝트 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
+
 
     // System Error
     INTERNAL_SERVER_ERROR("RW-999", "일시적인 오류가 발생했습니다", HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,5 +1,7 @@
 package com.nowayback.reward.domain.vo;
 
+import com.nowayback.reward.domain.exception.RewardErrorCode;
+import com.nowayback.reward.domain.exception.RewardException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -10,6 +12,8 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.UUID;
 
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+
 @Embeddable
 @Getter
 @EqualsAndHashCode
@@ -17,16 +21,16 @@ import java.util.UUID;
 public class FundingId implements Serializable {
 
     @Column(name = "funding_id", nullable = false)
-    private UUID value;
+    private UUID id;
 
-    private FundingId(UUID value) {
-        if (value == null) {
-            throw new IllegalArgumentException("펀딩 ID는 null일 수 없습니다.");
+    private FundingId(UUID id) {
+        if (id == null) {
+            throw new RewardException(FUNDING_ID_IS_NULL);
         }
-        this.value = value;
+        this.id = id;
     }
 
-    public static FundingId of(UUID value) {
-        return new FundingId(value);
+    public static FundingId of(UUID id) {
+        return new FundingId(id);
     }
 }

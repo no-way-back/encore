@@ -1,10 +1,10 @@
-package com.nowayback.reward.infrastructure.kafka.consumer;
+package com.nowayback.reward.infrastructure.kafka.listener;
 
 import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.infrastructure.kafka.constant.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.ProjectCreatedPayload;
-import com.nowayback.reward.infrastructure.kafka.producer.ProjectEventPublisher;
+import com.nowayback.reward.infrastructure.kafka.publisher.ProjectEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

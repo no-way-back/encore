@@ -59,7 +59,6 @@ public class RewardOptions extends BaseEntity {
         this.isRequired = isRequired;
         this.displayOrder = displayOrder;
         this.reward = reward;
-        this.status = AVAILABLE;
     }
 
     public void update(UpdateRewardOptionCommand command) {

@@ -37,6 +37,7 @@ import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
 
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -72,6 +73,8 @@ public class FundingServiceImpl implements FundingService {
 					command.idempotencyKey());
 				throw new FundingException(DUPLICATE_REQUEST);
 			});
+
+		fundingProjectStatisticsService.validateProjectForFunding(command.projectId());
 
 		boolean alreadyFunded = fundingRepository.existsByUserIdAndProjectIdAndStatus(
 			command.userId(),
@@ -136,41 +139,76 @@ public class FundingServiceImpl implements FundingService {
 
 			fundingProjectStatisticsService.increaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
 
-			if (funding.hasReservation()) {
-				outboxService.publishSuccessEvent(
-					"FUNDING",
-					funding.getId(),
-					"FUNDING_COMPLETED",
-					Map.of(
-						"fundingId", funding.getId(),
-						"userId", funding.getUserId(),
-						"projectId", funding.getProjectId(),
-						"reservationId", funding.getReservationIds(),
-						"amount", funding.getAmount()
-					)
-				);
-			}
+			publishFundingCompletedEvent(funding);
 
 			return CreateFundingResult.success(funding.getId());
-		} catch (Exception e) {
-			log.error("예상치 못한 오류 - funding: {}, error: {}", funding.getId(), e.getMessage(), e);
+		} catch (FundingException e) {
+			log.error("펀딩 처리 실패 - fundingId: {}, errorCode: {}, message: {}",
+				funding.getId(), e.getErrorCode().getCode(), e.getMessage());
 
-			if (funding.hasReservation()) {
-				outboxService.publishCompensationEvent(
-					"FUNDING",
-					funding.getId(),
-					"FUNDING_FAILED",
-					Map.of(
-						"fundingId", funding.getId(),
-						"projectId", command.projectId(),
-						"userId", command.userId(),
-						"reservationIds", funding.getReservationIds()
-					)
-				);
+			publishFundingFailedEvent(funding, command);
+
+			throw e;
+
+		} catch (FeignException e) {  // ⭐ 추가!
+			log.error("외부 서비스 호출 실패 - fundingId: {}, url: {}, error: {}",
+				funding.getId(), e.request().url(), e.getMessage());
+
+			publishFundingFailedEvent(funding, command);
+
+			String url = e.request().url();
+			if (url.contains("/rewards") || url.contains(":18083")) {
+				throw new FundingException(REWARD_SERVICE_UNAVAILABLE);
+			} else if (url.contains("/payments") || url.contains(":18084")) {
+				throw new FundingException(PAYMENT_SERVICE_UNAVAILABLE);
 			}
+			throw new FundingException(EXTERNAL_SERVICE_ERROR);
 
-			return CreateFundingResult.failure("후원 처리 중 오류가 발생했습니다.");
+		} catch (Exception e) {
+			log.error("예상치 못한 오류 - fundingId: {}, error: {}",
+				funding.getId(), e.getMessage(), e);
+
+			publishFundingFailedEvent(funding, command);
+
+			throw new FundingException(FUNDING_PROCESS_FAILED);
 		}
+	}
+
+	private void publishFundingCompletedEvent(Funding funding) {
+		if (!funding.hasReservation()) {
+			return;
+		}
+
+		outboxService.publishSuccessEvent(
+			"FUNDING",
+			funding.getId(),
+			"FUNDING_COMPLETED",
+			Map.of(
+				"fundingId", funding.getId(),
+				"userId", funding.getUserId(),
+				"projectId", funding.getProjectId(),
+				"reservationId", funding.getReservationIds(),
+				"amount", funding.getAmount()
+			)
+		);
+	}
+
+	private void publishFundingFailedEvent(Funding funding, CreateFundingCommand command) {
+		if (!funding.hasReservation()) {
+			return;
+		}
+
+		outboxService.publishCompensationEvent(
+			"FUNDING",
+			funding.getId(),
+			"FUNDING_FAILED",
+			Map.of(
+				"fundingId", funding.getId(),
+				"projectId", command.projectId(),
+				"userId", command.userId(),
+				"reservationIds", funding.getReservationIds()
+			)
+		);
 	}
 
 	@Override
@@ -208,21 +246,27 @@ public class FundingServiceImpl implements FundingService {
 
 		fundingProjectStatisticsService.decreaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
 
-		if (funding.hasReservation()) {
-			outboxService.publishSuccessEvent(
-				"FUNDING",
-				funding.getId(),
-				"FUNDING_REFUND",
-				Map.of(
-					"fundingId", funding.getId(),
-					"projectId", funding.getProjectId(),
-					"userId", funding.getUserId(),
-					"reservationId", funding.getReservationIds()
-				)
-			);
-		}
+		publishFundingRefundEvent(funding);
 
 		return CancelFundingResult.success(funding.getId());
+	}
+
+	private void publishFundingRefundEvent(Funding funding) {
+		if (!funding.hasReservation()) {
+			return;
+		}
+
+		outboxService.publishSuccessEvent(
+			"FUNDING",
+			funding.getId(),
+			"FUNDING_REFUND",
+			Map.of(
+				"fundingId", funding.getId(),
+				"projectId", funding.getProjectId(),
+				"userId", funding.getUserId(),
+				"reservationId", funding.getReservationIds()
+			)
+		);
 	}
 
 	@Override

@@ -146,16 +146,7 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 				log.info("프로젝트 성공 처리 완료 - projectId: {}, status: SETTLEMENT_IN_PROGRESS → SUCCESS",
 					project.getProjectId());
 
-				outboxService.publishSuccessEvent(
-					"FUNDING_PROJECT",
-					project.getProjectId(),
-					"PROJECT_FUNDING_SUCCESS",
-					Map.of(
-						"projectId", project.getProjectId(),
-						"finalAmount", project.getCurrentAmount(),
-						"participantCount", project.getParticipantCount()
-					)
-				);
+				publishProjectFundingSuccessEvent(project);
 
 			} else {
 				project.markAsRefundInProgress();
@@ -165,20 +156,55 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 					project.getProjectId(),
 					String.format("%.2f", project.getAchievementRate()));
 
-				outboxService.publishSuccessEvent(
-					"FUNDING_PROJECT",
-					project.getProjectId(),
-					"PROJECT_FUNDING_FAILED",
-					Map.of(
-						"projectId", project.getProjectId(),
-						"finalAmount", project.getCurrentAmount(),
-						"participantCount", project.getParticipantCount(),
-						"targetAmount", project.getTargetAmount(),
-						"achievementRate", project.getAchievementRate()
-					)
-				);
+				publishProjectFundingFailedEvent(project);
 			}
 		}
+	}
+
+	private void publishProjectFundingSuccessEvent(FundingProjectStatistics project) {
+		outboxService.publishSuccessEvent(
+			"FUNDING_PROJECT",
+			project.getProjectId(),
+			"PROJECT_FUNDING_SUCCESS",
+			Map.of(
+				"projectId", project.getProjectId(),
+				"finalAmount", project.getCurrentAmount(),
+				"participantCount", project.getParticipantCount()
+			)
+		);
+	}
+
+	private void publishProjectFundingFailedEvent(FundingProjectStatistics project) {
+		outboxService.publishSuccessEvent(
+			"FUNDING_PROJECT",
+			project.getProjectId(),
+			"PROJECT_FUNDING_FAILED",
+			Map.of(
+				"projectId", project.getProjectId(),
+				"finalAmount", project.getCurrentAmount(),
+				"participantCount", project.getParticipantCount(),
+				"targetAmount", project.getTargetAmount(),
+				"achievementRate", project.getAchievementRate()
+			)
+		);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public void validateProjectForFunding(UUID projectId) {
+		log.debug("프로젝트 펀딩 가능 여부 검증 - projectId: {}", projectId);
+
+		FundingProjectStatistics stats = fundingProjectStatisticsRepository
+			.findByProjectId(projectId)
+			.orElseThrow(() -> {
+				log.error("프로젝트를 찾을 수 없음 - projectId: {}", projectId);
+				return new FundingException(PROJECT_NOT_FOUND);
+			});
+
+		stats.validateProjectStatusForCanFund();
+
+		log.debug("프로젝트 검증 완료 - projectId: {}, status: {}",
+			projectId, stats.getStatus());
 	}
 
 	@Override

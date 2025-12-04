@@ -84,7 +84,7 @@ class FundingCancelTest {
 
 		// Reflection으로 필드 설정 (Mock JPA 동작)
 		setField(funding, "id", fundingId);
-		funding.completeFunding(reservationId, paymentId);
+		funding.completeFunding(paymentId);
 
 		ProcessRefundResponse refundResponse = new ProcessRefundResponse(paymentId);
 
@@ -120,7 +120,7 @@ class FundingCancelTest {
 
 		// Reflection으로 필드 설정 (Mock JPA 동작)
 		setField(funding, "id", fundingId);
-		funding.completeFunding(null, paymentId);
+		funding.completeFunding(paymentId);
 
 		ProcessRefundResponse refundResponse = new ProcessRefundResponse(paymentId);
 
@@ -204,7 +204,7 @@ class FundingCancelTest {
 
 		Funding funding = Funding.createFunding(projectId, userId, "test-key", 15000L);
 		setField(funding, "id", fundingId);
-		funding.completeFunding(reservationId, paymentId);
+		funding.completeFunding(paymentId);
 		funding.cancelFunding();
 
 		given(fundingRepository.findById(fundingId))

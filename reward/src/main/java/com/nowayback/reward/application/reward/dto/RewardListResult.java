@@ -22,11 +22,11 @@ public record RewardListResult(
             String rewardId,
             String name,
             String description,
-            int price,
-            int stockQuantity,
-            int shippingFee,
+            Long price,
+            Integer stockQuantity,
+            Integer shippingFee,
             Integer freeShippingAmount,
-            int purchaseLimitPerPerson,
+            Integer purchaseLimitPerPerson,
             SaleStatus status,
             List<OptionItem> optionList,
             LocalDateTime createdAt
@@ -55,7 +55,7 @@ public record RewardListResult(
     public record OptionItem(
             String optionId,
             String name,
-            int additionalPrice
+            Long additionalPrice
     ) {
         public static OptionItem from(RewardOptions option) {
             return new OptionItem(

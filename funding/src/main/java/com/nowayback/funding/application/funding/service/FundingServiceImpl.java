@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,11 +19,9 @@ import com.nowayback.funding.application.client.payment.dto.request.ProcessPayme
 import com.nowayback.funding.application.client.payment.dto.request.ProcessRefundRequest;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
 import com.nowayback.funding.application.client.reward.RewardClient;
-import com.nowayback.funding.application.client.reward.dto.request.DecreaseRewardRequest;
-import com.nowayback.funding.application.client.reward.dto.request.RewardDetailsRequest;
-import com.nowayback.funding.application.client.reward.dto.response.DecreaseRewardResponse;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessPaymentResponse;
-import com.nowayback.funding.application.client.reward.dto.response.RewardDetailResponse;
+import com.nowayback.funding.application.client.reward.dto.request.StockReserveRequest;
+import com.nowayback.funding.application.client.reward.dto.response.StockReserveResponse;
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
@@ -40,6 +37,7 @@ import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
 
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -76,6 +74,8 @@ public class FundingServiceImpl implements FundingService {
 				throw new FundingException(DUPLICATE_REQUEST);
 			});
 
+		fundingProjectStatisticsService.validateProjectForFunding(command.projectId());
+
 		boolean alreadyFunded = fundingRepository.existsByUserIdAndProjectIdAndStatus(
 			command.userId(),
 			command.projectId(),
@@ -88,50 +88,44 @@ public class FundingServiceImpl implements FundingService {
 			throw new FundingException(DUPLICATE_FUNDING);
 		}
 
-		long calculatedRewardPrice = 0;
-
-		if (command.hasRewards()) {
-			List<UUID> rewardIds = command.rewardItems().stream()
-				.map(CreateFundingCommand.RewardItem::rewardId)
-				.toList();
-
-			List<RewardDetailResponse> rewardDetails =
-				rewardClient.getRewardDetails(new RewardDetailsRequest(rewardIds));
-
-			Map<UUID, RewardDetailResponse> rewardDetailMap = rewardDetails.stream()
-				.collect(Collectors.toMap(RewardDetailResponse::rewardId, r -> r));
-
-			for (CreateFundingCommand.RewardItem item : command.rewardItems()) {
-				RewardDetailResponse detail = rewardDetailMap.get(item.rewardId());
-
-				if (detail == null) {
-					throw new FundingException(REWARD_NOT_FOUND);
-				}
-
-				calculatedRewardPrice += detail.price() * item.quantity();
-			}
-		}
-
-		Long totalAmount = calculatedRewardPrice + command.amount();
-
 		Funding funding = Funding.createFunding(
 			command.projectId(),
 			command.userId(),
 			command.idempotencyKey(),
-			totalAmount
+			command.amount()
 		);
 
 		Funding savedFunding = fundingRepository.save(funding);
-
 		log.info("Funding 생성 완료 - funding: {}", savedFunding.getId());
 
-		UUID reservationId = null;
-
 		if (command.hasRewards()) {
-			DecreaseRewardRequest rewardRequest = DecreaseRewardRequest.from(command);
-			DecreaseRewardResponse rewardResponse = rewardClient.decreaseReward(rewardRequest);
-			reservationId = rewardResponse.reservationId();
-			log.info("재고 감소 성공 - reservationId: {}", reservationId);
+			List<StockReserveRequest.StockReserveItem> items = command.rewardItems().stream()
+				.map(item -> new StockReserveRequest.StockReserveItem(
+					item.rewardId(),
+					item.optionId(),
+					item.quantity()
+				))
+				.toList();
+
+			StockReserveRequest request = new StockReserveRequest(savedFunding.getId(), items);
+			StockReserveResponse response = rewardClient.reserveStock(request);
+
+			log.info("재고 예약 완료 - fundingId: {}, reservations: {}, rewardAmount: {}, totalAmount: {}",
+				savedFunding.getId(), response.reservedItems().size(), response.totalAmount(), response.totalAmount());
+
+			for (StockReserveResponse.ReservedItem item : response.reservedItems()) {
+				funding.addReservation(
+					item.reservationId(),
+					item.rewardId(),
+					item.optionId(),
+					item.quantity(),
+					item.itemAmount()
+				);
+			}
+
+			Long totalAmount = response.totalAmount() + command.amount();
+
+			funding.updateAmount(totalAmount);
 		}
 
 		try {
@@ -140,46 +134,81 @@ public class FundingServiceImpl implements FundingService {
 			UUID paymentId = paymentResponse.paymentId();
 			log.info("결제 성공 - paymentId: {}", paymentId);
 
-			funding.completeFunding(reservationId, paymentId);
+			funding.completeFunding(paymentId);
 			log.info("펀딩 완료 - funding: {}", funding.getId());
 
 			fundingProjectStatisticsService.increaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
 
-			if (funding.hasReservation()) {
-				outboxService.publishSuccessEvent(
-					"FUNDING",
-					funding.getId(),
-					"FUNDING_COMPLETED",
-					Map.of(
-						"fundingId", funding.getId(),
-						"userId", funding.getUserId(),
-						"projectId", funding.getProjectId(),
-						"reservationId", funding.getReservationId(),
-						"amount", funding.getAmount()
-					)
-				);
-			}
+			publishFundingCompletedEvent(funding);
 
 			return CreateFundingResult.success(funding.getId());
-		} catch (Exception e) {
-			log.error("예상치 못한 오류 - funding: {}, error: {}", funding.getId(), e.getMessage(), e);
+		} catch (FundingException e) {
+			log.error("펀딩 처리 실패 - fundingId: {}, errorCode: {}, message: {}",
+				funding.getId(), e.getErrorCode().getCode(), e.getMessage());
 
-			if (reservationId != null) {
-				outboxService.publishCompensationEvent(
-					"FUNDING",
-					reservationId,
-					"FUNDING_FAILED",
-					Map.of(
-						"fundingId", funding.getId(),
-						"projectId", command.projectId(),
-						"userId", command.userId(),
-						"reservationId", reservationId
-					)
-				);
+			publishFundingFailedEvent(funding, command);
+
+			throw e;
+
+		} catch (FeignException e) {  // ⭐ 추가!
+			log.error("외부 서비스 호출 실패 - fundingId: {}, url: {}, error: {}",
+				funding.getId(), e.request().url(), e.getMessage());
+
+			publishFundingFailedEvent(funding, command);
+
+			String url = e.request().url();
+			if (url.contains("/rewards") || url.contains(":18083")) {
+				throw new FundingException(REWARD_SERVICE_UNAVAILABLE);
+			} else if (url.contains("/payments") || url.contains(":18084")) {
+				throw new FundingException(PAYMENT_SERVICE_UNAVAILABLE);
 			}
+			throw new FundingException(EXTERNAL_SERVICE_ERROR);
 
-			return CreateFundingResult.failure("후원 처리 중 오류가 발생했습니다.");
+		} catch (Exception e) {
+			log.error("예상치 못한 오류 - fundingId: {}, error: {}",
+				funding.getId(), e.getMessage(), e);
+
+			publishFundingFailedEvent(funding, command);
+
+			throw new FundingException(FUNDING_PROCESS_FAILED);
 		}
+	}
+
+	private void publishFundingCompletedEvent(Funding funding) {
+		if (!funding.hasReservation()) {
+			return;
+		}
+
+		outboxService.publishSuccessEvent(
+			"FUNDING",
+			funding.getId(),
+			"FUNDING_COMPLETED",
+			Map.of(
+				"fundingId", funding.getId(),
+				"userId", funding.getUserId(),
+				"projectId", funding.getProjectId(),
+				"reservationId", funding.getReservationIds(),
+				"amount", funding.getAmount()
+			)
+		);
+	}
+
+	private void publishFundingFailedEvent(Funding funding, CreateFundingCommand command) {
+		if (!funding.hasReservation()) {
+			return;
+		}
+
+		outboxService.publishCompensationEvent(
+			"FUNDING",
+			funding.getId(),
+			"FUNDING_FAILED",
+			Map.of(
+				"fundingId", funding.getId(),
+				"projectId", command.projectId(),
+				"userId", command.userId(),
+				"reservationIds", funding.getReservationIds()
+			)
+		);
 	}
 
 	@Override
@@ -217,21 +246,27 @@ public class FundingServiceImpl implements FundingService {
 
 		fundingProjectStatisticsService.decreaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
 
-		if (funding.hasReservation()) {
-			outboxService.publishSuccessEvent(
-				"FUNDING",
-				funding.getId(),
-				"FUNDING_REFUND",
-				Map.of(
-					"fundingId", funding.getId(),
-					"projectId", funding.getProjectId(),
-					"userId", funding.getUserId(),
-					"reservationId", funding.getReservationId()
-				)
-			);
-		}
+		publishFundingRefundEvent(funding);
 
 		return CancelFundingResult.success(funding.getId());
+	}
+
+	private void publishFundingRefundEvent(Funding funding) {
+		if (!funding.hasReservation()) {
+			return;
+		}
+
+		outboxService.publishSuccessEvent(
+			"FUNDING",
+			funding.getId(),
+			"FUNDING_REFUND",
+			Map.of(
+				"fundingId", funding.getId(),
+				"projectId", funding.getProjectId(),
+				"userId", funding.getUserId(),
+				"reservationId", funding.getReservationIds()
+			)
+		);
 	}
 
 	@Override

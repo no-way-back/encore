@@ -9,7 +9,7 @@ import java.util.UUID;
 public record UpdateRewardRequest(
         String name,
         String description,
-        Integer price,
+        Long price,
         Integer stockQuantity,
         Integer shippingFee,
         Integer freeShippingAmount,
@@ -21,7 +21,7 @@ public record UpdateRewardRequest(
     public static class UpdateRewardOptionRequest {
         private UUID optionId;
         private String name;
-        private Integer additionalPrice;
+        private Long additionalPrice;
         private Integer stockQuantity;
         private Boolean isRequired;
         private Integer displayOrder;

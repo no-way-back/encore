@@ -19,17 +19,17 @@ import com.nowayback.funding.application.client.payment.dto.response.SettlementR
 )
 public interface PaymentClient {
 
-	@PostMapping("/payments/confirm")
+	@PostMapping("/internal/payments/confirm")
 	ProcessPaymentResponse processPayment(
 		@RequestBody ProcessPaymentRequest request
 	);
 
-	@PostMapping("/payments/refund")
+	@PostMapping("/internal/payments/refund")
 	ProcessRefundResponse processRefund(
 		@RequestBody ProcessRefundRequest request
 	);
 
-	@PostMapping("/settlements/{projectId}")
+	@PostMapping("/internal/settlements/{projectId}")
 	SettlementResponse requestSettlement(
 		@PathVariable UUID projectId
 	);

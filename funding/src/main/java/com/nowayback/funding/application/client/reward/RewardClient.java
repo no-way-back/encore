@@ -1,15 +1,13 @@
 package com.nowayback.funding.application.client.reward;
 
-import java.util.List;
-
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.nowayback.funding.application.client.reward.dto.request.DecreaseRewardRequest;
-import com.nowayback.funding.application.client.reward.dto.request.RewardDetailsRequest;
-import com.nowayback.funding.application.client.reward.dto.response.DecreaseRewardResponse;
-import com.nowayback.funding.application.client.reward.dto.response.RewardDetailResponse;
+import com.nowayback.funding.application.client.reward.dto.request.StockReserveRequest;
+import com.nowayback.funding.application.client.reward.dto.response.StockReserveResponse;
+
+import jakarta.validation.Valid;
 
 @FeignClient(
 	name = "reward-service",
@@ -17,9 +15,14 @@ import com.nowayback.funding.application.client.reward.dto.response.RewardDetail
 )
 public interface RewardClient {
 
+	/**
+	 * 리워드 재고 예약 (차감)
+	 *
+	 * @param request 재고 예약 요청
+	 * @return 예약 결과 (reservationId, totalAmount 포함)
+	 */
 	@PostMapping("/internal/rewards/reserve-stock")
-	DecreaseRewardResponse decreaseReward(@RequestBody DecreaseRewardRequest request);
-
-	@PostMapping("/internal/rewards/details")
-	List<RewardDetailResponse> getRewardDetails(@RequestBody RewardDetailsRequest request);
+	StockReserveResponse reserveStock(
+		@Valid @RequestBody StockReserveRequest request
+	);
 }

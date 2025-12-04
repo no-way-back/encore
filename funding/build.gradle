@@ -58,6 +58,12 @@ dependencies {
     // Redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.52.0'
 
+    // WireMock
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
+
+    // H2 Database (테스트용)
+    testRuntimeOnly 'com.h2database:h2'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

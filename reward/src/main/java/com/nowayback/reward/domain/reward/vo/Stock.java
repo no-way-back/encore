@@ -56,6 +56,43 @@ public class Stock {
             throw new RewardException(INSUFFICIENT_STOCK);
         }
 
-        return new Stock(newQuantity);  // 생성자는 검증 없음
+        return new Stock(newQuantity);
+    }
+
+    /**
+     * 재고 복원 (증가)
+     * - 복원 후 재고가 원래 설정된 최대 재고를 초과하지 않아야 함
+     * - 복원 수량은 양수여야 함
+     */
+    public Stock restore(Integer quantity) {
+        validateRestoreQuantity(quantity);
+
+        int newQuantity = this.quantity + quantity;
+
+        return new Stock(newQuantity);
+    }
+
+    /**
+     * 재고 복원 시 검증
+     * - 복원 수량은 양수여야 함
+     */
+    private void validateRestoreQuantity(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new RewardException(INVALID_RESTORE_QUANTITY);
+        }
+    }
+
+    /**
+     * 재고 소진 여부 확인
+     */
+    public boolean isSoldOut() {
+        return this.quantity == 0;
+    }
+
+    /**
+     * 재고 보유 여부 확인
+     */
+    public boolean hasStock() {
+        return this.quantity > 0;
     }
 }

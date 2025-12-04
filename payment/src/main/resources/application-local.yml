@@ -32,6 +32,12 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
 
+feign:
+  client:
+    config:
+      project-service:
+        url: http://localhost:18085
+
 logging:
   level:
     com.nowayback.payment: DEBUG

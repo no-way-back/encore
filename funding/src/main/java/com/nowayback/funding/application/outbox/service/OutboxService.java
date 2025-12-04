@@ -1,7 +1,10 @@
 package com.nowayback.funding.application.outbox.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import com.nowayback.funding.domain.outbox.entity.Outbox;
 
 public interface OutboxService {
 
@@ -10,6 +13,12 @@ public interface OutboxService {
 	 * @param eventId Outbox 이벤트 ID
 	 */
 	void markAsPublished(UUID eventId);
+
+	/**
+	 * Outbox 이벤트를 발생 실패 상태로 변경
+	 * @param eventId Outbox 이벤트 ID
+	 */
+	void markAsFailed(UUID eventId);
 
 	/**
 	 * Outbox 이벤트의 재시도 횟수 증가
@@ -38,4 +47,10 @@ public interface OutboxService {
 	 * @param payload 이벤트 데이터
 	 */
 	void publishCompensationEvent(String aggregateType, UUID aggregateId, String eventType, Map<String, Object> payload);
+
+	/**
+	 * 재시도 대상 Outbox 이벤트 조회
+	 * @return PENDING 상태의 Outbox 이벤트 목록
+	 */
+	List<Outbox> getPendingEvents();
 }

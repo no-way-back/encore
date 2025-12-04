@@ -111,10 +111,4 @@ public class RewardOptions extends BaseEntity {
         return unitPrice * quantity;
     }
 
-    /**
-     * 판매 가능 여부 확인
-     */
-    public boolean isAvailableForSale() {
-        return this.status == AVAILABLE && this.stock.getQuantity() > 0;
-    }
 }

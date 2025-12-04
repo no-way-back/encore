@@ -4,7 +4,6 @@ import com.nowayback.reward.domain.stockreservation.entity.StockReservation;
 import com.nowayback.reward.domain.vo.FundingId;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface StockReservationRepository {
     StockReservation save(StockReservation stockReservation);

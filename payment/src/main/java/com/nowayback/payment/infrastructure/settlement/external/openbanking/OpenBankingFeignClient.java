@@ -1,7 +1,8 @@
 package com.nowayback.payment.infrastructure.settlement.external.openbanking;
 
+import com.nowayback.payment.infrastructure.settlement.external.openbanking.dto.OpenBankingTransferRequest;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @FeignClient(
         name = "kftc-open-banking",
@@ -9,6 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 )
 public interface OpenBankingFeignClient {
 
-    @GetMapping("/transfer")
-    String transfer(String accountBank, String accountNumber, String accountHolderName, Long amount);
+    @PostMapping("/transfer")
+    String transfer(OpenBankingTransferRequest request);
 }

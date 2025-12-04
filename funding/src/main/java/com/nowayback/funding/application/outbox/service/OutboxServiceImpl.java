@@ -2,6 +2,7 @@ package com.nowayback.funding.application.outbox.service;
 
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class OutboxServiceImpl implements OutboxService {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void markAsPublished(UUID eventId) {
 		Outbox event = outboxRepository.findById(eventId)
 			.orElseThrow(() -> new FundingException(OUTBOX_EVENT_NOT_FOUND));
@@ -41,7 +42,20 @@ public class OutboxServiceImpl implements OutboxService {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
+	public void markAsFailed(UUID eventId) {
+		Outbox event = outboxRepository.findById(eventId)
+			.orElseThrow(() -> new FundingException(OUTBOX_EVENT_NOT_FOUND));
+
+		event.markAsFailed();
+		outboxRepository.save(event);
+
+		log.error("Outbox 이벤트 FAILED 상태 변경 - eventId: {}, retryCount: {}, 수동 복구 필요",
+			eventId, event.getRetryCount());
+	}
+
+	@Override
+	@Transactional
 	public void incrementRetryCount(UUID eventId) {
 		Outbox event = outboxRepository.findById(eventId)
 			.orElseThrow(() -> new FundingException(OUTBOX_EVENT_NOT_FOUND));
@@ -95,5 +109,11 @@ public class OutboxServiceImpl implements OutboxService {
 
 		log.info("보상 트랜잭션 이벤트 발행 - aggregateType: {}, aggregateId: {}, eventType: {}",
 			aggregateType, aggregateId, eventType);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Outbox> getPendingEvents() {
+		return outboxRepository.findPendingEvents();
 	}
 }

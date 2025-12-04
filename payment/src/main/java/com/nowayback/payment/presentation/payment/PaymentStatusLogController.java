@@ -19,10 +19,10 @@ public class PaymentStatusLogController {
 
     private final PaymentStatusLogService paymentStatusLogService;
 
-    @GetMapping("{paymentId}")
+    @GetMapping
     @RequiredRole({"MASTER", "ADMIN"})
     public ResponseEntity<PageResponse<PaymentStatusLogResponse>> getPaymentStatusLogs(
-            @PathVariable("paymentId") UUID paymentId,
+            @RequestParam(required = false) UUID paymentId,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {

@@ -39,7 +39,8 @@ class PaymentStatusLogControllerTest extends ControllerTest {
 
             /* when */
             /* then */
-            performWithAuth(get(BASE_URL + "/{paymentId}", PAYMENT_ID), role)
+            performWithAuth(get(BASE_URL)
+                            .param("paymentId", PAYMENT_ID.toString()), role)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.content").isArray())
                     .andExpect(jsonPath("$.content.length()").value(PAYMENT_STATUS_LOG_RESULT_PAGE.getContent().size()))
@@ -57,7 +58,7 @@ class PaymentStatusLogControllerTest extends ControllerTest {
             /* given */
             /* when */
             /* then */
-            mockMvc.perform(get(BASE_URL + "/{paymentId}", PAYMENT_ID))
+            mockMvc.perform(get(BASE_URL).param("paymentId", PAYMENT_ID.toString()))
                     .andExpect(status().isUnauthorized());
         }
 
@@ -68,7 +69,7 @@ class PaymentStatusLogControllerTest extends ControllerTest {
             /* given */
             /* when */
             /* then */
-            performWithAuth(get(BASE_URL + "/{paymentId}", PAYMENT_ID), role)
+            performWithAuth(get(BASE_URL).param("paymentId", PAYMENT_ID.toString()), role)
                     .andExpect(status().isForbidden());
         }
     }

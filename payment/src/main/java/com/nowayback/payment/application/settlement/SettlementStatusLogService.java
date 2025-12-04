@@ -23,7 +23,6 @@ public class SettlementStatusLogService {
 
     private static final int MAX_PAGE_SIZE = 50;
 
-    @Transactional
     public void saveSettlementStatusLog(UUID settlementId, SettlementStatus previousStatus, SettlementStatus currStatus, String reason, Money amount) {
         SettlementStatusLog settlementStatusLog = SettlementStatusLog.create(settlementId, previousStatus, currStatus, reason, amount);
         settlementStatusLogRepository.save(settlementStatusLog);

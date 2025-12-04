@@ -23,7 +23,6 @@ public class PaymentStatusLogService {
 
     private static final int MAX_PAGE_SIZE = 50;
 
-    @Transactional
     public void savePaymentStatusLog(UUID paymentId, PaymentStatus previousStatus, PaymentStatus currStatus, String reason, Money amount) {
         PaymentStatusLog paymentStatusLog = PaymentStatusLog.create(paymentId, previousStatus, currStatus, reason, amount);
         paymentStatusLogRepository.save(paymentStatusLog);

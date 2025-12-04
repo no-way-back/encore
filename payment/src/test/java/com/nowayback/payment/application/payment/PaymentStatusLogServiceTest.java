@@ -48,7 +48,7 @@ class PaymentStatusLogServiceTest {
     }
 
     @Nested
-    @DisplayName("결제 상태 기록 조회")
+    @DisplayName("결제 상태 기록 목록 조회")
     class GetPaymentStatusLogs {
 
         @Test
@@ -59,10 +59,10 @@ class PaymentStatusLogServiceTest {
                     .thenReturn(PAYMENT_STATUS_LOGS_PAGE);
 
             /* when */
-            Page<PaymentStatusLogResult> result = paymentStatusLogService.getPaymentStatusLogs(PAYMENT_ID, PAGE, SIZE);
+            Page<PaymentStatusLogResult> results = paymentStatusLogService.getPaymentStatusLogs(PAYMENT_ID, PAGE, SIZE);
 
             /* then */
-            assertThat(result.getContent()).hasSize(PAYMENT_STATUS_LOGS.size());
+            assertThat(results.getContent()).hasSize(PAYMENT_STATUS_LOGS.size());
             verify(paymentStatusLogRepository, times(1)).findAllByPaymentId(PAYMENT_ID, PAGEABLE);
         }
     }

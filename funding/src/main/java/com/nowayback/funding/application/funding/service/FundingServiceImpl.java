@@ -150,20 +150,13 @@ public class FundingServiceImpl implements FundingService {
 
 			throw e;
 
-		} catch (FeignException e) {  // ⭐ 추가!
+		} catch (FeignException e) {
 			log.error("외부 서비스 호출 실패 - fundingId: {}, url: {}, error: {}",
 				funding.getId(), e.request().url(), e.getMessage());
 
 			publishFundingFailedEvent(funding, command);
 
-			String url = e.request().url();
-			if (url.contains("/rewards") || url.contains(":18083")) {
-				throw new FundingException(REWARD_SERVICE_UNAVAILABLE);
-			} else if (url.contains("/payments") || url.contains(":18084")) {
-				throw new FundingException(PAYMENT_SERVICE_UNAVAILABLE);
-			}
-			throw new FundingException(EXTERNAL_SERVICE_ERROR);
-
+			throw e;
 		} catch (Exception e) {
 			log.error("예상치 못한 오류 - fundingId: {}, error: {}",
 				funding.getId(), e.getMessage(), e);

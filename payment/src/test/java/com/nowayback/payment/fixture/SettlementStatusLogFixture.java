@@ -1,5 +1,6 @@
 package com.nowayback.payment.fixture;
 
+import com.nowayback.payment.application.settlement.dto.result.SettlementStatusLogResult;
 import com.nowayback.payment.domain.settlement.entity.SettlementStatusLog;
 import com.nowayback.payment.domain.settlement.vo.Money;
 import com.nowayback.payment.domain.settlement.vo.SettlementStatus;
@@ -36,14 +37,14 @@ public class SettlementStatusLogFixture {
         );
     }
 
-    public static final List<SettlementStatusLog> PAYMENT_STATUS_LOGS = List.of(
+    public static final List<SettlementStatusLog> SETTLEMENT_STATUS_LOGS = List.of(
             createSettlementStatusLog(),
             createSettlementStatusLog()
     );
 
-    public static final Page<SettlementStatusLog> PAYMENT_STATUS_LOGS_PAGE = new PageImpl<>(PAYMENT_STATUS_LOGS, PAGEABLE, PAYMENT_STATUS_LOGS.size());
+    public static final Page<SettlementStatusLog> SETTLEMENT_STATUS_LOGS_PAGE = new PageImpl<>(SETTLEMENT_STATUS_LOGS, PAGEABLE, SETTLEMENT_STATUS_LOGS.size());
 
     /* Settlement Status Log Result */
 
-//    public static final Page<SettlementStatusLogResult> SETTLEMENT_STATUS_LOG_RESULT_PAGE = PAYMENT_STATUS_LOGS_PAGE.map(SettlementStatusLogResult::from);
+    public static final Page<SettlementStatusLogResult> SETTLEMENT_STATUS_LOG_RESULT_PAGE = SETTLEMENT_STATUS_LOGS_PAGE.map(SettlementStatusLogResult::from);
 }

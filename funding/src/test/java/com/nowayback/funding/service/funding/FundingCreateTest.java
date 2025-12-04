@@ -21,8 +21,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.nowayback.funding.application.client.payment.PaymentClient;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessPaymentResponse;
 import com.nowayback.funding.application.client.reward.RewardClient;
-import com.nowayback.funding.application.client.reward.dto.response.DecreaseRewardResponse;
-import com.nowayback.funding.application.client.reward.dto.response.RewardDetailResponse;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 import com.nowayback.funding.application.funding.service.FundingServiceImpl;

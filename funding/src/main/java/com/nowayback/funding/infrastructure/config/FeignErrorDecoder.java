@@ -10,6 +10,10 @@ import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Feign 에러 디코더
+ * 외부 서비스 호출 실패 시 적절한 예외로 변환
+ */
 @Slf4j
 public class FeignErrorDecoder implements ErrorDecoder {
 
@@ -20,13 +24,13 @@ public class FeignErrorDecoder implements ErrorDecoder {
 		HttpStatus httpStatus = HttpStatus.resolve(response.status());
 		String requestUrl = response.request().url();
 
-		log.error("Feign 에러 발생 - method: {}, url: {}, status: {}",
-			methodKey, requestUrl, response.status());
+		log.error("Feign 에러 발생 - method: {}, url: {}, status: {}, reason: {}",
+			methodKey, requestUrl, response.status(), response.reason());
 
-		// 서비스별 처리
-		if (requestUrl.contains("/rewards")) {
+		// 서비스별 처리 (URL 기반 - 정확한 경로 체크)
+		if (requestUrl.contains("/internal/rewards") || requestUrl.contains("/rewards")) {
 			return handleRewardServiceError(httpStatus);
-		} else if (requestUrl.contains("/payments")) {
+		} else if (requestUrl.contains("/internal/payments") || requestUrl.contains("/payments")) {
 			return handlePaymentServiceError(httpStatus);
 		}
 

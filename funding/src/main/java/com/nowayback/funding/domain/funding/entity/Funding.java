@@ -2,11 +2,14 @@ package com.nowayback.funding.domain.funding.entity;
 
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.nowayback.funding.domain.shared.BaseEntity;
 import com.nowayback.funding.domain.exception.FundingException;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,8 +42,8 @@ public class Funding extends BaseEntity {
 	@Column(name = "amount", nullable = false)
 	private Long amount;
 
-	@Column(name = "reservation_id")
-	private UUID reservationId;
+	@OneToMany(mappedBy = "funding", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<FundingReservation> reservations = new ArrayList<>();
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false, length = 20)
@@ -69,17 +73,12 @@ public class Funding extends BaseEntity {
 		return funding;
 	}
 
-	public void completeFunding(UUID reservationId, UUID paymentId) {
+	// ==================== 상태 관리 ====================
+
+	public void completeFunding(UUID paymentId) {
 		validateStatusTransition(FundingStatus.COMPLETED);
-		this.reservationId = reservationId;
 		this.paymentId = paymentId;
 		this.status = FundingStatus.COMPLETED;
-	}
-
-	public void failFunding(String reason) {
-		validateStatusTransition(FundingStatus.FAILED);
-		this.failReason = reason;
-		this.status = FundingStatus.FAILED;
 	}
 
 	public void cancelFunding() {
@@ -89,20 +88,53 @@ public class Funding extends BaseEntity {
 		this.status = FundingStatus.CANCELLED;
 	}
 
-	public void refundFunding() {
-		if (this.status != FundingStatus.COMPLETED) {
-			throw new FundingException(CANNOT_CANCEL_NON_COMPLETED);
-		}
-		this.status = FundingStatus.REFUNDED;
-	}
-
-	public boolean hasReservation() {
-		return this.reservationId != null;
-	}
-
-	private void validateStatusTransition(FundingStatus fundingNewStatus) {
+	private void validateStatusTransition(FundingStatus newStatus) {
 		if (this.status != FundingStatus.PENDING) {
 			throw new FundingException(INVALID_STATUS_TRANSITION);
 		}
+	}
+
+	// ==================== 금액 관리 ====================
+
+	public void updateAmount(Long newAmount) {
+		if (newAmount == null || newAmount <= 0) {
+			throw new FundingException(INVALID_AMOUNT);
+		}
+
+		if (this.status != FundingStatus.PENDING) {
+			throw new FundingException(INVALID_STATUS_TRANSITION);
+		}
+
+		this.amount = newAmount;
+	}
+
+	// ==================== 예약 관리 ====================
+
+	public void addReservation(
+		UUID reservationId,
+		UUID rewardId,
+		UUID optionId,
+		Integer quantity,
+		Long amount
+	) {
+		FundingReservation reservation = FundingReservation.create(
+			this,
+			reservationId,
+			rewardId,
+			optionId,
+			quantity,
+			amount
+		);
+		this.reservations.add(reservation);
+	}
+
+	public boolean hasReservation() {
+		return this.reservations != null && !this.reservations.isEmpty();
+	}
+
+	public List<UUID> getReservationIds() {
+		return this.reservations.stream()
+			.map(FundingReservation::getReservationId)
+			.toList();
 	}
 }

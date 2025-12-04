@@ -6,6 +6,7 @@ import com.nowayback.funding.application.funding.dto.command.CreateFundingComman
 
 public record ProcessPaymentRequest(
 	UUID fundingId,
+	UUID projectId,
 	Long amount,
 	String pgPaymentKey,
 	String pgOrderId,
@@ -14,6 +15,7 @@ public record ProcessPaymentRequest(
 	public static ProcessPaymentRequest from(UUID fundingId, CreateFundingCommand command) {
 		return new ProcessPaymentRequest(
 			fundingId,
+			command.projectId(),
 			command.amount(),
 			command.pgPaymentKey(),
 			command.pgOrderId(),

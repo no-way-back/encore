@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,11 +19,9 @@ import com.nowayback.funding.application.client.payment.dto.request.ProcessPayme
 import com.nowayback.funding.application.client.payment.dto.request.ProcessRefundRequest;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
 import com.nowayback.funding.application.client.reward.RewardClient;
-import com.nowayback.funding.application.client.reward.dto.request.DecreaseRewardRequest;
-import com.nowayback.funding.application.client.reward.dto.request.RewardDetailsRequest;
-import com.nowayback.funding.application.client.reward.dto.response.DecreaseRewardResponse;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessPaymentResponse;
-import com.nowayback.funding.application.client.reward.dto.response.RewardDetailResponse;
+import com.nowayback.funding.application.client.reward.dto.request.StockReserveRequest;
+import com.nowayback.funding.application.client.reward.dto.response.StockReserveResponse;
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
@@ -88,50 +85,44 @@ public class FundingServiceImpl implements FundingService {
 			throw new FundingException(DUPLICATE_FUNDING);
 		}
 
-		long calculatedRewardPrice = 0;
-
-		if (command.hasRewards()) {
-			List<UUID> rewardIds = command.rewardItems().stream()
-				.map(CreateFundingCommand.RewardItem::rewardId)
-				.toList();
-
-			List<RewardDetailResponse> rewardDetails =
-				rewardClient.getRewardDetails(new RewardDetailsRequest(rewardIds));
-
-			Map<UUID, RewardDetailResponse> rewardDetailMap = rewardDetails.stream()
-				.collect(Collectors.toMap(RewardDetailResponse::rewardId, r -> r));
-
-			for (CreateFundingCommand.RewardItem item : command.rewardItems()) {
-				RewardDetailResponse detail = rewardDetailMap.get(item.rewardId());
-
-				if (detail == null) {
-					throw new FundingException(REWARD_NOT_FOUND);
-				}
-
-				calculatedRewardPrice += detail.price() * item.quantity();
-			}
-		}
-
-		Long totalAmount = calculatedRewardPrice + command.amount();
-
 		Funding funding = Funding.createFunding(
 			command.projectId(),
 			command.userId(),
 			command.idempotencyKey(),
-			totalAmount
+			command.amount()
 		);
 
 		Funding savedFunding = fundingRepository.save(funding);
-
 		log.info("Funding 생성 완료 - funding: {}", savedFunding.getId());
 
-		UUID reservationId = null;
-
 		if (command.hasRewards()) {
-			DecreaseRewardRequest rewardRequest = DecreaseRewardRequest.from(command);
-			DecreaseRewardResponse rewardResponse = rewardClient.decreaseReward(rewardRequest);
-			reservationId = rewardResponse.reservationId();
-			log.info("재고 감소 성공 - reservationId: {}", reservationId);
+			List<StockReserveRequest.StockReserveItem> items = command.rewardItems().stream()
+				.map(item -> new StockReserveRequest.StockReserveItem(
+					item.rewardId(),
+					item.optionId(),
+					item.quantity()
+				))
+				.toList();
+
+			StockReserveRequest request = new StockReserveRequest(savedFunding.getId(), items);
+			StockReserveResponse response = rewardClient.reserveStock(request);
+
+			log.info("재고 예약 완료 - fundingId: {}, reservations: {}, rewardAmount: {}, totalAmount: {}",
+				savedFunding.getId(), response.reservedItems().size(), response.totalAmount(), response.totalAmount());
+
+			for (StockReserveResponse.ReservedItem item : response.reservedItems()) {
+				funding.addReservation(
+					item.reservationId(),
+					item.rewardId(),
+					item.optionId(),
+					item.quantity(),
+					item.itemAmount()
+				);
+			}
+
+			Long totalAmount = response.totalAmount() + command.amount();
+
+			funding.updateAmount(totalAmount);
 		}
 
 		try {
@@ -140,7 +131,7 @@ public class FundingServiceImpl implements FundingService {
 			UUID paymentId = paymentResponse.paymentId();
 			log.info("결제 성공 - paymentId: {}", paymentId);
 
-			funding.completeFunding(reservationId, paymentId);
+			funding.completeFunding(paymentId);
 			log.info("펀딩 완료 - funding: {}", funding.getId());
 
 			fundingProjectStatisticsService.increaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
@@ -154,7 +145,7 @@ public class FundingServiceImpl implements FundingService {
 						"fundingId", funding.getId(),
 						"userId", funding.getUserId(),
 						"projectId", funding.getProjectId(),
-						"reservationId", funding.getReservationId(),
+						"reservationId", funding.getReservationIds(),
 						"amount", funding.getAmount()
 					)
 				);
@@ -164,16 +155,16 @@ public class FundingServiceImpl implements FundingService {
 		} catch (Exception e) {
 			log.error("예상치 못한 오류 - funding: {}, error: {}", funding.getId(), e.getMessage(), e);
 
-			if (reservationId != null) {
+			if (funding.hasReservation()) {
 				outboxService.publishCompensationEvent(
 					"FUNDING",
-					reservationId,
+					funding.getId(),
 					"FUNDING_FAILED",
 					Map.of(
 						"fundingId", funding.getId(),
 						"projectId", command.projectId(),
 						"userId", command.userId(),
-						"reservationId", reservationId
+						"reservationIds", funding.getReservationIds()
 					)
 				);
 			}
@@ -226,7 +217,7 @@ public class FundingServiceImpl implements FundingService {
 					"fundingId", funding.getId(),
 					"projectId", funding.getProjectId(),
 					"userId", funding.getUserId(),
-					"reservationId", funding.getReservationId()
+					"reservationId", funding.getReservationIds()
 				)
 			);
 		}

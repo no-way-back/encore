@@ -149,7 +149,7 @@ class getMyFundingsTest {
 			idField.setAccessible(true);
 			idField.set(funding, UUID.randomUUID());
 
-			funding.completeFunding(UUID.randomUUID(), UUID.randomUUID());
+			funding.completeFunding(UUID.randomUUID());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

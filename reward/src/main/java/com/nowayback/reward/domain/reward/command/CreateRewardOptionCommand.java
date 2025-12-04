@@ -6,7 +6,7 @@ import java.util.List;
 
 public record CreateRewardOptionCommand(
         String name,
-        Integer additionalPrice,
+        Long additionalPrice,
         Integer stockQuantity,
         Boolean isRequired,
         Integer displayOrder

@@ -1,6 +1,6 @@
 package com.nowayback.reward.small.application.reward;
 
-import com.nowayback.reward.application.reward.RewardService;
+import com.nowayback.reward.application.reward.RewardStockService;
 import com.nowayback.reward.application.reward.command.StockReserveCommand;
 import com.nowayback.reward.application.reward.dto.StockReserveResult;
 import com.nowayback.reward.domain.exception.RewardErrorCode;
@@ -36,8 +36,7 @@ class RewardServiceStockReserveTest {
     @Mock
     private StockReservationRepository stockReservationRepository;
 
-    @InjectMocks
-    private RewardService rewardService;
+    @InjectMocks RewardStockService rewardStockService;
 
     @Nested
     @DisplayName("재고 예약 테스트")
@@ -60,7 +59,7 @@ class RewardServiceStockReserveTest {
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                StockReserveResult result = rewardService.reserveStock(command);
+                StockReserveResult result = rewardStockService.reserveStock(command);
 
                 // then
                 assertThat(result.fundingId()).isEqualTo(fundingId);
@@ -89,7 +88,7 @@ class RewardServiceStockReserveTest {
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                StockReserveResult result = rewardService.reserveStock(command);
+                StockReserveResult result = rewardStockService.reserveStock(command);
 
                 // then
                 assertThat(result.fundingId()).isEqualTo(fundingId);
@@ -114,7 +113,7 @@ class RewardServiceStockReserveTest {
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                StockReserveResult result = rewardService.reserveStock(command);
+                StockReserveResult result = rewardStockService.reserveStock(command);
 
                 // then
                 assertThat(result.fundingId()).isEqualTo(fundingId);
@@ -145,7 +144,7 @@ class RewardServiceStockReserveTest {
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                StockReserveResult result = rewardService.reserveStock(command);
+                StockReserveResult result = rewardStockService.reserveStock(command);
 
                 // then
                 assertThat(option.getStock().getQuantity()).isEqualTo(0);
@@ -173,21 +172,21 @@ class RewardServiceStockReserveTest {
 
                 // when - S 품절
                 StockReserveCommand command1 = createCommandWithOption(fundingId, reward.getId(), option1.getId(), 30);
-                rewardService.reserveStock(command1);
+                rewardStockService.reserveStock(command1);
 
                 assertThat(option1.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
                 assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
 
                 // when - M 품절
                 StockReserveCommand command2 = createCommandWithOption(fundingId, reward.getId(), option2.getId(), 50);
-                rewardService.reserveStock(command2);
+                rewardStockService.reserveStock(command2);
 
                 assertThat(option2.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
                 assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
 
                 // when - L 품절 (마지막 옵션)
                 StockReserveCommand command3 = createCommandWithOption(fundingId, reward.getId(), option3.getId(), 20);
-                rewardService.reserveStock(command3);
+                rewardStockService.reserveStock(command3);
 
                 // then - 모든 옵션 품절 → 리워드도 품절
                 assertThat(option3.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
@@ -208,7 +207,7 @@ class RewardServiceStockReserveTest {
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                StockReserveResult result = rewardService.reserveStock(command);
+                StockReserveResult result = rewardStockService.reserveStock(command);
 
                 // then
                 assertThat(result.fundingId()).isEqualTo(fundingId);
@@ -243,7 +242,7 @@ class RewardServiceStockReserveTest {
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                StockReserveResult result = rewardService.reserveStock(command);
+                StockReserveResult result = rewardStockService.reserveStock(command);
 
                 // then
                 assertThat(result.fundingId()).isEqualTo(fundingId);
@@ -272,7 +271,7 @@ class RewardServiceStockReserveTest {
                 when(rewardRepository.findById(rewardId)).thenReturn(Optional.empty());
 
                 // when & then
-                assertThatThrownBy(() -> rewardService.reserveStock(command))
+                assertThatThrownBy(() -> rewardStockService.reserveStock(command))
                         .isInstanceOf(RewardException.class)
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.REWARD_NOT_FOUND);
@@ -293,7 +292,7 @@ class RewardServiceStockReserveTest {
                 when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
 
                 // when & then
-                assertThatThrownBy(() -> rewardService.reserveStock(command))
+                assertThatThrownBy(() -> rewardStockService.reserveStock(command))
                         .isInstanceOf(RewardException.class)
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.OPTION_NOT_FOUND);
@@ -313,7 +312,7 @@ class RewardServiceStockReserveTest {
                 when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
 
                 // when & then
-                assertThatThrownBy(() -> rewardService.reserveStock(command))
+                assertThatThrownBy(() -> rewardStockService.reserveStock(command))
                         .isInstanceOf(RewardException.class)
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.REQUIRED_OPTION_NOT_SELECTED);
@@ -333,7 +332,7 @@ class RewardServiceStockReserveTest {
                 when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
 
                 // when & then
-                assertThatThrownBy(() -> rewardService.reserveStock(command))
+                assertThatThrownBy(() -> rewardStockService.reserveStock(command))
                         .isInstanceOf(RewardException.class)
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.INSUFFICIENT_STOCK);
@@ -354,7 +353,7 @@ class RewardServiceStockReserveTest {
                 when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
 
                 // when & then
-                assertThatThrownBy(() -> rewardService.reserveStock(command))
+                assertThatThrownBy(() -> rewardStockService.reserveStock(command))
                         .isInstanceOf(RewardException.class)
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.INSUFFICIENT_STOCK);

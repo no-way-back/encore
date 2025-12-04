@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "settlement_status_logs")
+@Table(name = "p_settlement_status_logs")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SettlementStatusLog extends BaseCreateEntity {

@@ -18,6 +18,9 @@ public final class KafkaTopics {
     public static final String FUNDING_CREATED = "funding-created";
     public static final String FUNDING_CREATION_FAILED = "project-funding-created-failed";
 
+    public static final String PROJECT_FUNDING_SUCCESS = "project-funding-success";
+    public static final String PROJECT_FUNDING_FAILED = "project-funding-failed";
+
     // 프로젝트 최종 상태
     public static final String PROJECT_ACTIVATED = "project-activated";
     public static final String PROJECT_CREATION_FAILED = "project-creation-failed";

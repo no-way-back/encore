@@ -27,8 +27,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private static final List<String> PUBLIC_PATHS = List.of(
             "/auth/login",
-            "/auth/signup",
-            "fundings/status"
+            "/auth/signup"
     );
 
     public JwtAuthenticationFilter(@Value("${jwt.secret}") String secret) {

@@ -17,6 +17,8 @@ public interface FundingProjectStatisticsService {
 
 	void closeProcessingProjects();
 
+	void validateProjectForFunding(UUID projectId);
+
 	void validateProjectCreator(UUID projectId, UUID creatorId);
 
 	void createProjectStatistics(UUID projectId, UUID creatorId, Long targetAmount, LocalDateTime startDate, LocalDateTime endDate);

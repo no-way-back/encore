@@ -244,7 +244,7 @@ class GetProjectSponsorsTest {
 		setField(funding, UUID.randomUUID());
 
 		// COMPLETED 상태로 변경
-		funding.completeFunding(UUID.randomUUID(), UUID.randomUUID());
+		funding.completeFunding(UUID.randomUUID());
 
 		return funding;
 	}

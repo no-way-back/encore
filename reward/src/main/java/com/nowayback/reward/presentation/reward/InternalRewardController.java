@@ -1,6 +1,7 @@
 package com.nowayback.reward.presentation.reward;
 
 import com.nowayback.reward.application.reward.RewardService;
+import com.nowayback.reward.application.reward.RewardStockService;
 import com.nowayback.reward.application.reward.command.StockReserveCommand;
 import com.nowayback.reward.application.reward.dto.StockReserveResult;
 import com.nowayback.reward.presentation.reward.dto.request.StockReserveRequest;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class InternalRewardController {
 
     private final RewardService rewardService;
+    private final RewardStockService rewardStockService;
 
     @GetMapping("/{projectId}")
     public ResponseEntity<RewardListResponse> getById(@PathVariable UUID projectId) {
@@ -32,7 +34,7 @@ public class InternalRewardController {
             @Valid @RequestBody StockReserveRequest request
     ) {
         StockReserveCommand command = StockReserveCommand.from(request);
-        StockReserveResult result = rewardService.reserveStock(command);
+        StockReserveResult result = rewardStockService.reserveStock(command);
 
         return ResponseEntity.ok(StockReserveResponse.from(result));
     }

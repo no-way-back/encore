@@ -7,7 +7,7 @@ import static com.nowayback.reward.presentation.reward.dto.request.UpdateRewardR
 public record UpdateRewardOptionCommand(
         UUID optionId,
         String name,
-        Integer additionalPrice,
+        Long additionalPrice,
         Integer stockQuantity,
         Boolean isRequired,
         Integer displayOrder

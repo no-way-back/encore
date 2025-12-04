@@ -2,6 +2,7 @@ package com.nowayback.project.application.outbox.event;
 
 import com.nowayback.project.domain.outbox.Outbox;
 import com.nowayback.project.domain.outbox.repository.OutboxRepository;
+import com.nowayback.project.infrastructure.messaging.kafka.KafkaTopicMapper;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OutboxKafkaPublisher {
 
+    private final KafkaTopicMapper topicMapper;
     private final OutboxRepository outboxRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -27,7 +29,7 @@ public class OutboxKafkaPublisher {
             outboxRepository.save(outbox);
 
             log.info("[OutboxKafkaPublisher.publishImmediately] 발행 성공 outboxId={}, topic={}",
-                outbox.getId(), outbox.getEventType().getTopic());
+                outbox.getId(), topicMapper.map(outbox.getEventType()));
 
         } catch (Exception e) {
             log.info("[OutboxKafkaPublisher.publishImmediately] 발행 실패, 폴링에서 재시도 outboxId={}",
@@ -70,7 +72,7 @@ public class OutboxKafkaPublisher {
 
     private void sendToKafka(Outbox outbox) throws Exception {
         kafkaTemplate.send(
-            outbox.getEventType().getTopic(),
+            topicMapper.map(outbox.getEventType()),
             outbox.getAggregateId().toString(),
             outbox.getPayload()
         ).get(3, TimeUnit.SECONDS);

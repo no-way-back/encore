@@ -54,4 +54,21 @@ public class StockReservation extends BaseEntity {
         reservation.status = ReservationStatus.DEDUCTED;
         return reservation;
     }
+
+    /**
+     * 재고 복원 처리
+     */
+    public void restore() {
+        if (this.status == ReservationStatus.RESTORED) {
+            throw new IllegalStateException("이미 복원된 예약입니다");
+        }
+        this.status = ReservationStatus.RESTORED;
+    }
+
+    /**
+     * 복원 여부 확인
+     */
+    public boolean isRestored() {
+        return this.status == ReservationStatus.RESTORED;
+    }
 }

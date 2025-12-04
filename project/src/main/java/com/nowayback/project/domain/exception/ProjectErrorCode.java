@@ -45,7 +45,8 @@ public enum ProjectErrorCode {
     FUNDING_DRAFT_NOT_FOUND("PROJECT2004", "펀딩 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     SETTLEMENT_DRAFT_NOT_FOUND("PROJECT2005", "정산 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     REWARD_DRAFT_NOT_FOUND("PROJECT2006", "리워드 드래프트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-
+    PROJECT_DRAFT_NOT_SUBMITTED("PROJECT2007","프로젝트 드래프트가 제출(SUBMITTED)되지 않았습니다.", HttpStatus.CONFLICT),
+    PROJECT_NOT_FOUND("PROJECT2008", "프로젝트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ;
 
     private final String code;

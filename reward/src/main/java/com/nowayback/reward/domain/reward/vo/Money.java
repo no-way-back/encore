@@ -13,22 +13,18 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Money {
 
-    private Integer amount;
+    private Long amount;
 
-    private Money(Integer amount) {
+    private Money(Long amount) {
         validateAmount(amount);
         this.amount = amount;
     }
 
-    public static Money of(Integer amount) {
+    public static Money of(Long amount) {
         return new Money(amount);
     }
 
-    public static Money zero() {
-        return new Money(0);
-    }
-
-    private void validateAmount(Integer amount) {
+    private void validateAmount(Long amount) {
         if (amount == null) {
             throw new RewardException(INVALID_MONEY_AMOUNT);
         }

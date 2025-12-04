@@ -8,14 +8,14 @@ import java.util.UUID;
 public record StockReserveResponse(
         UUID fundingId,
         List<ReservedItem> reservedItems,
-        Integer totalAmount
+        Long totalAmount
 ) {
     public record ReservedItem(
             UUID reservationId,
             UUID rewardId,
             UUID optionId,
             Integer quantity,
-            Integer itemAmount
+            Long itemAmount
     ) {}
 
     public static StockReserveResponse from(StockReserveResult result) {

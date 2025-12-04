@@ -4,7 +4,7 @@ import com.nowayback.reward.application.reward.command.RewardOptionCreateCommand
 
 public record RewardOptionCreateData(
         String name,
-        Integer additionalPrice,
+        Long additionalPrice,
         Integer stockQuantity,
         Boolean isRequired,
         Integer displayOrder

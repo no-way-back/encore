@@ -7,7 +7,7 @@ import java.util.List;
 public record RewardCreateCommand(
         String name,
         String description,
-        Integer price,
+        Long price,
         Integer stockQuantity,
         Integer shippingFee,
         Integer freeShippingAmount,

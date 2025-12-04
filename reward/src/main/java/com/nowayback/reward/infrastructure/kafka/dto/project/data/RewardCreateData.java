@@ -9,7 +9,7 @@ import java.util.List;
 public record RewardCreateData(
         String name,
         String description,
-        Integer price,
+        Long price,
         Integer stockQuantity,
         Integer shippingFee,
         Integer freeShippingAmount,

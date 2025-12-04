@@ -11,7 +11,7 @@ public record UpdateRewardCommand(
         UUID rewardId,
         String name,
         String description,
-        Integer price,
+        Long price,
         Integer stockQuantity,
         Integer shippingFee,
         Integer freeShippingAmount,

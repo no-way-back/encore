@@ -66,6 +66,9 @@ public class Project extends BaseEntity {
     @Column(nullable = false, length = 20)
     private ProjectStatus status;
 
+    @Column(name = "creation_failed_reason")
+    private String creationFailedReason;
+
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "accountBank", column = @Column(name = "account_bank")),
@@ -73,6 +76,7 @@ public class Project extends BaseEntity {
         @AttributeOverride(name = "accountHolderName", column = @Column(name = "account_holder_name")),
     })
     private Account account;
+
 
     private Project(
         UUID userId,
@@ -177,5 +181,10 @@ public class Project extends BaseEntity {
 
     public void markAsUpcoming() {
         this.status = ProjectStatus.UPCOMING;
+    }
+
+    public void markAsCreationFailed(String reason) {
+        this.status = ProjectStatus.CREATION_FAILED;
+        this.creationFailedReason = reason;
     }
 }

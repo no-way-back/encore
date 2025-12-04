@@ -3,6 +3,7 @@ package com.nowayback.project.domain.outbox;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.project.domain.outbox.vo.AggregateType;
+import com.nowayback.project.domain.outbox.vo.EventDestination;
 import com.nowayback.project.domain.outbox.vo.EventType;
 import com.nowayback.project.domain.outbox.vo.OutboxStatus;
 import jakarta.persistence.Column;
@@ -39,6 +40,10 @@ public class Outbox {
 	@Enumerated(EnumType.STRING)
 	private EventType eventType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "destination", nullable = false)
+    private EventDestination destination;
+
 	@Column(name = "payload", nullable = false, columnDefinition = "TEXT")
 	private String payload;
 
@@ -58,6 +63,7 @@ public class Outbox {
 	private Outbox(AggregateType aggregateType,
 		UUID aggregateId,
 		EventType eventType,
+        EventDestination destination,
 		String payload,
 		OutboxStatus status,
 		Integer retryCount,
@@ -65,6 +71,7 @@ public class Outbox {
 		this.aggregateType = aggregateType;
 		this.aggregateId = aggregateId;
 		this.eventType = eventType;
+        this.destination = destination;
 		this.payload = payload;
 		this.status = status;
 		this.retryCount = retryCount;
@@ -75,11 +82,13 @@ public class Outbox {
 		AggregateType aggregateType,
 		UUID aggregateId,
 		EventType eventType,
+        EventDestination destination,
 		Object payload) {
 		return new Outbox(
 			aggregateType,
 			aggregateId != null ? aggregateId : UUID.randomUUID(),
 			eventType,
+            destination,
 			toJson(payload),
 			OutboxStatus.PENDING,
 			0,

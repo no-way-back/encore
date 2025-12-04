@@ -17,6 +17,7 @@ public record CreateProjectCommand(
      LocalDate fundingEndDate,
      Account account
 ) {
+
     public static CreateProjectCommand of(
         UUID userId,
         UUID projectDraftId,

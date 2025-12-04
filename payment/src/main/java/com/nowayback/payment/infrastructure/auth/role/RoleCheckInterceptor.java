@@ -1,4 +1,4 @@
-package com.nowayback.payment.presentation.auth.role;
+package com.nowayback.payment.infrastructure.auth.role;
 
 import com.nowayback.payment.domain.exception.PaymentErrorCode;
 import com.nowayback.payment.domain.exception.PaymentException;

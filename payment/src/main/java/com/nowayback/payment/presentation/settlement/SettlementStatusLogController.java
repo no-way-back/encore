@@ -1,7 +1,7 @@
 package com.nowayback.payment.presentation.settlement;
 
 import com.nowayback.payment.application.settlement.SettlementStatusLogService;
-import com.nowayback.payment.presentation.auth.role.RequiredRole;
+import com.nowayback.payment.infrastructure.auth.role.RequiredRole;
 import com.nowayback.payment.presentation.dto.response.PageResponse;
 import com.nowayback.payment.presentation.settlement.dto.response.SettlementStatusLogResponse;
 import lombok.RequiredArgsConstructor;

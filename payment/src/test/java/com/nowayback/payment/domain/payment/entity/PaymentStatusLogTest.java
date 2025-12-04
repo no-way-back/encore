@@ -65,28 +65,6 @@ class PaymentStatusLogTest {
         }
 
         @Test
-        @DisplayName("null 사유로 생성 시 예외가 발생한다.")
-        void create_givenNullOrBlankReason_thenThrow() {
-            /* given */
-            /* when */
-            /* then */
-            assertThatThrownBy(() -> PaymentStatusLog.create(PAYMENT_ID, PREV_STATUS, CURR_STATUS, null, AMOUNT))
-                    .isInstanceOf(PaymentException.class)
-                    .hasMessage(PaymentErrorCode.NULL_PAYMENT_STATUS_LOG_REASON.getMessage());
-        }
-
-        @Test
-        @DisplayName("공백 사유로 생성 시 예외가 발생한다.")
-        void create_givenBlankReason_thenThrow() {
-            /* given */
-            /* when */
-            /* then */
-            assertThatThrownBy(() -> PaymentStatusLog.create(PAYMENT_ID, PREV_STATUS, CURR_STATUS, "   ", AMOUNT))
-                    .isInstanceOf(PaymentException.class)
-                    .hasMessage(PaymentErrorCode.NULL_PAYMENT_STATUS_LOG_REASON.getMessage());
-        }
-
-        @Test
         @DisplayName("null 금액으로 생성 시 예외가 발생한다.")
         void create_givenNullAmount_thenThrow() {
             /* given */

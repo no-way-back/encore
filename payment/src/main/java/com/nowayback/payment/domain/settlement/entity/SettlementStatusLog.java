@@ -62,7 +62,6 @@ public class SettlementStatusLog extends BaseCreateEntity {
         validateSettlementId(settlementId);
         validatePrevStatus(prevStatus);
         validateCurrStatus(currStatus);
-        validateReason(reason);
         validateAmount(amount);
     }
 
@@ -81,12 +80,6 @@ public class SettlementStatusLog extends BaseCreateEntity {
     private static void validateCurrStatus(SettlementStatus status) {
         if (status == null) {
             throw new PaymentException(PaymentErrorCode.NULL_CURR_SETTLEMENT_STATUS_OBJECT);
-        }
-    }
-
-    private static void validateReason(String reason) {
-        if (reason == null || reason.isBlank()) {
-            throw new PaymentException(PaymentErrorCode.NULL_SETTLEMENT_STATUS_LOG_REASON);
         }
     }
 

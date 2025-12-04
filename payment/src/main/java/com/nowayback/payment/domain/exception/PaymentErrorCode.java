@@ -62,8 +62,7 @@ public enum PaymentErrorCode {
     NULL_PAYMENT_ID_OBJECT("PL1001", "결제 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_PREV_PAYMENT_STATUS_OBJECT("PL1002", "이전 결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_CURR_PAYMENT_STATUS_OBJECT("PL1003", "현재 결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_PAYMENT_STATUS_LOG_REASON("PL1004", "결제 상태 로그 사유는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_PAYMENT_AMOUNT_OBJECT("PL1005", "결제 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PAYMENT_AMOUNT_OBJECT("PL1004", "결제 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     /**
      * Settlement Status Log Domain Error Codes
@@ -71,8 +70,7 @@ public enum PaymentErrorCode {
     NULL_SETTLEMENT_ID_OBJECT("SL1001", "정산 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_PREV_SETTLEMENT_STATUS_OBJECT("SL1002", "이전 정산 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
     NULL_CURR_SETTLEMENT_STATUS_OBJECT("SL1003", "현재 정산 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_SETTLEMENT_STATUS_LOG_REASON("SL1004", "정산 상태 로그 사유는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
-    NULL_SETTLEMENT_AMOUNT_OBJECT("SL1005", "정산 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_SETTLEMENT_AMOUNT_OBJECT("SL1004", "정산 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     /**
      * Payment Application Error Codes

@@ -61,7 +61,6 @@ public class PaymentStatusLog extends BaseCreateEntity {
         validatePaymentId(paymentId);
         validatePrevStatus(prevStatus);
         validateCurrStatus(currStatus);
-        validateReason(reason);
         validateAmount(amount);
     }
 
@@ -80,12 +79,6 @@ public class PaymentStatusLog extends BaseCreateEntity {
     private static void validateCurrStatus(PaymentStatus status) {
         if (status == null) {
             throw new PaymentException(PaymentErrorCode.NULL_CURR_PAYMENT_STATUS_OBJECT);
-        }
-    }
-
-    private static void validateReason(String reason) {
-        if (reason == null || reason.isBlank()) {
-            throw new PaymentException(PaymentErrorCode.NULL_PAYMENT_STATUS_LOG_REASON);
         }
     }
 

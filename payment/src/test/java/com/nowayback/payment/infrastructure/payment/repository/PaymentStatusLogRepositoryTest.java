@@ -71,6 +71,7 @@ class PaymentStatusLogRepositoryTest {
 
             entityManager.persist(log1);
             entityManager.persist(log2);
+            entityManager.flush();
 
             /* when */
             Page<PaymentStatusLog> logs = paymentStatusLogRepository.findAllByPaymentId(PAYMENT_ID, PAGEABLE);

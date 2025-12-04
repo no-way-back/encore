@@ -1,7 +1,7 @@
 package com.nowayback.project.application.projectdraft.event.payload;
 
-import com.nowayback.project.application.event.EventPayload;
 import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftResult;
+import com.nowayback.project.domain.outbox.vo.EventPayload;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;

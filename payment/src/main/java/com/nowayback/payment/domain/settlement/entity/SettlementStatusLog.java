@@ -4,6 +4,7 @@ import com.nowayback.payment.domain.exception.PaymentErrorCode;
 import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.settlement.vo.Money;
 import com.nowayback.payment.domain.settlement.vo.SettlementStatus;
+import com.nowayback.payment.domain.shared.BaseCreateEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Table(name = "settlement_status_logs")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SettlementStatusLog {
+public class SettlementStatusLog extends BaseCreateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -66,6 +66,15 @@ public enum PaymentErrorCode {
     NULL_PAYMENT_AMOUNT_OBJECT("PL1005", "결제 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     /**
+     * Settlement Status Log Domain Error Codes
+     */
+    NULL_SETTLEMENT_ID_OBJECT("SL1001", "정산 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PREV_SETTLEMENT_STATUS_OBJECT("SL1002", "이전 정산 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_CURR_SETTLEMENT_STATUS_OBJECT("SL1003", "현재 정산 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_SETTLEMENT_STATUS_LOG_REASON("SL1004", "정산 상태 로그 사유는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_SETTLEMENT_AMOUNT_OBJECT("SL1005", "정산 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    /**
      * Payment Application Error Codes
      */
     PAYMENT_NOT_FOUND("PAYMENT2001", "결제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),

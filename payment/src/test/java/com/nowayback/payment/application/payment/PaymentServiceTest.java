@@ -32,6 +32,9 @@ class PaymentServiceTest {
     @Mock
     private PaymentGatewayClient paymentGatewayClient;
 
+    @Mock
+    private PaymentStatusLogService paymentStatusLogService;
+
     @InjectMocks
     private PaymentService paymentService;
 
@@ -54,6 +57,7 @@ class PaymentServiceTest {
 
             verify(paymentGatewayClient, times(1)).confirmPayment(any(PgInfo.class), any(Money.class));
             verify(paymentRepository, times(1)).save(any());
+            verify(paymentStatusLogService, times(1)).savePaymentStatusLog(any(), any(), any(), any(), any());
         }
     }
 
@@ -77,6 +81,7 @@ class PaymentServiceTest {
             assertThat(result.status()).isEqualTo(PaymentStatus.REFUNDED);
 
             verify(paymentGatewayClient, times(1)).refundPayment(anyString(), anyString(), any(RefundAccountInfo.class));
+            verify(paymentStatusLogService, times(1)).savePaymentStatusLog(any(), any(), any(), any(), any());
         }
     }
 

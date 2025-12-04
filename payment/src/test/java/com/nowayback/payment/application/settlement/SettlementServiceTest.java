@@ -39,6 +39,9 @@ class SettlementServiceTest {
     @Mock
     private OpenBankingClient openBankingClient;
 
+    @Mock
+    private SettlementStatusLogService settlementStatusLogService;
+
     @InjectMocks
     private SettlementService settlementService;
 
@@ -73,6 +76,7 @@ class SettlementServiceTest {
             /* then */
             assertThat(result.projectId()).isEqualTo(settlement.getProjectId().getId());
             verify(settlementRepository, times(1)).save(any(Settlement.class));
+            verify(settlementStatusLogService, times(1)).saveSettlementStatusLog(any(), any(), any(), any(), any());
         }
 
         @Test

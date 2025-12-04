@@ -2,8 +2,10 @@ package com.nowayback.project.presentation.project;
 
 import com.nowayback.project.application.project.ProjectService;
 import com.nowayback.project.application.project.dto.ProjectResult;
+import com.nowayback.project.application.project.dto.SettlementResult;
 import com.nowayback.project.domain.project.vo.ProjectStatus;
 import com.nowayback.project.presentation.project.dto.response.ProjectResponse;
+import com.nowayback.project.presentation.project.dto.response.SettlementResponse;
 import com.nowayback.project.presentation.projectdraft.dto.response.PageResponse;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -40,4 +42,14 @@ public class ProjectController {
 
         return ResponseEntity.ok(ProjectResponse.from(result));
     }
+
+    @GetMapping("/projects/{projectId}/account")
+    public ResponseEntity<SettlementResponse> getProjectAccount(
+        @PathVariable UUID projectId
+    ) {
+        SettlementResult result = projectService.getProjectSettlement(projectId);
+
+        return ResponseEntity.ok(SettlementResponse.from(result));
+    }
+
 }

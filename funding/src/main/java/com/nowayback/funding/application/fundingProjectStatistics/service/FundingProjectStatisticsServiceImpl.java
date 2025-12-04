@@ -213,7 +213,7 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 
 		if (fundingProjectStatisticsRepository.findByProjectId(projectId).isPresent()) {
 			log.warn("이미 존재하는 프로젝트 통계 - projectId: {}", projectId);
-			throw new FundingException(PROJECT_NOT_FOUND);
+			throw new FundingException(PROJECT_ALREADY_EXISTS);
 		}
 
 		FundingProjectStatistics statistics = FundingProjectStatistics.create(

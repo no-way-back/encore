@@ -90,6 +90,10 @@ public class Outbox {
 		this.publishedAt = LocalDateTime.now();
 	}
 
+	public void markAsFailed() {
+		this.status = OutboxStatus.FAILED;
+	}
+
 	public void incrementRetryCount() {
 		this.retryCount += 1;
 	}

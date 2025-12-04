@@ -7,13 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.UUID;
 
-@FeignClient(
-        name = "project-service",
-        url = "${feign.client.config.project-service.url}"
-)
+@FeignClient(name = "project-service")
 public interface ProjectFeignClient {
 
     @GetMapping("/projects/{projectId}/account")
     ProjectAccountResponse getProjectAccountInfo(@PathVariable UUID projectId);
 }
-

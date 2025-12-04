@@ -36,6 +36,9 @@ public class ProjectDraft extends BaseEntity {
     @Column(nullable = false)
     private UUID userId;
 
+    @Column
+    private UUID projectId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProjectDraftStatus status;
@@ -104,5 +107,17 @@ public class ProjectDraft extends BaseEntity {
         if (this.status != ProjectDraftStatus.DRAFT) {
             throw new ProjectException(ProjectErrorCode.INVALID_PROJECT_DRAFT_STATUS);
         }
+    }
+
+    public boolean isSubmitted() {
+        return status == ProjectDraftStatus.SUBMITTED;
+    }
+
+    public void linkProjectId(UUID projectId) {
+        this.projectId = projectId;
+    }
+
+    public void markAsDraft() {
+        this.status = ProjectDraftStatus.DRAFT;
     }
 }

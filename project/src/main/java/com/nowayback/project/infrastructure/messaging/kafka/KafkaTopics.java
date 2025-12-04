@@ -13,7 +13,7 @@ public final class KafkaTopics {
     // 리워드 생성 결과
     public static final String REWARD_CREATED = "reward-created";
     public static final String REWARD_CREATION_FAILED = "reward-creation-failed";
-
+    public static final String REWARD_CREATION_RESULT = "reward-creation-result";
     // 펀딩 생성 결과
     public static final String FUNDING_CREATED = "funding-created";
     public static final String FUNDING_CREATION_FAILED = "project-funding-created-failed";

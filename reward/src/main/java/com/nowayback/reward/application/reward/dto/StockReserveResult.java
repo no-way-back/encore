@@ -8,14 +8,14 @@ import java.util.UUID;
 public record StockReserveResult(
         UUID fundingId,
         List<ReservedItemResult> reservedItems,
-        Integer totalAmount
+        Long totalAmount
 ) {
     public record ReservedItemResult(
             UUID reservationId,
             UUID rewardId,
             UUID optionId,
             Integer quantity,
-            Integer itemAmount
+            Long itemAmount
     ) {}
 
     public static StockReserveResult from(
@@ -32,8 +32,8 @@ public record StockReserveResult(
                 ))
                 .toList();
 
-        Integer totalAmount = items.stream()
-                .mapToInt(ReservedItemResult::itemAmount)
+        Long totalAmount = items.stream()
+                .mapToLong(ReservedItemResult::itemAmount)
                 .sum();
 
         return new StockReserveResult(fundingId, items, totalAmount);
@@ -41,11 +41,11 @@ public record StockReserveResult(
 
     public record ReservationWithPrice(
             StockReservation reservation,
-            Integer itemAmount
+            Long itemAmount
     ) {
         public static ReservationWithPrice of(
                 StockReservation reservation,
-                Integer itemAmount
+                Long itemAmount
         ) {
             return new ReservationWithPrice(reservation, itemAmount);
         }

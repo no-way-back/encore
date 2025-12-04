@@ -289,7 +289,7 @@ public class Rewards extends BaseEntity {
     /**
      * 리워드 총 금액 계산 (단가 * 수량)
      */
-    public Integer calculateTotalAmount(Integer quantity) {
+    public Long calculateTotalAmount(Integer quantity) {
         return this.price.getAmount() * quantity;
     }
 
@@ -332,7 +332,7 @@ public class Rewards extends BaseEntity {
         }
     }
 
-    private void updatePrice(Integer price) {
+    private void updatePrice(Long price) {
         if (price != null) {
             if (price < MINIMUM_AMOUNT) {
                 throw new RewardException(PRICE_BELOW_MINIMUM);

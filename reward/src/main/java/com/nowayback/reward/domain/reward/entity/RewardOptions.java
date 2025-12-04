@@ -106,8 +106,8 @@ public class RewardOptions extends BaseEntity {
     /**
      * 옵션 포함 총 가격 계산 (리워드 가격 + 옵션 추가금)
      */
-    public Integer calculateTotalAmount(Integer quantity) {
-        Integer unitPrice = this.reward.getPrice().getAmount() + this.additionalPrice.getAmount();
+    public Long calculateTotalAmount(Integer quantity) {
+        Long unitPrice = this.reward.getPrice().getAmount() + this.additionalPrice.getAmount();
         return unitPrice * quantity;
     }
 

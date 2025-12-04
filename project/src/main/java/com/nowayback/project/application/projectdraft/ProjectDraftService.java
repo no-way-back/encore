@@ -13,8 +13,12 @@ import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftRes
 import com.nowayback.project.application.projectdraft.dto.ProjectRewardDraftResult;
 import com.nowayback.project.application.projectdraft.dto.ProjectSettlementDraftResult;
 import com.nowayback.project.application.projectdraft.dto.ProjectStoryDraftResult;
+import com.nowayback.project.application.projectdraft.event.payload.RewardCreationEventPayload;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
+import com.nowayback.project.domain.outbox.vo.AggregateType;
+import com.nowayback.project.domain.outbox.vo.EventDestination;
+import com.nowayback.project.domain.outbox.vo.EventType;
 import com.nowayback.project.domain.project.vo.Account;
 import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
 import com.nowayback.project.domain.projectDraft.entity.ProjectFundingDraft;
@@ -120,7 +124,7 @@ public class ProjectDraftService {
         projectDraft.ensureUpdatable();
 
         List<ProjectRewardDraft> drafts = command.saveRewardCommands().stream()
-            .map(spec -> toRewardDraft(spec))
+            .map(this::toRewardDraft)
             .toList();
 
         projectDraft.replaceRewardDrafts(drafts);
@@ -180,38 +184,12 @@ public class ProjectDraftService {
     public void submit(UUID projectDraftId) {
         ProjectDraft projectDraft = findProjectDraftOrThrow(projectDraftId);
         projectDraft.ensureUpdatable();
-
         projectDraft.submit();
 
-        UUID projectId = projectService.createProject(
-            CreateProjectCommand.of(
-                projectDraft.getUserId(),
-                projectDraft.getId(),
-                projectDraft.getStoryDraft().getTitle(),
-                projectDraft.getStoryDraft().getSummary(),
-                projectDraft.getStoryDraft().getCategory(),
-                projectDraft.getStoryDraft().getThumbnailUrl(),
-                projectDraft.getStoryDraft().getContentJson(),
-                projectDraft.getFundingDraft().getGoalAmount(),
-                projectDraft.getFundingDraft().getFundingStartDate(),
-                projectDraft.getFundingDraft().getFundingEndDate(),
-                Account.create(
-                    projectDraft.getSettlementDraft().getAccountBank(),
-                    projectDraft.getSettlementDraft().getAccountNumber(),
-                    projectDraft.getSettlementDraft().getAccountHolder()
-                )
-            )
-        );
+        UUID projectId = createProject(projectDraft);
+        projectDraft.linkProjectId(projectId);
 
-        // TODO: 이벤트처리시 주석 삭제
-        /*
-        outboxEventPublisher.publish(
-            EventType.REWARD_CREATE_REQUESTED,
-            RewardCreateRequestEventPayload.from(projectId, projectDraft.getRewardDrafts()),
-            AggregateType.PROJECT_DRAFT,
-            projectDraft.getId()
-        );
-         */
+        publishRewardCreateEvent(projectId, projectDraft);
     }
 
     private ProjectDraft findProjectDraftOrThrow(UUID projectDraftId) {
@@ -241,5 +219,37 @@ public class ProjectDraftService {
         );
 
         return draft;
+    }
+
+    private UUID createProject(ProjectDraft projectDraft) {
+        return projectService.createProject(
+            CreateProjectCommand.of(
+                projectDraft.getUserId(),
+                projectDraft.getId(),
+                projectDraft.getStoryDraft().getTitle(),
+                projectDraft.getStoryDraft().getSummary(),
+                projectDraft.getStoryDraft().getCategory(),
+                projectDraft.getStoryDraft().getThumbnailUrl(),
+                projectDraft.getStoryDraft().getContentJson(),
+                projectDraft.getFundingDraft().getGoalAmount(),
+                projectDraft.getFundingDraft().getFundingStartDate(),
+                projectDraft.getFundingDraft().getFundingEndDate(),
+                Account.create(
+                    projectDraft.getSettlementDraft().getAccountBank(),
+                    projectDraft.getSettlementDraft().getAccountNumber(),
+                    projectDraft.getSettlementDraft().getAccountHolder()
+                )
+            )
+        );
+    }
+
+    private void publishRewardCreateEvent(UUID projectId, ProjectDraft projectDraft) {
+        outboxEventPublisher.publish(
+            EventType.PROJECT_REWARD_CREATION,
+            EventDestination.KAFKA,
+            RewardCreationEventPayload.from(projectId, projectDraft.getRewardDrafts()),
+            AggregateType.PROJECT_DRAFT,
+            projectDraft.getId()
+        );
     }
 }

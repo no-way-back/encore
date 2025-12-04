@@ -55,7 +55,7 @@ public class ProjectService {
 
     public ProjectResult getProject(UUID projectId) {
         Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new ProjectException(ProjectErrorCode.FUNDING_DRAFT_NOT_FOUND));
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));
 
         return ProjectResult.of(project);
     }
@@ -69,8 +69,16 @@ public class ProjectService {
 
     public void markAsUpcoming(UUID projectId) {
         Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new ProjectException(ProjectErrorCode.FUNDING_DRAFT_NOT_FOUND));
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));
 
         project.markAsUpcoming();
+    }
+
+    @Transactional
+    public void markAsCreationFailed(UUID projectId, String reason) {
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));
+
+        project.markAsCreationFailed(reason);
     }
 }

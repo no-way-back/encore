@@ -29,7 +29,7 @@ class PaymentStatusLogControllerTest extends ControllerTest {
     @DisplayName("결제 상태 기록 조회")
     class GetPaymentStatusLogs {
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "{0} 권한으로 요청")
         @DisplayName("유효한 요청이 들어오면 결제 상태 기록 페이지를 반환한다.")
         @ValueSource(strings = {"MASTER", "ADMIN"})
         void getPaymentStatusLogs_whenValidRequest_thenReturnPaymentStatusLogsPage(String role) throws Exception {
@@ -58,11 +58,11 @@ class PaymentStatusLogControllerTest extends ControllerTest {
             /* given */
             /* when */
             /* then */
-            mockMvc.perform(get(BASE_URL).param("paymentId", PAYMENT_ID.toString()))
+            perform(get(BASE_URL).param("paymentId", PAYMENT_ID.toString()))
                     .andExpect(status().isUnauthorized());
         }
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "{0} 권한으로 요청")
         @DisplayName("권한이 없는 요청이 들어오면 응답코드 403을 반환한다.")
         @ValueSource(strings = {"USER"})
         void getPaymentStatusLogs_invalidRole_forbidden(String role) throws Exception {

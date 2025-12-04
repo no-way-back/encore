@@ -58,7 +58,7 @@ class SettlementStatusLogControllerTest extends ControllerTest {
             /* given */
             /* when */
             /* then */
-            mockMvc.perform(get(BASE_URL).param("settlementId", SETTLEMENT_ID.toString()))
+            perform(get(BASE_URL).param("settlementId", SETTLEMENT_ID.toString()))
                     .andExpect(status().isUnauthorized());
         }
 

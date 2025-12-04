@@ -2,7 +2,7 @@ package com.nowayback.reward.infrastructure.kafka.dto.funding.payload;
 
 import java.util.UUID;
 
-public record FundingFailedPayload(
+public record FundingRefundPayload(
         UUID fundingId,
         UUID reservationId
 ) {

@@ -121,7 +121,7 @@ public class RewardStockService {
         option.decreaseStock(item.quantity());
         reward.syncStatus();
 
-        Integer itemAmount = option.calculateTotalAmount(item.quantity());
+        Long itemAmount = option.calculateTotalAmount(item.quantity());
 
         StockReservation saveReservation = createAndSaveReservation(
                 fundingId, reward.getId(), option.getId(), item.quantity()
@@ -147,7 +147,7 @@ public class RewardStockService {
     ) {
         reward.decreaseStock(item.quantity());
 
-        Integer itemAmount = reward.calculateTotalAmount(item.quantity());
+        Long itemAmount = reward.calculateTotalAmount(item.quantity());
         StockReservation saveReservation = createAndSaveReservation(
                 fundingId, reward.getId(), null, item.quantity()
         );

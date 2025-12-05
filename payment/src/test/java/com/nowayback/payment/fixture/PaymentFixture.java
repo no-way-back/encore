@@ -117,6 +117,8 @@ public class PaymentFixture {
     public static final PaymentResult PAYMENT_RESULT_COMPLETED = PaymentResult.from(createPaymentWithStatus(PaymentStatus.COMPLETED));
     public static final PaymentResult PAYMENT_RESULT_REFUNDED = PaymentResult.from(createPaymentWithStatus(PaymentStatus.REFUNDED));
 
+    public static final Page<PaymentResult> PAYMENT_RESULT_PAGE = PAYMENT_PAGE.map(PaymentResult::from);
+
     /* payment request */
 
     public static final ConfirmPaymentRequest VALID_CONFIRM_PAYMENT_REQUEST = new ConfirmPaymentRequest(

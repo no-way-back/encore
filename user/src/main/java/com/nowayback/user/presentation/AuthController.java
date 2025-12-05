@@ -65,9 +65,4 @@ public class AuthController {
 
         return ResponseEntity.noContent().build();
     }
-
-    @GetMapping
-    public ResponseEntity<String> healthCheck() {
-        return ResponseEntity.ok("Auth Service is running");
-    }
 }

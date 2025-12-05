@@ -26,6 +26,7 @@ public enum UserErrorCode {
     USER_STATUS_SUSPENDED("USER2006", "정지된 사용자입니다.", HttpStatus.FORBIDDEN),
     FORBIDDEN_SELF_ACCESS("USER2007", "본인의 정보만 접근할 수 있습니다.", HttpStatus.FORBIDDEN),
     USER_NOT_FOUND("USER2008", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    INVALID_TOKEN("USER2009", "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
 
     /**
      * Presentation Errors

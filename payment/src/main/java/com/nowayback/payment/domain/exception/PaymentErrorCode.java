@@ -77,6 +77,7 @@ public enum PaymentErrorCode {
      */
     PAYMENT_NOT_FOUND("PAYMENT2001", "결제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PAYMENT_ALREADY_REFUNDED("PAYMENT2002", "이미 환불된 결제입니다.", HttpStatus.CONFLICT),
+    FORBIDDEN_PAYMENT_SELF_ACCESS("PAYMENT2003", "본인의 결제 정보만 접근할 수 있습니다.", HttpStatus.FORBIDDEN),
 
     /**
      * Settlement Application Error Codes

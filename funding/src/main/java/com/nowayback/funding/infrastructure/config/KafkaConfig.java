@@ -51,7 +51,7 @@ public class KafkaConfig {
 		configProps.put(ProducerConfig.ACKS_CONFIG, "all");
 		configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
 		configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-		configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, true);
+		configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
 
 		return new DefaultKafkaProducerFactory<>(configProps);
 	}
@@ -63,15 +63,12 @@ public class KafkaConfig {
 	@Bean
 	public ConsumerFactory<String, String> consumerFactory() {
 		Map<String, Object> configProps = new HashMap<>();
-
 		configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
 		configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+		configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 		configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-		configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-		configProps.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);
 
 		return new DefaultKafkaConsumerFactory<>(configProps);
 	}

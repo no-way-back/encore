@@ -1,4 +1,4 @@
-package com.nowayback.user.presentation.auth.role;
+package com.nowayback.user.infrastructure.auth.role;
 
 import com.nowayback.user.domain.exception.UserErrorCode;
 import com.nowayback.user.domain.exception.UserException;

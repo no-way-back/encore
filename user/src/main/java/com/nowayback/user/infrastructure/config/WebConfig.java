@@ -1,7 +1,7 @@
 package com.nowayback.user.infrastructure.config;
 
-import com.nowayback.user.presentation.auth.user.AuthUserArgumentResolver;
-import com.nowayback.user.presentation.auth.role.RoleCheckInterceptor;
+import com.nowayback.user.infrastructure.auth.user.AuthUserArgumentResolver;
+import com.nowayback.user.infrastructure.auth.role.RoleCheckInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

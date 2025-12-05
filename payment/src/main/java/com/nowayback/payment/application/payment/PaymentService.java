@@ -10,10 +10,8 @@ import com.nowayback.payment.domain.exception.PaymentErrorCode;
 import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
-import com.nowayback.payment.domain.payment.vo.FundingId;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.Money;
-import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.ProjectId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -62,16 +60,16 @@ public class PaymentService {
             throw new PaymentException(PaymentErrorCode.PAYMENT_ALREADY_REFUNDED);
         }
 
-        PgRefundResult pgResponse = paymentGatewayClient.refundPayment(
+        PgRefundResult pgResult = paymentGatewayClient.refundPayment(
                 payment.getPgInfo().getPgPaymentKey(),
                 command.cancelReason(),
                 command.refundAccountInfo()
         );
 
         PaymentStatus previous = payment.getStatus();
-        payment.refund(command.refundAccountInfo());
+        payment.refund(command.refundAccountInfo(), command.cancelReason(), pgResult.canceledAt());
 
-        savePaymentStatusLog(payment, previous, null, Money.of(pgResponse.cancelAmount()));
+        savePaymentStatusLog(payment, previous, null, Money.of(pgResult.cancelAmount()));
 
         return PaymentResult.from(payment);
     }

@@ -58,8 +58,14 @@ public class Payment extends BaseEntity {
     })
     private RefundAccountInfo refundAccountInfo;
 
+    @Column(name = "refund_reason", length = 255)
+    private String refundReason;
+
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
+
+    @Column(name = "refunded_at")
+    private LocalDateTime refundedAt;
 
     private Payment(UserId userId, FundingId fundingId, ProjectId projectId, Money amount, PgInfo pgInfo, RefundAccountInfo refundAccountInfo) {
         this.userId = userId;
@@ -85,9 +91,11 @@ public class Payment extends BaseEntity {
         this.approvedAt = approvedAt;
     }
 
-    public void refund(RefundAccountInfo refundAccountInfo) {
+    public void refund(RefundAccountInfo refundAccountInfo, String reason, LocalDateTime refundedAt) {
         changeStatus(PaymentStatus.REFUNDED);
         this.refundAccountInfo = refundAccountInfo;
+        this.refundReason = reason;
+        this.refundedAt = refundedAt;
     }
 
     private void changeStatus(PaymentStatus newStatus) {

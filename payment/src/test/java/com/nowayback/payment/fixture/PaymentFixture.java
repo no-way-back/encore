@@ -42,7 +42,10 @@ public class PaymentFixture {
     public static final String REFUND_ACCOUNT_HOLDER_NAME = "홍길동";
     public static final RefundAccountInfo REFUND_ACCOUNT_INFO = RefundAccountInfo.of(REFUND_ACCOUNT_BANK, REFUND_ACCOUNT_NUMBER, REFUND_ACCOUNT_HOLDER_NAME);
 
-    private static final String REFUND_REASON = "단순 변심";
+    public static final String REFUND_REASON = "단순 변심";
+
+    public static final LocalDateTime APPROVED_AT = LocalDateTime.now();
+    public static final LocalDateTime REFUNDED_AT = LocalDateTime.now();
 
     /* payment entity */
 

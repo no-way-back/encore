@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.*;
 import static com.nowayback.payment.fixture.PaymentFixture.*;
 
@@ -102,14 +100,13 @@ class PaymentTest {
         void complete_givenPendingPayment_thenStatusChangedToCompletedAndApprovedAtSet() {
             /* given */
             Payment payment = createPayment();
-            LocalDateTime now = LocalDateTime.now();
 
             /* when */
-            payment.complete(now);
+            payment.complete(APPROVED_AT);
 
             /* then */
             assertThat(payment.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
-            assertThat(payment.getApprovedAt()).isEqualTo(now);
+            assertThat(payment.getApprovedAt()).isEqualTo(APPROVED_AT);
         }
 
         @ParameterizedTest(name = "상태가 {0}인 결제를 승인 시도")
@@ -118,11 +115,10 @@ class PaymentTest {
         void complete_givenNonPendingPayment_thenThrowException(PaymentStatus status) {
             /* given */
             Payment payment = createPaymentWithStatus(status);
-            LocalDateTime now = LocalDateTime.now();
 
             /* when */
             /* then */
-            assertThatThrownBy(() -> payment.complete(now))
+            assertThatThrownBy(() -> payment.complete(APPROVED_AT))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
         }
@@ -139,7 +135,7 @@ class PaymentTest {
             Payment payment = createPaymentWithStatus(PaymentStatus.COMPLETED);
 
             /* when */
-            payment.refund(REFUND_ACCOUNT_INFO);
+            payment.refund(REFUND_ACCOUNT_INFO, REFUND_REASON, REFUNDED_AT);
 
             /* then */
             assertThat(payment.getStatus()).isEqualTo(PaymentStatus.REFUNDED);
@@ -155,7 +151,7 @@ class PaymentTest {
 
             /* when */
             /* then */
-            assertThatThrownBy(() -> payment.refund(REFUND_ACCOUNT_INFO))
+            assertThatThrownBy(() -> payment.refund(REFUND_ACCOUNT_INFO, REFUND_REASON, REFUNDED_AT))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
         }

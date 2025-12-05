@@ -56,6 +56,11 @@ spring:
                 allowCredentials: true
                 max-age: 3600
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   management:
     endpoints:
       web:
@@ -76,7 +81,6 @@ eureka:
 
 jwt:
   secret: ${JWT_SECRET:yH2Nf5Q9bV4mE1uU2Z+8HsWlQq7R3pOjfL5xB0kDcZ8=}
-  access-expire-time-ms: 86400000
 
 management:
   endpoints:

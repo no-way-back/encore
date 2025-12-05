@@ -9,6 +9,8 @@ import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.vo.*;
 import com.nowayback.payment.presentation.payment.dto.request.ConfirmPaymentRequest;
 import com.nowayback.payment.presentation.payment.dto.request.RefundPaymentRequest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -47,6 +49,8 @@ public class PaymentFixture {
     public static final LocalDateTime APPROVED_AT = LocalDateTime.now();
     public static final LocalDateTime REFUNDED_AT = LocalDateTime.now();
 
+    public static final Pageable PAGEABLE = PageRequest.of(0, 10);
+
     /* payment entity */
 
     public static Payment createPayment() {
@@ -63,6 +67,16 @@ public class PaymentFixture {
         Payment payment = createPayment();
         setPrivateField(payment, "status", status);
         return payment;
+    }
+
+    public static Payment createPayment(UserId userId, ProjectId projectId) {
+        return Payment.create(
+                userId,
+                FUNDING_ID,
+                projectId,
+                AMOUNT,
+                PG_INFO
+        );
     }
 
     /* payment command */
@@ -132,8 +146,6 @@ public class PaymentFixture {
      */
 
     /* Payment Gateway Client */
-    private static final LocalDateTime APPROVED_AT = LocalDateTime.now();
-
     public static final PgConfirmResult PG_CONFIRM_RESULT = new PgConfirmResult(
             PG_PAYMENT_KEY,
             PG_ORDER_ID,
@@ -142,7 +154,6 @@ public class PaymentFixture {
             "APPROVED"
     );
 
-    private static final LocalDateTime REFUNDED_AT = LocalDateTime.now();
     private static final Long REFUND_AMOUNT = 20_000L;
     private static final String REFUND_STATUS = "CANCELED";
 

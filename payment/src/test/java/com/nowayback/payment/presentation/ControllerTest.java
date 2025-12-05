@@ -20,6 +20,10 @@ public abstract class ControllerTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
+    protected ResultActions perform(MockHttpServletRequestBuilder builder) throws Exception {
+        return mockMvc.perform(builder);
+    }
+
     protected ResultActions performWithAuth(MockHttpServletRequestBuilder builder, String role) throws Exception {
         UUID userId = UUID.randomUUID();
         String username = "test";

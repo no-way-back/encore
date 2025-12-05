@@ -71,7 +71,7 @@ class PaymentControllerTest extends ControllerTest {
 
             /* when */
             /* then */
-            mockMvc.perform(post(BASE_URL + "/confirm")
+            perform(post(BASE_URL + "/confirm")
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());

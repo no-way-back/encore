@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.UUID;
 
-@FeignClient(name = "project-service")
+@FeignClient(
+        name = "project-service",
+        url = "${feign.client.config.project-service.url}"
+)
 public interface ProjectFeignClient {
 
     @GetMapping("/projects/{projectId}/account")

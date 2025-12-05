@@ -9,10 +9,7 @@ import com.nowayback.payment.domain.exception.PaymentErrorCode;
 import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.settlement.entity.Settlement;
 import com.nowayback.payment.domain.settlement.repository.SettlementRepository;
-import com.nowayback.payment.domain.settlement.vo.AccountInfo;
-import com.nowayback.payment.domain.settlement.vo.Money;
-import com.nowayback.payment.domain.settlement.vo.ProjectId;
-import com.nowayback.payment.domain.settlement.vo.SettlementFeePolicy;
+import com.nowayback.payment.domain.settlement.vo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +26,8 @@ public class SettlementService {
 
     private final ProjectClient projectClient;
     private final OpenBankingClient openBankingClient;
+
+    private final SettlementStatusLogService settlementStatusLogService;
 
     @Transactional
     public SettlementResult processSettlement(UUID projectId) {
@@ -56,7 +55,10 @@ public class SettlementService {
                 savedSettlement.getNetAmount().getAmount()
         );
 
+        SettlementStatus previous = savedSettlement.getStatus();
         settlement.complete();
+
+        saveSettlementStatusLog(savedSettlement, previous, null, savedSettlement.getNetAmount());
 
         return SettlementResult.from(savedSettlement);
     }
@@ -76,5 +78,15 @@ public class SettlementService {
         if (settlementRepository.existsByProjectId(projectId)) {
             throw new PaymentException(PaymentErrorCode.DUPLICATE_SETTLEMENT);
         }
+    }
+
+    private void saveSettlementStatusLog(Settlement settlement, SettlementStatus previousStatus, String reason, Money amount) {
+        settlementStatusLogService.saveSettlementStatusLog(
+                settlement.getId(),
+                previousStatus,
+                settlement.getStatus(),
+                reason,
+                amount
+        );
     }
 }

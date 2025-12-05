@@ -57,6 +57,22 @@ public enum PaymentErrorCode {
     INVALID_SETTLEMENT_STATUS_TRANSITION("SETTLEMENT1011", "유효하지 않은 정산 상태 전환입니다.", HttpStatus.BAD_REQUEST),
 
     /**
+     * Payment Status Log Domain Error Codes
+     */
+    NULL_PAYMENT_ID_OBJECT("PL1001", "결제 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PREV_PAYMENT_STATUS_OBJECT("PL1002", "이전 결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_CURR_PAYMENT_STATUS_OBJECT("PL1003", "현재 결제 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PAYMENT_AMOUNT_OBJECT("PL1004", "결제 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    /**
+     * Settlement Status Log Domain Error Codes
+     */
+    NULL_SETTLEMENT_ID_OBJECT("SL1001", "정산 ID 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_PREV_SETTLEMENT_STATUS_OBJECT("SL1002", "이전 정산 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_CURR_SETTLEMENT_STATUS_OBJECT("SL1003", "현재 정산 상태 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    NULL_SETTLEMENT_AMOUNT_OBJECT("SL1004", "정산 금액 객체는 null 일 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    /**
      * Payment Application Error Codes
      */
     PAYMENT_NOT_FOUND("PAYMENT2001", "결제를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -78,6 +94,12 @@ public enum PaymentErrorCode {
      */
     PROJECT_CLIENT_REQUEST_FAILED("SETTLEMENT3001", "프로젝트 외부 서비스 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
     OPEN_BANKING_TRANSFER_FAILED("SETTLEMENT3002", "오픈뱅킹 외부 서비스 이체 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+
+    /**
+     * Presentation Error Codes
+     */
+    UNAUTHORIZED("PAYMENT4001", "인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
+    FORBIDDEN("PAYMENT4002", "권한이 없는 사용자입니다.", HttpStatus.FORBIDDEN),
     ;
 
     private final String code;

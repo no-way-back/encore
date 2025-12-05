@@ -13,9 +13,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +42,96 @@ class PaymentServiceTest {
 
     @InjectMocks
     private PaymentService paymentService;
+
+    @Nested
+    @DisplayName("결제 목록 조회")
+    class GetPayments {
+
+        @ParameterizedTest(name = "{0} 역할로 결제 목록 조회")
+        @DisplayName("MASTER나 ADMIN 역할로 결제 목록을 조회하면 조건에 맞는 결제 목록이 반환된다.")
+        @ValueSource(strings = {"MASTER", "ADMIN"})
+        void getPayments_whenValid_thenReturnPayments(String role) {
+            /* given */
+            when(paymentRepository.searchPayments(any(), any(), any()))
+                    .thenReturn(PAYMENT_PAGE);
+
+            /* when */
+            Page<PaymentResult> results = paymentService.getPayments(
+                    USER_UUID,
+                    PROJECT_UUID,
+                    PAGE,
+                    SIZE,
+                    UUID.randomUUID(),
+                    role
+            );
+
+            /* then */
+            assertThat(results.getTotalElements()).isEqualTo(PAYMENT_PAGE.getTotalElements());
+            verify(paymentRepository, times(1)).searchPayments(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("USER 역할로 본인의 결제 목록을 조회하면 조건에 맞는 결제 목록이 반환된다.")
+        void getPayments_whenUserSelf_thenReturnPayments() {
+            /* given */
+            when(paymentRepository.searchPayments(any(), any(), any()))
+                    .thenReturn(PAYMENT_PAGE);
+
+            /* when */
+            Page<PaymentResult> results = paymentService.getPayments(
+                    USER_UUID,
+                    PROJECT_UUID,
+                    PAGE,
+                    SIZE,
+                    USER_UUID,
+                    "USER"
+            );
+
+            /* then */
+            assertThat(results.getTotalElements()).isEqualTo(PAYMENT_PAGE.getTotalElements());
+            verify(paymentRepository, times(1)).searchPayments(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("USER 역할로 다른 사용자의 결제 목록을 조회하면 예외가 발생한다.")
+        void getPayments_whenUserNotSelf_thenThrowException() {
+            /* given */
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> paymentService.getPayments(
+                    USER_UUID,
+                    PROJECT_UUID,
+                    PAGE,
+                    SIZE,
+                    UUID.randomUUID(),
+                    "USER"
+            ))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.FORBIDDEN_PAYMENT_SELF_ACCESS.getMessage());
+        }
+
+        @Test
+        @DisplayName("USER 역할로 유저 조건 없이 결제 목록을 조회하면 본인의 결제 목록이 반환된다.")
+        void getPayments_whenUserNotSelfAndNoUserId_thenReturnPayments() {
+            /* given */
+            when(paymentRepository.searchPayments(any(), any(), any()))
+                    .thenReturn(PAYMENT_PAGE);
+
+            /* when */
+            Page<PaymentResult> results = paymentService.getPayments(
+                    null,
+                    PROJECT_UUID,
+                    PAGE,
+                    SIZE,
+                    USER_UUID,
+                    "USER"
+            );
+
+            /* then */
+            assertThat(results.getTotalElements()).isEqualTo(PAYMENT_PAGE.getTotalElements());
+            verify(paymentRepository, times(1)).searchPayments(any(), any(), any());
+        }
+    }
 
     @Nested
     @DisplayName("결제 승인")

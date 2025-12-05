@@ -9,11 +9,14 @@ import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.vo.*;
 import com.nowayback.payment.presentation.payment.dto.request.ConfirmPaymentRequest;
 import com.nowayback.payment.presentation.payment.dto.request.RefundPaymentRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class PaymentFixture {
@@ -49,7 +52,9 @@ public class PaymentFixture {
     public static final LocalDateTime APPROVED_AT = LocalDateTime.now();
     public static final LocalDateTime REFUNDED_AT = LocalDateTime.now();
 
-    public static final Pageable PAGEABLE = PageRequest.of(0, 10);
+    public static final int PAGE = 0;
+    public static final int SIZE = 10;
+    public static final Pageable PAGEABLE = PageRequest.of(PAGE, SIZE);
 
     /* payment entity */
 
@@ -78,6 +83,13 @@ public class PaymentFixture {
                 PG_INFO
         );
     }
+
+    private static final List<Payment> PAYMENT_LIST = List.of(
+            createPayment(),
+            createPayment()
+    );
+
+    public static final Page<Payment> PAYMENT_PAGE = new PageImpl<>(PAYMENT_LIST, PAGEABLE, PAYMENT_LIST.size());
 
     /* payment command */
 

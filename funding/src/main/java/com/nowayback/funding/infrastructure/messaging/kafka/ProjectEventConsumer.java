@@ -1,6 +1,7 @@
 package com.nowayback.funding.infrastructure.messaging.kafka;
 
-import static com.nowayback.funding.infrastructure.config.KafkaTopics.*;
+import static com.nowayback.funding.domain.event.FundingProducerTopics.*;
+import static com.nowayback.funding.infrastructure.config.KafkaConsumerTopics.*;
 
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class ProjectEventConsumer {
 				outboxService.publishCompensationEvent(
 					"FUNDING_PROJECT",
 					event.projectId(),
-					"PROJECT_FUNDING_CREATED_FAILED",
+					PROJECT_FUNDING_CREATED_FAILED,
 					Map.of(
 						"projectId", event.projectId(),
 						"creatorId", event.creatorId(),

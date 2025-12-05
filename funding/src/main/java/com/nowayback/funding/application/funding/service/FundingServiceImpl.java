@@ -1,5 +1,6 @@
 package com.nowayback.funding.application.funding.service;
 
+import static com.nowayback.funding.domain.event.FundingProducerTopics.*;
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
 import java.time.LocalDateTime;
@@ -175,7 +176,7 @@ public class FundingServiceImpl implements FundingService {
 		outboxService.publishSuccessEvent(
 			"FUNDING",
 			funding.getId(),
-			"FUNDING_COMPLETED",
+			FUNDING_COMPLETED,
 			Map.of(
 				"fundingId", funding.getId(),
 				"userId", funding.getUserId(),
@@ -194,7 +195,7 @@ public class FundingServiceImpl implements FundingService {
 		outboxService.publishCompensationEvent(
 			"FUNDING",
 			funding.getId(),
-			"FUNDING_FAILED",
+			FUNDING_FAILED,
 			Map.of(
 				"fundingId", funding.getId(),
 				"projectId", command.projectId(),
@@ -252,7 +253,7 @@ public class FundingServiceImpl implements FundingService {
 		outboxService.publishSuccessEvent(
 			"FUNDING",
 			funding.getId(),
-			"FUNDING_REFUND",
+			FUNDING_REFUND,
 			Map.of(
 				"fundingId", funding.getId(),
 				"projectId", funding.getProjectId(),

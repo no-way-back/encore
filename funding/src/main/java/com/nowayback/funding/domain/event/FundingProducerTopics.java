@@ -1,15 +1,11 @@
-package com.nowayback.funding.infrastructure.config;
+package com.nowayback.funding.domain.event;
 
-public final class KafkaTopics {
+public final class FundingProducerTopics {
 
-	private KafkaTopics() {
+	private FundingProducerTopics() {
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	// Consumer Topics (외부에서 수신)
-	public static final String PROJECT_FUNDING_CREATION = "project-funding-creation";
-
-	// Producer Topics (외부로 발행)
 	public static final String FUNDING_FAILED = "funding-failed";
 	public static final String FUNDING_REFUND = "funding-refund";
 	public static final String FUNDING_COMPLETED = "funding-completed";

@@ -1,14 +1,12 @@
 package com.nowayback.funding.infrastructure.schedule;
 
-import static com.nowayback.funding.infrastructure.config.KafkaTopics.*;
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.nowayback.funding.application.outbox.event.KafkaEventPublisher;
 import com.nowayback.funding.application.outbox.service.OutboxService;
 import com.nowayback.funding.domain.outbox.entity.Outbox;
 import com.nowayback.funding.infrastructure.aop.DistributedLock;
@@ -22,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OutboxScheduler {
 
 	private final OutboxService outboxService;
-	private final KafkaTemplate<String, String> kafkaTemplate;
+	private final KafkaEventPublisher kafkaEventPublisher;
 
 	@Scheduled(fixedDelay = 300000)
 	@DistributedLock(
@@ -61,18 +59,7 @@ public class OutboxScheduler {
 						continue;
 					}
 
-					String topic = switch (event.getEventType()) {
-						case "FUNDING_FAILED" -> FUNDING_FAILED;
-						case "FUNDING_REFUND" -> FUNDING_REFUND;
-						case "FUNDING_COMPLETED" -> FUNDING_COMPLETED;
-						case "PROJECT_FUNDING_SUCCESS" -> PROJECT_FUNDING_SUCCESS;
-						case "PROJECT_FUNDING_FAILED" -> PROJECT_FUNDING_FAILED;
-						case "PROJECT_FUNDING_CREATED_FAILED" -> PROJECT_FUNDING_CREATED_FAILED;
-						default -> "funding-events";
-					};
-
-					kafkaTemplate.send(topic, event.getPayload())
-						.get(3, TimeUnit.SECONDS);
+					kafkaEventPublisher.publish(event);
 
 					outboxService.markAsPublished(event.getId());
 

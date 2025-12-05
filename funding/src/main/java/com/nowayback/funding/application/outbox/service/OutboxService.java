@@ -8,6 +8,8 @@ import com.nowayback.funding.domain.outbox.entity.Outbox;
 
 public interface OutboxService {
 
+	Outbox findById(UUID eventId);
+
 	/**
 	 * Outbox 이벤트를 발행 완료 상태로 변경
 	 * @param eventId Outbox 이벤트 ID

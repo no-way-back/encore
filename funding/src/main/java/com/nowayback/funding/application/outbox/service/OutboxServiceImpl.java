@@ -31,6 +31,13 @@ public class OutboxServiceImpl implements OutboxService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public Outbox findById(UUID eventId) {
+		return outboxRepository.findById(eventId)
+			.orElseThrow(() -> new FundingException(OUTBOX_EVENT_NOT_FOUND));
+	}
+
+	@Override
 	@Transactional
 	public void markAsPublished(UUID eventId) {
 		Outbox event = outboxRepository.findById(eventId)

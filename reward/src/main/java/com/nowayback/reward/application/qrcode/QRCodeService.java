@@ -24,6 +24,7 @@ public class QRCodeService {
 
     private final QRCodeRepository qrCodeRepository;
     private final RewardService rewardService;
+    private final QRCodeMailService qrCodeMailService;
 
     /**
      * QR코드 생성
@@ -54,5 +55,26 @@ public class QRCodeService {
         qrCode.use();
 
         return QRCodeUseResult.of(qrCode);
+    }
+
+    /**
+     * 펀딩 목표 달성 시 해당 펀딩의 모든 QR 코드를 이메일로 발송
+     */
+    @Transactional(readOnly = true)
+    public void sendQRCodesByFunding(UUID fundingId) {
+        log.info("펀딩 {} QR 코드 이메일 발송 시작", fundingId);
+
+        List<QRCodes> qrCodes = qrCodeRepository.findByFundingId(fundingId);
+
+        if (qrCodes.isEmpty()) {
+            log.warn("펀딩 {}에 발송할 QR 코드가 없습니다", fundingId);
+            return;
+        }
+
+        qrCodes.forEach(qrCode ->
+                qrCodeMailService.sendQRCodeEmail(qrCode.getEmail(), qrCode.getId())
+        );
+
+        log.info("펀딩 {} QR 코드 이메일 발송 완료 - 총 {}개", fundingId, qrCodes.size());
     }
 }

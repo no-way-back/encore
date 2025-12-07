@@ -1,6 +1,5 @@
 package com.nowayback.reward.domain.vo;
 
-import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -18,19 +17,19 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 @Getter
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreatorId implements Serializable {
+public class OwnerId implements Serializable {
 
     @Column(name = "creator_id", nullable = false)
     private UUID id;
 
-    private CreatorId(UUID id) {
+    private OwnerId(UUID id) {
         if (id == null) {
             throw new RewardException(CREATOR_ID_IS_NULL);
         }
         this.id = id;
     }
 
-    public static CreatorId of(UUID id) {
-        return new CreatorId(id);
+    public static OwnerId of(UUID id) {
+        return new OwnerId(id);
     }
 }

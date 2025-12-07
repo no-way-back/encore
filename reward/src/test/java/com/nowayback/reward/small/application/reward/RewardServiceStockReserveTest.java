@@ -5,7 +5,7 @@ import com.nowayback.reward.application.reward.command.StockReserveCommand;
 import com.nowayback.reward.application.reward.dto.StockReserveResult;
 import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
-import com.nowayback.reward.domain.repository.StockReservationRepository;
+import com.nowayback.reward.domain.stockreservation.repository.StockReservationRepository;
 import com.nowayback.reward.domain.reward.entity.RewardOptions;
 import com.nowayback.reward.domain.reward.entity.Rewards;
 import com.nowayback.reward.domain.reward.repository.RewardRepository;

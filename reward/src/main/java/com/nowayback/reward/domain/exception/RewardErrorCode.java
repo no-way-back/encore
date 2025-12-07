@@ -47,14 +47,6 @@ public enum RewardErrorCode {
     FUNDING_ID_IS_NULL("RW-302", "펀딩 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
     PROJECT_ID_IS_NULL("RW-303", "프로젝트 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
 
-
-    // Required ID Validation (새로 추가된 섹션)
-    CREATOR_ID_IS_NULL("RW-300", "생성자 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-    REWARD_ID_IS_NULL("RW-301", "리워드 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-    FUNDING_ID_IS_NULL("RW-302", "펀딩 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-    PROJECT_ID_IS_NULL("RW-303", "프로젝트 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-
-
     // System Error
     INTERNAL_SERVER_ERROR("RW-999", "일시적인 오류가 발생했습니다", HttpStatus.INTERNAL_SERVER_ERROR);
 

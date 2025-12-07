@@ -5,7 +5,7 @@ import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.application.reward.dto.RewardListResult;
 import com.nowayback.reward.application.reward.dto.StockReserveResult;
 import com.nowayback.reward.domain.exception.RewardException;
-import com.nowayback.reward.domain.repository.StockReservationRepository;
+import com.nowayback.reward.domain.stockreservation.repository.StockReservationRepository;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.entity.RewardOptions;
 import com.nowayback.reward.domain.reward.entity.Rewards;
@@ -112,6 +112,18 @@ public class RewardService {
         return result;
     }
 
+    public boolean isTicketType(UUID rewardId) {
+        Rewards reward = getById(rewardId);
+
+        return reward.isTicketType();
+    }
+
+    public Rewards getById(UUID rewardId) {
+        return rewardRepository.findById(rewardId).orElseThrow(
+                () -> new RewardException(REWARD_NOT_FOUND)
+        );
+    }
+
     // private 헬퍼 메서드
 
     /**
@@ -136,12 +148,6 @@ public class RewardService {
                 savedReward.getOptionList().size());
 
         return savedReward;
-    }
-
-    private Rewards getById(UUID rewardId) {
-        return rewardRepository.findById(rewardId).orElseThrow(
-                () -> new RewardException(REWARD_NOT_FOUND)
-        );
     }
 
     /**
@@ -184,7 +190,7 @@ public class RewardService {
         option.decreaseStock(item.quantity());
         reward.syncStatus();
 
-        Integer itemAmount = option.calculateTotalAmount(item.quantity());
+        Long itemAmount = option.calculateTotalAmount(item.quantity());
 
         StockReservation saveReservation = createAndSaveReservation(
                 fundingId, reward.getId(), option.getId(), item.quantity()
@@ -210,7 +216,7 @@ public class RewardService {
     ) {
         reward.decreaseStock(item.quantity());
 
-        Integer itemAmount = reward.calculateTotalAmount(item.quantity());
+        Long itemAmount = reward.calculateTotalAmount(item.quantity());
         StockReservation saveReservation = createAndSaveReservation(
                 fundingId, reward.getId(), null, item.quantity()
         );

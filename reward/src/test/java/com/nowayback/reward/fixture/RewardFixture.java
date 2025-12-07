@@ -1,11 +1,11 @@
 package com.nowayback.reward.fixture;
 
+import com.nowayback.reward.application.reward.command.RewardCreateCommand;
+import com.nowayback.reward.application.reward.command.RewardOptionCreateCommand;
 import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.application.reward.command.UpdateRewardOptionCommand;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.command.CreateRewardOptionCommand;
-import com.nowayback.reward.application.reward.command.RewardCreateCommand;
-import com.nowayback.reward.application.reward.command.RewardOptionCreateCommand;
 import com.nowayback.reward.domain.reward.vo.RewardType;
 
 import java.util.List;

@@ -5,12 +5,12 @@ import com.nowayback.reward.application.reward.command.StockReserveCommand;
 import com.nowayback.reward.application.reward.dto.StockReserveResult;
 import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
-import com.nowayback.reward.domain.stockreservation.repository.StockReservationRepository;
 import com.nowayback.reward.domain.reward.entity.RewardOptions;
 import com.nowayback.reward.domain.reward.entity.Rewards;
 import com.nowayback.reward.domain.reward.repository.RewardRepository;
 import com.nowayback.reward.domain.reward.vo.SaleStatus;
 import com.nowayback.reward.domain.stockreservation.entity.StockReservation;
+import com.nowayback.reward.domain.stockreservation.repository.StockReservationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.nowayback.reward.fixture.StockReserveFixture.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 

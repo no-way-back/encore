@@ -1,21 +1,21 @@
 package com.nowayback.reward.presentation.exception;
 
-import java.util.List;
-
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.presentation.exception.response.ErrorResponse;
 import com.nowayback.reward.presentation.exception.response.FieldError;
 import com.nowayback.reward.presentation.exception.response.ValidationErrorResponse;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 
-import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.INTERNAL_SERVER_ERROR;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.VALIDATION_FAILED;
 
 @RestControllerAdvice
 @Slf4j

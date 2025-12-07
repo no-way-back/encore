@@ -3,11 +3,9 @@ package com.nowayback.reward.application.qrcode;
 import com.nowayback.reward.application.qrcode.command.CreateQRCodeCommand;
 import com.nowayback.reward.application.qrcode.dto.QRCodeUseResult;
 import com.nowayback.reward.application.reward.RewardService;
-import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
 import com.nowayback.reward.domain.qrcode.repository.QRCodeRepository;
-import com.nowayback.reward.domain.qrcode.vo.QrCodeStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.QRCODE_NOT_FOUND;
 
 @Slf4j
 @Service

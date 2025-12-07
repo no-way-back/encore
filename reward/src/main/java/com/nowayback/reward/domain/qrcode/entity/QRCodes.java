@@ -1,9 +1,7 @@
 package com.nowayback.reward.domain.qrcode.entity;
 
-import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.qrcode.vo.QrCodeStatus;
-import com.nowayback.reward.domain.shared.BaseEntity;
 import com.nowayback.reward.domain.vo.FundingId;
 import com.nowayback.reward.domain.vo.RewardId;
 import jakarta.persistence.*;
@@ -15,7 +13,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.QRCODE_ALREADY_USED;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.QRCODE_CANCELLED;
 import static com.nowayback.reward.domain.qrcode.vo.QrCodeStatus.*;
 
 @Entity

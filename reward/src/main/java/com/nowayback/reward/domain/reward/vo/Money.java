@@ -6,7 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.INVALID_MONEY_AMOUNT;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.NEGATIVE_MONEY_AMOUNT;
 
 @Embeddable
 @Getter

@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
-import static com.nowayback.reward.domain.reward.vo.SaleStatus.*;
+import static com.nowayback.reward.domain.reward.vo.SaleStatus.AVAILABLE;
+import static com.nowayback.reward.domain.reward.vo.SaleStatus.SOLD_OUT;
 
 @Entity
 @Table(name = "p_rewards")

@@ -1,7 +1,6 @@
 package com.nowayback.reward.infrastructure.repository.reward.persistence;
 
 import com.nowayback.reward.domain.reward.entity.Rewards;
-import com.nowayback.reward.domain.vo.FundingId;
 import com.nowayback.reward.domain.vo.ProjectId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

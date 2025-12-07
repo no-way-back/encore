@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.UUID;
 
-import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.CREATOR_ID_IS_NULL;
 
 @Embeddable
 @Getter

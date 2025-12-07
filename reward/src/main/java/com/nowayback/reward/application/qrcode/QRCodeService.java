@@ -61,20 +61,20 @@ public class QRCodeService {
      * 펀딩 목표 달성 시 해당 펀딩의 모든 QR 코드를 이메일로 발송
      */
     @Transactional(readOnly = true)
-    public void sendQRCodesByFunding(UUID fundingId) {
-        log.info("펀딩 {} QR 코드 이메일 발송 시작", fundingId);
+    public void sendQRCodesByFunding(UUID projectId, String projectSubject) {
+        log.info("프로젝트 {} QR 코드 이메일 발송 시작", projectId);
 
-        List<QRCodes> qrCodes = qrCodeRepository.findByFundingId(fundingId);
+        List<QRCodes> qrCodes = qrCodeRepository.findByFundingId(projectId);
 
         if (qrCodes.isEmpty()) {
-            log.warn("펀딩 {}에 발송할 QR 코드가 없습니다", fundingId);
+            log.warn("프로젝트 {}에 발송할 QR 코드가 없습니다", projectId);
             return;
         }
 
         qrCodes.forEach(qrCode ->
-                qrCodeMailService.sendQRCodeEmail(qrCode.getEmail(), qrCode.getId())
+                qrCodeMailService.sendQRCodeEmail(qrCode.getEmail(), qrCode.getId(), projectSubject)
         );
 
-        log.info("펀딩 {} QR 코드 이메일 발송 완료 - 총 {}개", fundingId, qrCodes.size());
+        log.info("프로젝트 {} QR 코드 이메일 발송 완료 - 총 {}개", projectId, qrCodes.size());
     }
 }

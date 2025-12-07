@@ -1,5 +1,7 @@
 package com.nowayback.reward.domain.qrcode.entity;
 
+import com.nowayback.reward.domain.exception.RewardErrorCode;
+import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.qrcode.vo.QrCodeStatus;
 import com.nowayback.reward.domain.shared.BaseEntity;
 import com.nowayback.reward.domain.vo.FundingId;
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 import static com.nowayback.reward.domain.qrcode.vo.QrCodeStatus.*;
 
 @Entity
@@ -65,13 +68,12 @@ public class QRCodes {
     }
 
     // private 헬퍼 메서드
-
     private void validateUsable() {
         if (this.status == USED) {
-            throw new IllegalStateException("이미 사용된 QR 코드입니다.");
+            throw new RewardException(QRCODE_ALREADY_USED);
         }
         if (this.status == CANCELLED) {
-            throw new IllegalStateException("취소된 QR 코드입니다.");
+            throw new RewardException(QRCODE_CANCELLED);
         }
     }
 }

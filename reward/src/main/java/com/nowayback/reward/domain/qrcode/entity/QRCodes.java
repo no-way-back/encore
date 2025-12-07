@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static com.nowayback.reward.domain.qrcode.vo.QrCodeStatus.*;
@@ -18,7 +19,7 @@ import static com.nowayback.reward.domain.qrcode.vo.QrCodeStatus.*;
 @Table(name = "p_qr_codes")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class QRCodes extends BaseEntity {
+public class QRCodes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -37,6 +38,8 @@ public class QRCodes extends BaseEntity {
     @Column(name = "status", length = 20)
     private QrCodeStatus status = UNUSED;
 
+    private LocalDateTime usedAt;
+
     @Builder
     public QRCodes(RewardId rewardId, FundingId fundingId, String email) {
         this.rewardId = rewardId;
@@ -50,5 +53,25 @@ public class QRCodes extends BaseEntity {
                 .fundingId(FundingId.of(fundingId))
                 .email(email)
                 .build();
+    }
+
+    /**
+     * qr code 사용처리
+     */
+    public void use() {
+        validateUsable();
+        this.status = USED;
+        this.usedAt = LocalDateTime.now();
+    }
+
+    // private 헬퍼 메서드
+
+    private void validateUsable() {
+        if (this.status == USED) {
+            throw new IllegalStateException("이미 사용된 QR 코드입니다.");
+        }
+        if (this.status == CANCELLED) {
+            throw new IllegalStateException("취소된 QR 코드입니다.");
+        }
     }
 }

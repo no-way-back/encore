@@ -6,12 +6,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
 public class QRCodeRepositoryImpl implements QRCodeRepository {
 
     private final QRCodeJpaRepository jpaRepository;
+
+    @Override
+    public Optional<QRCodes> findById(UUID qrCodeId) {
+        return jpaRepository.findById(qrCodeId);
+    }
 
     public QRCodes save(QRCodes qrCode) {
         return jpaRepository.save(qrCode);

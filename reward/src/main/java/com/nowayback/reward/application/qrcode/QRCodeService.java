@@ -1,14 +1,18 @@
 package com.nowayback.reward.application.qrcode;
 
 import com.nowayback.reward.application.qrcode.command.CreateQRCodeCommand;
+import com.nowayback.reward.application.qrcode.dto.QRCodeUseResult;
 import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
 import com.nowayback.reward.domain.qrcode.repository.QRCodeRepository;
+import com.nowayback.reward.domain.qrcode.vo.QrCodeStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -38,5 +42,15 @@ public class QRCodeService {
 
                     qrCodeRepository.saveAll(qrCodes);
                 });
+    }
+
+    @Transactional
+    public QRCodeUseResult useQRCode(UUID qrCodeId) {
+        QRCodes qrCode = qrCodeRepository.findById(qrCodeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 QR 코드입니다."));
+
+        qrCode.use();
+
+        return QRCodeUseResult.of(qrCode);
     }
 }

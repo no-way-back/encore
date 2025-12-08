@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record StockReserveCommand(
+        UUID userId,
         UUID fundingId,
         List<StockReserveItemCommand> items
 ) {
@@ -15,7 +16,7 @@ public record StockReserveCommand(
             Integer quantity
     ) {}
 
-    public static StockReserveCommand from(StockReserveRequest request) {
+    public static StockReserveCommand from(UUID userId, StockReserveRequest request) {
         List<StockReserveItemCommand> items = request.items().stream()
                 .map(item -> new StockReserveItemCommand(
                         item.rewardId(),
@@ -24,6 +25,6 @@ public record StockReserveCommand(
                 ))
                 .toList();
 
-        return new StockReserveCommand(request.fundingId(), items);
+        return new StockReserveCommand(userId, request.fundingId(), items);
     }
 }

@@ -17,19 +17,19 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.CREATOR_ID_I
 @Getter
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OwnerId implements Serializable {
+public class UserId implements Serializable {
 
     @Column(name = "creator_id", nullable = false)
     private UUID id;
 
-    private OwnerId(UUID id) {
+    private UserId(UUID id) {
         if (id == null) {
             throw new RewardException(CREATOR_ID_IS_NULL);
         }
         this.id = id;
     }
 
-    public static OwnerId of(UUID id) {
-        return new OwnerId(id);
+    public static UserId of(UUID id) {
+        return new UserId(id);
     }
 }

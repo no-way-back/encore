@@ -40,7 +40,14 @@ spring:
             - id: reward-service
               uri: lb://reward-service
               predicates:
-                - Path=/rewards/**
+                - Path=/rewards/**,/qrcodes/**
+
+            - id: reward-service-docs
+              uri: lb://reward-service
+              predicates:
+                - Path=/reward-service/v3/api-docs
+              filters:
+                - RewritePath=/reward-service/v3/api-docs, /v3/api-docs
 
             - id: payment-service
               uri: lb://payment-service
@@ -82,6 +89,8 @@ springdoc:
     urls:
       - name: User Service
         url: /user-service/v3/api-docs
+      - name: Reward Service
+        url: /reward-service/v3/api-docs
 
 eureka:
   client:

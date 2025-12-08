@@ -16,31 +16,31 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@DisplayName("정산 컨트롤러")
-@WebMvcTest(SettlementController.class)
-class SettlementControllerTest extends ControllerTest {
+@DisplayName("정산 내부 컨트롤러")
+@WebMvcTest(InternalSettlementController.class)
+class InternalSettlementControllerTest extends ControllerTest {
 
     @MockitoBean
     private SettlementService settlementService;
 
-    private static final String BASE_URL = "/settlements";
+    private static final String BASE_URL = "/internal/settlements";
 
     @Nested
-    @DisplayName("정산 조회")
-    class GetSettlement {
+    @DisplayName("정산 처리")
+    class ProcessSettlement {
 
         @Test
-        @DisplayName("유효한 요청이 들어오면 정산 조회에 성공한다.")
-        void getSettlement_validRequest_success() throws Exception {
+        @DisplayName("유효한 요청이 들어오면 정산 처리에 성공한다.")
+        void processSettlement_validRequest_success() throws Exception {
             /* given */
 
-            given(settlementService.getSettlement(any(UUID.class)))
+            given(settlementService.processSettlement(any(UUID.class)))
                     .willReturn(SETTLEMENT_RESULT_COMPLETED);
 
             /* when */
             /* then */
-            performWithAuth(get(BASE_URL + "/{projectId}", PROJECT_UUID))
-                    .andExpect(status().isOk())
+            performWithAuth(post(BASE_URL + "/{projectId}", PROJECT_UUID))
+                    .andExpect(status().isCreated())
                     .andExpect(jsonPath("projectId").value(PROJECT_UUID.toString()))
                     .andExpect(jsonPath("status").value(SETTLEMENT_RESULT_COMPLETED.status().toString()));
         }

@@ -27,14 +27,14 @@ public class ProjectEventConsumer {
 	private final ObjectMapper objectMapper;
 
 	@KafkaListener(topics = PROJECT_FUNDING_CREATION, groupId = "${spring.kafka.consumer.group-id}")
-	public void onProjectCreated(String message, Acknowledgment ack) {
+	public void onProjectCreated(Object message, Acknowledgment ack) {
 
 		ProjectCreatedEvent event = null;
 
 		try {
 			log.info("프로젝트 생성 이벤트 수신");
 
-			event = objectMapper.readValue(message, ProjectCreatedEvent.class);
+			event = objectMapper.convertValue(message, ProjectCreatedEvent.class);
 
 			fundingProjectStatisticsService.createProjectStatistics(
 				event.projectId(),

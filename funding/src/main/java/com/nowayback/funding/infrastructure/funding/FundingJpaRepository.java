@@ -22,7 +22,7 @@ public interface FundingJpaRepository extends JpaRepository<Funding, UUID> {
 	@Query("SELECT f FROM Funding f " +
 		"WHERE f.userId = :userId " +
 		"AND (:status IS NULL OR f.status = :status) " +
-		"AND (:startDate IS NULL OR f.createdAt >= :startDate)")
+		"AND (CAST(:startDate AS timestamp) IS NULL OR f.createdAt >= :startDate)")
 	Page<Funding> findMyFundings(
 		@Param("userId") UUID userId,
 		@Param("status") FundingStatus status,

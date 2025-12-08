@@ -89,6 +89,30 @@ class PaymentRepositoryTest {
     }
 
     @Nested
+    @DisplayName("프로젝트 ID로 완료된 결제 목록 조회")
+    class FindAllCompletedByProjectId {
+
+        @Test
+        @DisplayName("프로젝트 ID에 대한 완료된 결제 목록을 반환한다.")
+        void findAllCompletedByProjectId_returnCompletedPayments() {
+            /* given */
+            Payment completedPayment = createPaymentWithStatus(PaymentStatus.COMPLETED);
+            Payment pendingPayment = createPaymentWithStatus(PaymentStatus.PENDING);
+
+            entityManager.persist(completedPayment);
+            entityManager.persist(pendingPayment);
+            entityManager.flush();
+
+            /* when */
+            var payments = paymentRepository.findAllCompletedByProjectId(PROJECT_ID);
+
+            /* then */
+            assertThat(payments).hasSize(1);
+            assertThat(payments.get(0).getStatus()).isEqualTo(PaymentStatus.COMPLETED);
+        }
+    }
+
+    @Nested
     @DisplayName("프로젝트 ID로 결제 금액 합계 조회")
     class SumAmountByProjectId {
 

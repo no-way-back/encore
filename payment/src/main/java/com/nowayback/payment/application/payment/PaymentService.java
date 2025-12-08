@@ -10,6 +10,8 @@ import com.nowayback.payment.domain.exception.PaymentErrorCode;
 import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
+import com.nowayback.payment.domain.payment.vo.FundingId;
+import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.Money;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.ProjectId;
@@ -55,6 +57,10 @@ public class PaymentService {
     @Transactional
     public PaymentResult refundPayment(RefundPaymentCommand command) {
         Payment payment = getPaymentById(command.paymentId());
+
+        if (payment.getStatus() == PaymentStatus.REFUNDED) {
+            throw new PaymentException(PaymentErrorCode.PAYMENT_ALREADY_REFUNDED);
+        }
 
         PgRefundResult pgResponse = paymentGatewayClient.refundPayment(
                 payment.getPgInfo().getPgPaymentKey(),

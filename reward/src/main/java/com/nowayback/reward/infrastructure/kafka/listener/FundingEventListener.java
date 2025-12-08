@@ -1,7 +1,9 @@
 package com.nowayback.reward.infrastructure.kafka.listener;
 
+import com.nowayback.reward.application.qrcode.QRCodeService;
 import com.nowayback.reward.application.reward.RewardStockService;
 import com.nowayback.reward.infrastructure.kafka.constant.EventType;
+import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingRefundEvent;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import static com.nowayback.reward.infrastructure.kafka.constant.EventType.*;
 public class FundingEventListener {
 
     private final RewardStockService rewardStockService;
+    private final QRCodeService qrCodeService;
 
     /**
      * 펀딩 결제 실패 이벤트 처리
@@ -93,6 +96,42 @@ public class FundingEventListener {
         } catch (Exception e) {
             log.error("펀딩 환불 이벤트 처리 실패 - 펀딩: {}, 예약: {}",
                     event.payload().fundingId(), event.payload().reservationId(), e);
+        } finally {
+            acknowledgment.acknowledge();
+        }
+    }
+
+
+    /**
+     * 펀딩 완료 이벤트 처리
+     * - 펀딩 완료 시 QR 코드를 생성한다
+     */
+    @KafkaListener(
+            topics = "${spring.kafka.topic.funding-completed}",
+            groupId = "${spring.kafka.consumer.group-id}"
+    )
+    public void consumeFundingCompletedEvent(
+            @Payload FundingCompletedEvent event,
+            Acknowledgment acknowledgment
+    ) {
+        log.info("펀딩 완료 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
+                event.eventId(),
+                event.eventType(),
+                event.payload().fundingId()
+        );
+
+        if (validateEventType(FUNDING_COMPLETED, event.eventType(), acknowledgment)) {
+            return;
+        }
+
+        try {
+            qrCodeService.createQRCode(event.payload().toCommand());
+
+            log.info("QR 코드 생성 완료 - 펀딩: {}", event.payload().fundingId());
+
+        } catch (Exception e) {
+            log.error("펀딩 완료 이벤트 처리 실패 - 펀딩: {}",
+                    event.payload().fundingId(), e);
         } finally {
             acknowledgment.acknowledge();
         }

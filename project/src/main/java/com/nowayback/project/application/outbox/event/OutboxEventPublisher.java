@@ -1,11 +1,10 @@
 package com.nowayback.project.application.outbox.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nowayback.project.application.event.EventPayload;
 import com.nowayback.project.domain.outbox.Outbox;
 import com.nowayback.project.domain.outbox.vo.AggregateType;
 import com.nowayback.project.domain.outbox.vo.EventDestination;
+import com.nowayback.project.domain.outbox.vo.EventPayload;
 import com.nowayback.project.domain.outbox.vo.EventType;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,30 +22,27 @@ public class OutboxEventPublisher {
 
     public void publish(
         EventType type,
-        EventDestination eventDestination,
+        EventDestination destination,
         EventPayload payload,
         AggregateType aggregateType,
         UUID aggregateId
     ) {
-        log.info(
-            "[OutboxEventPublisher.publish] type={}, payload={}, AggregateType={}, aggregateId={}",
-            type, payload, aggregateType, aggregateId);
-        Outbox outbox = Outbox.create(
-            aggregateType,
-            aggregateId,
-            type,
-            eventDestination,
-            toJson(payload)
-        );
-
-        applicationEventPublisher.publishEvent(OutboxEvent.of(outbox));
-    }
-
-    private String toJson(Object payload) {
         try {
-            return objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("[EventPayload.toJson] EventPayload 직렬화에 실패했습니다.", e);
+            String json = objectMapper.writeValueAsString(payload);
+
+            Outbox outbox = Outbox.create(
+                aggregateType,
+                aggregateId,
+                type,
+                destination,
+                json,
+                payload.getClass().getName()
+            );
+
+            applicationEventPublisher.publishEvent(OutboxEvent.of(outbox));
+
+        } catch (Exception e) {
+            throw new RuntimeException("Outbox 저장 중 오류", e);
         }
     }
 }

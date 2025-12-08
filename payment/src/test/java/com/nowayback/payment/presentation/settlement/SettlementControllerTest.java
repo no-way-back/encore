@@ -23,6 +23,7 @@ class SettlementControllerTest extends ControllerTest {
     @MockitoBean
     private SettlementService settlementService;
 
+    private static final String INTERNAL_BASE_URL = "/internal/settlements";
     private static final String BASE_URL = "/settlements";
 
     @Nested
@@ -39,7 +40,7 @@ class SettlementControllerTest extends ControllerTest {
 
             /* when */
             /* then */
-            performWithAuth(post(BASE_URL + "/{projectId}", PROJECT_UUID))
+            performWithAuth(post(INTERNAL_BASE_URL + "/{projectId}", PROJECT_UUID))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("projectId").value(PROJECT_UUID.toString()))
                     .andExpect(jsonPath("status").value(SETTLEMENT_RESULT_COMPLETED.status().toString()));

@@ -54,8 +54,7 @@ public class ProjectService {
     }
 
     public ProjectResult getProject(UUID projectId) {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));
+        Project project = findProjectOrThrow(projectId);
 
         return ProjectResult.of(project);
     }
@@ -67,6 +66,7 @@ public class ProjectService {
         return SettlementResult.from(project);
     }
 
+    @Transactional
     public void markAsUpcoming(UUID projectId) {
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));
@@ -76,9 +76,20 @@ public class ProjectService {
 
     @Transactional
     public void markAsCreationFailed(UUID projectId, String reason) {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));
+        Project project = findProjectOrThrow(projectId);
 
         project.markAsCreationFailed(reason);
+    }
+
+    @Transactional
+    public void projectEnded(UUID projectId, boolean success) {
+        Project project = findProjectOrThrow(projectId);
+
+        project.endFunding(success);
+    }
+
+    private Project findProjectOrThrow(UUID projectId) {
+        return projectRepository.findById(projectId)
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));
     }
 }

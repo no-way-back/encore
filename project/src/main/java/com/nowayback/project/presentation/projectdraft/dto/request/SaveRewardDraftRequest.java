@@ -25,6 +25,8 @@ public record SaveRewardDraftRequest(
                             : reward.options().stream()
                                 .map(o ->
                                     SaveRewardDraftCommand.RewardOptionCommand.of(
+                                        o.name(),
+                                        o.required(),
                                         o.additionalPrice(),
                                         o.stockQuantity(),
                                         o.displayOrder()
@@ -49,6 +51,8 @@ public record SaveRewardDraftRequest(
     ) {}
 
     public record RewardOptionRequest(
+        String name,
+        Boolean required,
         Integer additionalPrice,
         Integer stockQuantity,
         Integer displayOrder

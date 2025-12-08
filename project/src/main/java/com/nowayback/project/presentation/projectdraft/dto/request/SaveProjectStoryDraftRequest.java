@@ -19,7 +19,7 @@ public record SaveProjectStoryDraftRequest(
     @Schema(description = "썸네일 이미지 URL", example = "https://thumbnail.png")
     String thumbnailUrl,
 
-    @Schema(description = "본문 JSON 문자열", example = "{\"blocks\":[{\"type\":\"text\",\"value\":\"프로젝트 소개...\"}]}")
+    @Schema(description = "본문 JSON 문자열", example = "JSON")
     String contentJson
 ) {
 

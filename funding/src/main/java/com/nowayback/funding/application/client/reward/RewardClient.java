@@ -1,8 +1,11 @@
 package com.nowayback.funding.application.client.reward;
 
+import java.util.UUID;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.nowayback.funding.application.client.reward.dto.request.StockReserveRequest;
 import com.nowayback.funding.application.client.reward.dto.response.StockReserveResponse;
@@ -23,6 +26,7 @@ public interface RewardClient {
 	 */
 	@PostMapping("/internal/rewards/reserve-stock")
 	StockReserveResponse reserveStock(
+		@RequestHeader("X-User-Id") UUID userId,
 		@Valid @RequestBody StockReserveRequest request
 	);
 }

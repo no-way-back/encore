@@ -81,6 +81,12 @@ public class Funding extends BaseEntity {
 		this.status = FundingStatus.COMPLETED;
 	}
 
+	public void failFunding(String reason) {
+		validateStatusTransition(FundingStatus.FAILED);
+		this.status = FundingStatus.FAILED;
+		this.failReason = reason;
+	}
+
 	public void cancelFunding() {
 		if (this.status != FundingStatus.COMPLETED) {
 			throw new FundingException(CANNOT_CANCEL_NON_COMPLETED);

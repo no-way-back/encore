@@ -85,31 +85,28 @@ class FundingCreateTest {
 			CreateFundingCommand command = new CreateFundingCommand(
 				projectId,
 				userId,
-				List.of(),  // 리워드 없음
-				10000L,     // 순수 후원 1만원
+				List.of(),
+				10000L,
 				"payment_key",
 				"order_id",
 				"CARD",
 				idempotencyKey
 			);
 
-			// Mock: 중복 체크 통과
 			given(fundingRepository.findByIdempotencyKey(idempotencyKey))
 				.willReturn(Optional.empty());
 			given(fundingRepository.existsByUserIdAndProjectIdAndStatus(userId, projectId, FundingStatus.COMPLETED))
 				.willReturn(false);
 
-			// Mock: Funding 저장
 			given(fundingRepository.save(any(Funding.class)))
 				.willAnswer(invocation -> {
 					Funding funding = invocation.getArgument(0);
-					// ID 주입 (실제 JPA가 하는 것처럼)
 					setFundingId(funding, UUID.randomUUID());
 					return funding;
 				});
 
-			// Mock: Payment 성공
-			given(paymentClient.processPayment(any()))
+			// Mock: Payment 성공 (userId 헤더 포함)
+			given(paymentClient.processPayment(eq(userId), any()))
 				.willReturn(new ProcessPaymentResponse(paymentId));
 
 			// when
@@ -119,7 +116,6 @@ class FundingCreateTest {
 			assertThat(result.status()).isEqualTo("SUCCESS");
 			assertThat(result.fundingId()).isNotNull();
 
-			// Funding 저장 확인
 			ArgumentCaptor<Funding> fundingCaptor = ArgumentCaptor.forClass(Funding.class);
 			verify(fundingRepository, times(1)).save(fundingCaptor.capture());
 
@@ -128,15 +124,12 @@ class FundingCreateTest {
 			assertThat(savedFunding.getUserId()).isEqualTo(userId);
 			assertThat(savedFunding.getProjectId()).isEqualTo(projectId);
 			assertThat(savedFunding.getStatus()).isEqualTo(FundingStatus.COMPLETED);
-			assertThat(savedFunding.getReservations()).isEmpty();  // 리워드 없음
+			assertThat(savedFunding.getReservations()).isEmpty();
 
-			// Payment 호출 확인
-			verify(paymentClient, times(1)).processPayment(any());
-
-			// Reward는 호출 안 됨
+			// Payment 호출 확인 (userId와 함께)
+			verify(paymentClient, times(1)).processPayment(eq(userId), any());
 			verify(rewardClient, never()).reserveStock(any());
 
-			// 통계 업데이트 확인
 			verify(fundingProjectStatisticsService, times(1))
 				.increaseFundingStatusRate(projectId, 10000L);
 		}
@@ -153,27 +146,25 @@ class FundingCreateTest {
 			CreateFundingCommand.RewardItem rewardItem = new CreateFundingCommand.RewardItem(
 				rewardId1,
 				optionId1,
-				2  // 2개
+				2
 			);
 
 			CreateFundingCommand command = new CreateFundingCommand(
 				projectId,
 				userId,
 				List.of(rewardItem),
-				5000L,  // 추가 후원금
+				5000L,
 				"payment_key",
 				"order_id",
 				"CARD",
 				idempotencyKey
 			);
 
-			// Mock: 중복 체크 통과
 			given(fundingRepository.findByIdempotencyKey(idempotencyKey))
 				.willReturn(Optional.empty());
 			given(fundingRepository.existsByUserIdAndProjectIdAndStatus(userId, projectId, FundingStatus.COMPLETED))
 				.willReturn(false);
 
-			// Mock: Funding 저장
 			UUID fundingId = UUID.randomUUID();
 			given(fundingRepository.save(any(Funding.class)))
 				.willAnswer(invocation -> {
@@ -182,27 +173,26 @@ class FundingCreateTest {
 					return funding;
 				});
 
-			// Mock: Reward 예약 성공
 			UUID reservationId1 = UUID.randomUUID();
 			StockReserveResponse.ReservedItem reservedItem = new StockReserveResponse.ReservedItem(
 				reservationId1,
 				rewardId1,
 				optionId1,
 				2,
-				40000L  // 리워드 가격
+				40000L
 			);
 
 			StockReserveResponse stockReserveResponse = new StockReserveResponse(
 				fundingId,
 				List.of(reservedItem),
-				40000L  // totalAmount (리워드 가격만)
+				40000L
 			);
 
 			given(rewardClient.reserveStock(any()))
 				.willReturn(stockReserveResponse);
 
-			// Mock: Payment 성공
-			given(paymentClient.processPayment(any()))
+			// Mock: Payment 성공 (userId 헤더 포함)
+			given(paymentClient.processPayment(eq(userId), any()))
 				.willReturn(new ProcessPaymentResponse(paymentId));
 
 			// when
@@ -212,30 +202,25 @@ class FundingCreateTest {
 			assertThat(result.status()).isEqualTo("SUCCESS");
 			assertThat(result.fundingId()).isNotNull();
 
-			// Funding 저장 확인
 			ArgumentCaptor<Funding> fundingCaptor = ArgumentCaptor.forClass(Funding.class);
 			verify(fundingRepository, times(1)).save(fundingCaptor.capture());
 
 			Funding savedFunding = fundingCaptor.getValue();
-			assertThat(savedFunding.getAmount()).isEqualTo(45000L);  // 40000 + 5000
-			assertThat(savedFunding.getReservations()).hasSize(1);  // FundingReservation 1개
+			assertThat(savedFunding.getAmount()).isEqualTo(45000L);
+			assertThat(savedFunding.getReservations()).hasSize(1);
 
-			// FundingReservation 검증
 			assertThat(savedFunding.getReservations().get(0).getReservationId()).isEqualTo(reservationId1);
 			assertThat(savedFunding.getReservations().get(0).getRewardId()).isEqualTo(rewardId1);
 			assertThat(savedFunding.getReservations().get(0).getOptionId()).isEqualTo(optionId1);
 			assertThat(savedFunding.getReservations().get(0).getQuantity()).isEqualTo(2);
 			assertThat(savedFunding.getReservations().get(0).getAmount()).isEqualTo(40000L);
 
-			// 외부 서비스 호출 확인
 			verify(rewardClient, times(1)).reserveStock(any());
-			verify(paymentClient, times(1)).processPayment(any());
+			verify(paymentClient, times(1)).processPayment(eq(userId), any());
 
-			// 통계 업데이트 확인
 			verify(fundingProjectStatisticsService, times(1))
 				.increaseFundingStatusRate(projectId, 45000L);
 
-			// 성공 이벤트 발행 확인
 			verify(outboxService, times(1)).publishSuccessEvent(
 				eq("FUNDING"),
 				eq(savedFunding.getId()),
@@ -255,7 +240,7 @@ class FundingCreateTest {
 			);
 			CreateFundingCommand.RewardItem item2 = new CreateFundingCommand.RewardItem(
 				rewardId2,
-				null,  // 옵션 없음
+				null,
 				1
 			);
 
@@ -270,7 +255,6 @@ class FundingCreateTest {
 				idempotencyKey
 			);
 
-			// Mock 설정
 			given(fundingRepository.findByIdempotencyKey(idempotencyKey))
 				.willReturn(Optional.empty());
 			given(fundingRepository.existsByUserIdAndProjectIdAndStatus(userId, projectId, FundingStatus.COMPLETED))
@@ -284,7 +268,6 @@ class FundingCreateTest {
 					return funding;
 				});
 
-			// Mock: Reward 예약 - 2개
 			UUID resId1 = UUID.randomUUID();
 			UUID resId2 = UUID.randomUUID();
 
@@ -298,11 +281,11 @@ class FundingCreateTest {
 			StockReserveResponse response = new StockReserveResponse(
 				fundingId,
 				List.of(reserved1, reserved2),
-				70000L  // 40000 + 30000
+				70000L
 			);
 
 			given(rewardClient.reserveStock(any())).willReturn(response);
-			given(paymentClient.processPayment(any())).willReturn(new ProcessPaymentResponse(paymentId));
+			given(paymentClient.processPayment(eq(userId), any())).willReturn(new ProcessPaymentResponse(paymentId));
 
 			// when
 			CreateFundingResult result = fundingService.createFunding(command);
@@ -314,18 +297,15 @@ class FundingCreateTest {
 			verify(fundingRepository).save(captor.capture());
 
 			Funding savedFunding = captor.getValue();
-			assertThat(savedFunding.getAmount()).isEqualTo(75000L);  // 70000 + 5000
-			assertThat(savedFunding.getReservations()).hasSize(2);  // FundingReservation 2개
+			assertThat(savedFunding.getAmount()).isEqualTo(75000L);
+			assertThat(savedFunding.getReservations()).hasSize(2);
 
-			// 첫 번째 Reservation 검증
 			assertThat(savedFunding.getReservations().get(0).getReservationId()).isEqualTo(resId1);
 			assertThat(savedFunding.getReservations().get(0).getAmount()).isEqualTo(40000L);
 
-			// 두 번째 Reservation 검증
 			assertThat(savedFunding.getReservations().get(1).getReservationId()).isEqualTo(resId2);
 			assertThat(savedFunding.getReservations().get(1).getAmount()).isEqualTo(30000L);
 
-			// getReservationIds() 메서드 검증
 			List<UUID> reservationIds = savedFunding.getReservationIds();
 			assertThat(reservationIds).hasSize(2);
 			assertThat(reservationIds).containsExactly(resId1, resId2);
@@ -345,7 +325,6 @@ class FundingCreateTest {
 				"payment_key", "order_id", "CARD", idempotencyKey
 			);
 
-			// 이미 존재하는 펀딩
 			Funding existingFunding = Funding.createFunding(projectId, userId, idempotencyKey, 10000L);
 			given(fundingRepository.findByIdempotencyKey(idempotencyKey))
 				.willReturn(Optional.of(existingFunding));
@@ -355,10 +334,9 @@ class FundingCreateTest {
 				.isInstanceOf(FundingException.class)
 				.hasMessageContaining(DUPLICATE_REQUEST.getMessage());
 
-			// 중복이므로 저장 안 됨
 			verify(fundingRepository, never()).save(any());
 			verify(rewardClient, never()).reserveStock(any());
-			verify(paymentClient, never()).processPayment(any());
+			verify(paymentClient, never()).processPayment(any(), any());
 		}
 
 		@Test
@@ -373,7 +351,7 @@ class FundingCreateTest {
 			given(fundingRepository.findByIdempotencyKey(idempotencyKey))
 				.willReturn(Optional.empty());
 			given(fundingRepository.existsByUserIdAndProjectIdAndStatus(userId, projectId, FundingStatus.COMPLETED))
-				.willReturn(true);  // 이미 후원했음
+				.willReturn(true);
 
 			// when & then
 			assertThatThrownBy(() -> fundingService.createFunding(command))
@@ -401,7 +379,6 @@ class FundingCreateTest {
 				"payment_key", "order_id", "CARD", idempotencyKey
 			);
 
-			// Mock 설정
 			given(fundingRepository.findByIdempotencyKey(idempotencyKey))
 				.willReturn(Optional.empty());
 			given(fundingRepository.existsByUserIdAndProjectIdAndStatus(userId, projectId, FundingStatus.COMPLETED))
@@ -415,7 +392,6 @@ class FundingCreateTest {
 					return funding;
 				});
 
-			// Reward 예약 성공
 			UUID resId = UUID.randomUUID();
 			StockReserveResponse response = new StockReserveResponse(
 				fundingId,
@@ -424,8 +400,8 @@ class FundingCreateTest {
 			);
 			given(rewardClient.reserveStock(any())).willReturn(response);
 
-			// Payment 실패!
-			given(paymentClient.processPayment(any()))
+			// Payment 실패! (userId 파라미터 포함)
+			given(paymentClient.processPayment(eq(userId), any()))
 				.willThrow(new RuntimeException("Payment failed"));
 
 			// when
@@ -435,7 +411,6 @@ class FundingCreateTest {
 			assertThat(result.status()).isEqualTo("FAILURE");
 			assertThat(result.message()).contains("후원 처리 중 오류가 발생했습니다");
 
-			// 보상 트랜잭션 이벤트 발행 확인
 			verify(outboxService, times(1)).publishCompensationEvent(
 				eq("FUNDING"),
 				eq(fundingId),

@@ -29,6 +29,7 @@ import com.nowayback.funding.application.funding.dto.command.GetMyFundingsComman
 import com.nowayback.funding.application.funding.dto.command.GetProjectSponsorsCommand;
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
+import com.nowayback.funding.application.funding.dto.result.FundingDetailResult;
 import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
 import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
 import com.nowayback.funding.application.outbox.service.OutboxService;
@@ -108,8 +109,8 @@ public class FundingServiceImpl implements FundingService {
 				))
 				.toList();
 
-			StockReserveRequest request = new StockReserveRequest(savedFunding.getId(), items);
-			StockReserveResponse response = rewardClient.reserveStock(request);
+			StockReserveRequest stockReserveRequest = new StockReserveRequest(savedFunding.getId(), items);
+			StockReserveResponse response = rewardClient.reserveStock(command.userId(), stockReserveRequest);
 
 			log.info("재고 예약 완료 - fundingId: {}, reservations: {}, rewardAmount: {}, totalAmount: {}",
 				savedFunding.getId(), response.reservedItems().size(), response.totalAmount(), response.totalAmount());
@@ -147,6 +148,8 @@ public class FundingServiceImpl implements FundingService {
 			log.error("펀딩 처리 실패 - fundingId: {}, errorCode: {}, message: {}",
 				funding.getId(), e.getErrorCode().getCode(), e.getMessage());
 
+			funding.failFunding(e.getMessage());
+
 			publishFundingFailedEvent(funding, command);
 
 			throw e;
@@ -155,12 +158,16 @@ public class FundingServiceImpl implements FundingService {
 			log.error("외부 서비스 호출 실패 - fundingId: {}, url: {}, error: {}",
 				funding.getId(), e.request().url(), e.getMessage());
 
+			funding.failFunding(e.getMessage());
+
 			publishFundingFailedEvent(funding, command);
 
 			throw e;
 		} catch (Exception e) {
 			log.error("예상치 못한 오류 - fundingId: {}, error: {}",
 				funding.getId(), e.getMessage(), e);
+
+			funding.failFunding(e.getMessage());
 
 			publishFundingFailedEvent(funding, command);
 
@@ -200,7 +207,7 @@ public class FundingServiceImpl implements FundingService {
 				"fundingId", funding.getId(),
 				"projectId", command.projectId(),
 				"userId", command.userId(),
-				"reservationIds", funding.getReservationIds()
+				"reservationId", funding.getReservationIds()
 			)
 		);
 	}
@@ -325,6 +332,14 @@ public class FundingServiceImpl implements FundingService {
 			command.page(),
 			command.size()
 		);
+	}
+
+	@Override
+	public FundingDetailResult getFundingDetail(UUID fundingId) {
+		Funding funding = fundingRepository.findById(fundingId)
+			.orElseThrow(() -> new FundingException(FUNDING_NOT_FOUND));
+
+		return FundingDetailResult.from(funding);
 	}
 
 	private LocalDateTime calculateStartDate(GetMyFundingsCommand.FundingPeriod period) {

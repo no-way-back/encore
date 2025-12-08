@@ -1,0 +1,6 @@
+spring:
+  mail:
+    port: 587
+    host: smtp.gmail.com
+    username: junsj630@gmail.com
+    password: ybvt nbhe prlm xcon

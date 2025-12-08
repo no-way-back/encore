@@ -1,4 +1,4 @@
-package com.nowayback.project.application.projectdraft.event.payload;
+package com.nowayback.project.application.project.event.payload;
 
 import com.nowayback.project.domain.outbox.vo.EventPayload;
 import java.util.UUID;
@@ -9,6 +9,8 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-public class RewardCreatedEventPayload implements EventPayload {
+public class ProjectFundingSuccessPayload implements EventPayload {
     private UUID projectId;
+    private Long finalAmount;
+    private Integer participantCount;
 }

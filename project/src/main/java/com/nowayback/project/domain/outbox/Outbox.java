@@ -1,7 +1,5 @@
 package com.nowayback.project.domain.outbox;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.project.domain.outbox.vo.AggregateType;
 import com.nowayback.project.domain.outbox.vo.EventDestination;
 import com.nowayback.project.domain.outbox.vo.EventType;
@@ -26,92 +24,86 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Outbox {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	@Column(name = "id")
-	private UUID id;
-
-	@Enumerated(EnumType.STRING)
-	private AggregateType aggregateType;
-
-	@Column(name = "aggregate_id", nullable = false)
-	private UUID aggregateId;
-
-	@Enumerated(EnumType.STRING)
-	private EventType eventType;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "destination", nullable = false)
+    private AggregateType aggregateType;
+
+    @Column(nullable = false)
+    private UUID aggregateId;
+
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EventDestination destination;
 
-	@Column(name = "payload", nullable = false, columnDefinition = "TEXT")
-	private String payload;
+    @Column(name = "payload", columnDefinition = "TEXT", nullable = false)
+    private String payloadJson;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "status", nullable = false, length = 20)
-	private OutboxStatus status;
+    @Column(name = "payload_type", nullable = false)
+    private String payloadType;
 
-	@Column(name = "retry_count", nullable = false)
-	private Integer retryCount;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OutboxStatus status;
 
-	@Column(name = "created_at", nullable = false)
-	private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private Integer retryCount;
 
-	@Column(name = "published_at")
-	private LocalDateTime publishedAt;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
-	private Outbox(AggregateType aggregateType,
-		UUID aggregateId,
-		EventType eventType,
+    private LocalDateTime publishedAt;
+
+    private Outbox(
+        AggregateType aggregateType,
+        UUID aggregateId,
+        EventType eventType,
         EventDestination destination,
-		String payload,
-		OutboxStatus status,
-		Integer retryCount,
-		LocalDateTime createdAt) {
-		this.aggregateType = aggregateType;
-		this.aggregateId = aggregateId;
-		this.eventType = eventType;
+        String payloadJson,
+        String payloadType
+    ) {
+        this.aggregateType = aggregateType;
+        this.aggregateId = aggregateId;
+        this.eventType = eventType;
         this.destination = destination;
-		this.payload = payload;
-		this.status = status;
-		this.retryCount = retryCount;
-		this.createdAt = createdAt;
-	}
+        this.payloadJson = payloadJson;
+        this.payloadType = payloadType;
+        this.status = OutboxStatus.PENDING;
+        this.retryCount = 0;
+        this.createdAt = LocalDateTime.now();
+    }
 
-	public static Outbox create(
-		AggregateType aggregateType,
-		UUID aggregateId,
-		EventType eventType,
+    public static Outbox create(
+        AggregateType aggregateType,
+        UUID aggregateId,
+        EventType eventType,
         EventDestination destination,
-		Object payload) {
-		return new Outbox(
-			aggregateType,
-			aggregateId != null ? aggregateId : UUID.randomUUID(),
-			eventType,
+        String payloadJson,
+        String payloadType
+    ) {
+        return new Outbox(
+            aggregateType,
+            aggregateId != null ? aggregateId : UUID.randomUUID(),
+            eventType,
             destination,
-			toJson(payload),
-			OutboxStatus.PENDING,
-			0,
-			LocalDateTime.now()
-		);
-	}
+            payloadJson,
+            payloadType
+        );
+    }
 
-	public void markAsPublished() {
-		this.status = OutboxStatus.PUBLISHED;
-		this.publishedAt = LocalDateTime.now();
-	}
+    public void markAsPublished() {
+        this.status = OutboxStatus.PUBLISHED;
+        this.publishedAt = LocalDateTime.now();
+    }
 
-	public void incrementRetryCount() {
-		this.retryCount += 1;
-	}
-
-	private static String toJson(Object obj) {
-		try {
-			return new ObjectMapper().writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Outbox 직렬화에 실패했습니다.", e);
-		}
-	}
+    public void incrementRetryCount() {
+        this.retryCount += 1;
+    }
 
     public void markAsFailed() {
         this.status = OutboxStatus.FAILED;

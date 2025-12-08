@@ -1,5 +1,6 @@
 package com.nowayback.project.application.outbox.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.project.domain.outbox.Outbox;
 import com.nowayback.project.domain.outbox.repository.OutboxRepository;
 import com.nowayback.project.infrastructure.messaging.kafka.KafkaTopicMapper;
@@ -16,9 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OutboxKafkaPublisher {
 
+    private final ObjectMapper objectMapper;
     private final KafkaTopicMapper topicMapper;
     private final OutboxRepository outboxRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void publishImmediately(Outbox outbox) {
@@ -65,16 +67,19 @@ public class OutboxKafkaPublisher {
             outboxRepository.save(outbox);
 
             log.warn("[OutboxKafkaPublisher.publishWithRetry] 폴링 발행 실패 outboxId={}, retryCount={}/{}",
-                outbox.getId(), outbox.getRetryCount(), 5);
+                outbox.getId(), outbox.getRetryCount(), 5, e);
             return false;
         }
     }
 
     private void sendToKafka(Outbox outbox) throws Exception {
+        Class<?> clazz = Class.forName(outbox.getPayloadType());
+        Object payloadObject = objectMapper.readValue(outbox.getPayloadJson(), clazz);
+
         kafkaTemplate.send(
             topicMapper.map(outbox.getEventType()),
             outbox.getAggregateId().toString(),
-            outbox.getPayload()
+            payloadObject
         ).get(3, TimeUnit.SECONDS);
     }
 }

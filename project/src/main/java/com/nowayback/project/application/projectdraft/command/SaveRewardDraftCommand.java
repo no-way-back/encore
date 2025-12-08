@@ -47,17 +47,21 @@ public record SaveRewardDraftCommand(
     }
 
     public record RewardOptionCommand(
+        String name,
+        Boolean required,
         Integer additionalPrice,
         Integer stockQuantity,
         Integer displayOrder
     ) {
 
         public static RewardOptionCommand of(
+            String name,
+            Boolean required,
             Integer additionalPrice,
             Integer stockQuantity,
             Integer displayOrder
         ) {
-            return new RewardOptionCommand(additionalPrice, stockQuantity, displayOrder);
+            return new RewardOptionCommand(name, required, additionalPrice, stockQuantity, displayOrder);
         }
     }
 }

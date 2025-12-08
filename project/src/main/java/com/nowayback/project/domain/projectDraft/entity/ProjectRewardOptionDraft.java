@@ -26,6 +26,9 @@ public class ProjectRewardOptionDraft extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false, length = 30)
+    private String name;
+
     @Column(name = "additional_price")
     private Integer additionalPrice;
 
@@ -35,12 +38,16 @@ public class ProjectRewardOptionDraft extends BaseEntity {
     @Column(name = "display_order")
     private Integer displayOrder;
 
+    @Column(nullable = false)
+    private Boolean isRequired;
 
     public static ProjectRewardOptionDraft create() {
         return new ProjectRewardOptionDraft();
     }
 
     public boolean update(
+        String name,
+        Boolean isRequired,
         Integer additionalPrice,
         Integer stockQuantity,
         Integer displayOrder
@@ -49,6 +56,8 @@ public class ProjectRewardOptionDraft extends BaseEntity {
         validateStock(stockQuantity);
         validateDisplayOrder(displayOrder);
 
+        this.name = name;
+        this.isRequired = isRequired;
         this.additionalPrice = additionalPrice;
         this.stockQuantity = stockQuantity;
         this.displayOrder = displayOrder;
@@ -76,7 +85,8 @@ public class ProjectRewardOptionDraft extends BaseEntity {
     }
 
     private boolean isCompleted() {
-        return additionalPrice != null
+        return name != null
+            && additionalPrice != null
             && stockQuantity != null
             && displayOrder != null;
     }

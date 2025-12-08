@@ -9,9 +9,14 @@ import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.vo.*;
 import com.nowayback.payment.presentation.payment.dto.request.ConfirmPaymentRequest;
 import com.nowayback.payment.presentation.payment.dto.request.RefundPaymentRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class PaymentFixture {
@@ -42,7 +47,14 @@ public class PaymentFixture {
     public static final String REFUND_ACCOUNT_HOLDER_NAME = "홍길동";
     public static final RefundAccountInfo REFUND_ACCOUNT_INFO = RefundAccountInfo.of(REFUND_ACCOUNT_BANK, REFUND_ACCOUNT_NUMBER, REFUND_ACCOUNT_HOLDER_NAME);
 
-    private static final String REFUND_REASON = "단순 변심";
+    public static final String REFUND_REASON = "단순 변심";
+
+    public static final LocalDateTime APPROVED_AT = LocalDateTime.now();
+    public static final LocalDateTime REFUNDED_AT = LocalDateTime.now();
+
+    public static final int PAGE = 0;
+    public static final int SIZE = 10;
+    public static final Pageable PAGEABLE = PageRequest.of(PAGE, SIZE);
 
     /* payment entity */
 
@@ -61,6 +73,23 @@ public class PaymentFixture {
         setPrivateField(payment, "status", status);
         return payment;
     }
+
+    public static Payment createPayment(UserId userId, ProjectId projectId) {
+        return Payment.create(
+                userId,
+                FUNDING_ID,
+                projectId,
+                AMOUNT,
+                PG_INFO
+        );
+    }
+
+    private static final List<Payment> PAYMENT_LIST = List.of(
+            createPayment(),
+            createPayment()
+    );
+
+    public static final Page<Payment> PAYMENT_PAGE = new PageImpl<>(PAYMENT_LIST, PAGEABLE, PAYMENT_LIST.size());
 
     /* payment command */
 
@@ -87,6 +116,8 @@ public class PaymentFixture {
     public static final PaymentResult PAYMENT_RESULT_PENDING = PaymentResult.from(createPayment());
     public static final PaymentResult PAYMENT_RESULT_COMPLETED = PaymentResult.from(createPaymentWithStatus(PaymentStatus.COMPLETED));
     public static final PaymentResult PAYMENT_RESULT_REFUNDED = PaymentResult.from(createPaymentWithStatus(PaymentStatus.REFUNDED));
+
+    public static final Page<PaymentResult> PAYMENT_RESULT_PAGE = PAYMENT_PAGE.map(PaymentResult::from);
 
     /* payment request */
 
@@ -129,8 +160,6 @@ public class PaymentFixture {
      */
 
     /* Payment Gateway Client */
-    private static final LocalDateTime APPROVED_AT = LocalDateTime.now();
-
     public static final PgConfirmResult PG_CONFIRM_RESULT = new PgConfirmResult(
             PG_PAYMENT_KEY,
             PG_ORDER_ID,
@@ -139,7 +168,6 @@ public class PaymentFixture {
             "APPROVED"
     );
 
-    private static final LocalDateTime REFUNDED_AT = LocalDateTime.now();
     private static final Long REFUND_AMOUNT = 20_000L;
     private static final String REFUND_STATUS = "CANCELED";
 

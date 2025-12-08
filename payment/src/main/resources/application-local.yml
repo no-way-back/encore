@@ -24,7 +24,6 @@ spring:
       group-id: payment-service-group
     topic:
       project-funding-failed: project-funding-failed
-      payment-refund-requested: payment-refund-requested
 
 payment:
   toss:

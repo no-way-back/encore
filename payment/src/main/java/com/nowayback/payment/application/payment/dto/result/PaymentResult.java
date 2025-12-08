@@ -19,7 +19,9 @@ public record PaymentResult (
         String refundAccountBank,
         String refundAccountNumber,
         String refundAccountHolderName,
-        LocalDateTime approvedAt
+        String refundReason,
+        LocalDateTime approvedAt,
+        LocalDateTime refundedAt
 ) {
 
     public static PaymentResult from(Payment payment) {
@@ -36,7 +38,9 @@ public record PaymentResult (
                 payment.getRefundAccountInfo() != null ? payment.getRefundAccountInfo().getRefundAccountBank() : null,
                 payment.getRefundAccountInfo() != null ? payment.getRefundAccountInfo().getRefundAccountNumber() : null,
                 payment.getRefundAccountInfo() != null ? payment.getRefundAccountInfo().getRefundAccountHolderName() : null,
-                payment.getApprovedAt()
+                payment.getRefundReason(),
+                payment.getApprovedAt(),
+                payment.getRefundedAt()
         );
     }
 }

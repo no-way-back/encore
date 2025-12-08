@@ -6,24 +6,29 @@ import com.nowayback.payment.presentation.settlement.dto.response.SettlementResp
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/settlements")
-public class SettlementController {
+@RequestMapping("/internal/settlements")
+public class InternalSettlementController {
 
     private final SettlementService settlementService;
 
-    @GetMapping("/{projectId}")
-    public ResponseEntity<SettlementResponse> getSettlement(
+    @PostMapping("/{projectId}")
+    public ResponseEntity<SettlementResponse> processSettlement(
             @PathVariable("projectId") UUID projectId
     ) {
-        SettlementResult result = settlementService.getSettlement(projectId);
+        SettlementResult result = settlementService.processSettlement(projectId);
         SettlementResponse response = SettlementResponse.from(result);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class ProjectController {
+public class ProjectController implements ProjectControllerDoc {
     private final ProjectService projectService;
 
     @GetMapping("/projects")

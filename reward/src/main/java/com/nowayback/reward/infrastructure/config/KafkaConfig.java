@@ -73,9 +73,9 @@ public class KafkaConfig {
 
         configProps.put(JsonDeserializer.TYPE_MAPPINGS,
                 "project-created:com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent," +
-                        "funding-completed:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent," +
-                        "funding-failed:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent," +
-                        "funding-refund:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingRefundEvent"
+                "funding-completed:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent," +
+                "funding-failed:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent," +
+                "funding-refund:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingRefundEvent"
         );
 
         return new DefaultKafkaConsumerFactory<>(configProps);

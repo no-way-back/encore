@@ -1,9 +1,11 @@
 package com.nowayback.gateway.filter;
 
+import com.nowayback.gateway.repository.TokenBlacklistRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -20,18 +22,24 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+@Slf4j
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private final SecretKey key;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
 
     private static final List<String> PUBLIC_PATHS = List.of(
             "/auth/login",
             "/auth/signup"
     );
 
-    public JwtAuthenticationFilter(@Value("${jwt.secret}") String secret) {
+    public JwtAuthenticationFilter(
+            @Value("${jwt.secret}") String secret,
+            TokenBlacklistRepository tokenBlacklistRepository
+    ) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.tokenBlacklistRepository = tokenBlacklistRepository;
     }
 
     @Override
@@ -52,29 +60,40 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         String token = authHeader.substring(7);
 
-        try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+        return tokenBlacklistRepository.isBlacklisted(token)
+                .flatMap(isBlacklisted -> {
+                    if (Boolean.TRUE.equals(isBlacklisted)) {
+                        return onError(exchange, "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED);
+                    }
 
-            String userId = claims.getSubject();
-            String username = claims.get("username", String.class);
-            String role = claims.get("role", String.class);
+                    try {
+                        Claims claims = Jwts.parserBuilder()
+                                .setSigningKey(key)
+                                .build()
+                                .parseClaimsJws(token)
+                                .getBody();
 
-            ServerHttpRequest mutatedRequest = request.mutate()
-                    .header(AuthHeaders.USER_ID, userId)
-                    .header(AuthHeaders.USERNAME, username)
-                    .header(AuthHeaders.USER_ROLE, role)
-                    .build();
+                        String userId = claims.getSubject();
+                        String username = claims.get("username", String.class);
+                        String role = claims.get("role", String.class);
 
-            return chain.filter(exchange.mutate().request(mutatedRequest).build());
-        } catch (ExpiredJwtException e) {
-            return onError(exchange, "토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED);
-        } catch (Exception e) {
-            return onError(exchange, "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED);
-        }
+                        ServerHttpRequest mutatedRequest = request.mutate()
+                                .header(AuthHeaders.USER_ID, userId)
+                                .header(AuthHeaders.USERNAME, username)
+                                .header(AuthHeaders.USER_ROLE, role)
+                                .build();
+
+                        return chain.filter(exchange.mutate().request(mutatedRequest).build());
+                    } catch (ExpiredJwtException e) {
+                        return onError(exchange, "토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED);
+                    } catch (Exception e) {
+                        return onError(exchange, "유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED);
+                    }
+                })
+                .onErrorResume(e -> {
+                    log.error("[Gateway Filter] 인증 처리 중 오류 발생", e);
+                    return onError(exchange, "서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+                });
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus status) {

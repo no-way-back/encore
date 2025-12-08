@@ -1,4 +1,4 @@
-package com.nowayback.user.presentation.auth.user;
+package com.nowayback.user.infrastructure.auth.user;
 
 import java.util.UUID;
 

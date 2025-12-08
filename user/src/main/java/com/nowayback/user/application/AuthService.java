@@ -6,6 +6,7 @@ import com.nowayback.user.application.dto.result.LoginResult;
 import com.nowayback.user.domain.entity.User;
 import com.nowayback.user.domain.exception.UserErrorCode;
 import com.nowayback.user.domain.exception.UserException;
+import com.nowayback.user.domain.repository.TokenBlacklistRepository;
 import com.nowayback.user.domain.repository.UserRepository;
 import com.nowayback.user.domain.vo.UserStatus;
 import com.nowayback.user.infrastructure.security.JwtTokenProvider;
@@ -21,6 +22,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
+    private final TokenBlacklistRepository tokenBlackListRepository;
 
     @Transactional
     public void signup(SignupUserCommand command) {
@@ -54,6 +56,20 @@ public class AuthService {
 
         String accessToken = tokenProvider.generateAccessToken(user.getId(), user.getUsername(), user.getRole());
         return LoginResult.from(accessToken, user);
+    }
+
+    public void logout(String token) {
+        try {
+            if (!tokenProvider.validateToken(token)) {
+                throw new UserException(UserErrorCode.INVALID_TOKEN);
+            }
+
+            long expirationTime = tokenProvider.getExpirationTime(token);
+            tokenBlackListRepository.addToBlacklist(token, expirationTime);
+
+        } catch (Exception e) {
+            throw new UserException(UserErrorCode.INVALID_TOKEN);
+        }
     }
 
     private void validateDuplicateUser(String username, String email, String nickname) {

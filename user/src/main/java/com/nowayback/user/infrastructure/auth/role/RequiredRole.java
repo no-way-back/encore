@@ -1,11 +1,12 @@
-package com.nowayback.user.presentation.auth.user;
+package com.nowayback.user.infrastructure.auth.role;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.PARAMETER)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CurrentUser {
+public @interface RequiredRole {
+    String[] value();
 }

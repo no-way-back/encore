@@ -20,6 +20,13 @@ spring:
               predicates:
                 - Path=/users/**,/auth/**
 
+            - id: user-service-docs
+              uri: lb://user-service
+              predicates:
+                - Path=/user-service/v3/api-docs
+              filters:
+                - RewritePath=/user-service/v3/api-docs, /v3/api-docs
+
             - id: project-service
               uri: lb://project-service
               predicates:
@@ -69,6 +76,12 @@ spring:
       health:
         show-details: always
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: User Service
+        url: /user-service/v3/api-docs
 
 eureka:
   client:

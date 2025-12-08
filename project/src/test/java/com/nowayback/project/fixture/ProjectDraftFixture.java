@@ -8,6 +8,7 @@ import com.nowayback.project.domain.projectDraft.entity.ProjectStoryDraft;
 import com.nowayback.project.domain.projectDraft.spec.RewardOptionSpec;
 import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
 import com.nowayback.project.domain.projectDraft.vo.RewardPrice;
+import com.nowayback.project.domain.projectDraft.vo.RewardType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -72,6 +73,7 @@ public class ProjectDraftFixture {
         ProjectRewardDraft reward = ProjectRewardDraft.create();
         reward.update(
             "리워드 제목",
+            RewardType.GENERAL,
             new RewardPrice(10000L, 3000, 50000),
             10,
             1,

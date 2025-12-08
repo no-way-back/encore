@@ -1,6 +1,7 @@
 package com.nowayback.project.application.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nowayback.project.domain.outbox.vo.EventPayload;
 import com.nowayback.project.domain.outbox.vo.EventType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +27,7 @@ public class EventDispatcher {
         String payload
     ) {
         try {
-            if (payload.startsWith("\"") && payload.endsWith("\"")) {
-                payload = objectMapper.readValue(payload, String.class);
-            }
             processor.handle(objectMapper.readValue(payload, processor.getPayloadType()));
-
         } catch (Exception e) {
             throw new RuntimeException("이벤트 처리 중 오류", e);
         }

@@ -19,6 +19,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -40,6 +42,7 @@ public class RewardCreatedEventHandler implements EventHandler<RewardCreatedEven
     }
 
     @Override
+    @Transactional
     public void handle(RewardCreatedEventPayload payload) {
         log.info("[RewardCreatedEventHandler.handle] 이벤트 수신 - payload: {}", payload);
         UUID projectId = payload.getProjectId();

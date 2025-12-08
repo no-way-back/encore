@@ -5,9 +5,13 @@ import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.projectDraft.spec.RewardOptionSpec;
 import com.nowayback.project.domain.projectDraft.vo.RewardOptions;
 import com.nowayback.project.domain.projectDraft.vo.RewardPrice;
+import com.nowayback.project.domain.projectDraft.vo.RewardType;
 import com.nowayback.project.domain.shard.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,6 +40,10 @@ public class ProjectRewardDraft extends BaseEntity {
     @JoinColumn(name = "project_draft_id", nullable = false)
     private ProjectDraft projectDraft;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private RewardType rewardType;
+
     @Embedded
     private RewardOptions rewardOptions = new RewardOptions();
 
@@ -51,6 +59,7 @@ public class ProjectRewardDraft extends BaseEntity {
     }
     public boolean update(
         String title,
+        RewardType rewardType,
         RewardPrice price,
         Integer limitCount,
         Integer purchaseLimitPerPerson,
@@ -61,6 +70,7 @@ public class ProjectRewardDraft extends BaseEntity {
         this.title = title;
         this.rewardPrice = price;
         this.limitCount = limitCount;
+        this.rewardType = rewardType;
         this.purchaseLimitPerPerson = purchaseLimitPerPerson;
 
         if (!optionSpecs.isEmpty()) {
@@ -75,7 +85,13 @@ public class ProjectRewardDraft extends BaseEntity {
 
         optionSpecs.forEach(spec -> {
             ProjectRewardOptionDraft option = ProjectRewardOptionDraft.create();
-            option.update(spec.additionalPrice(), spec.stockQuantity(), spec.displayOrder());
+            option.update(
+                spec.name(),
+                spec.isRequired(),
+                spec.additionalPrice(),
+                spec.stockQuantity(),
+                spec.displayOrder()
+            );
             this.rewardOptions.add(option);
         });
     }
@@ -89,7 +105,8 @@ public class ProjectRewardDraft extends BaseEntity {
     public boolean isCompleted() {
         return title != null
             && rewardPrice != null
-            && limitCount != null;
+            && limitCount != null
+            && rewardType != null;
     }
 
     public void validateForSubmission() {

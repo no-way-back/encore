@@ -36,7 +36,13 @@ public class RewardOptions {
         optionDrafts.clear();
         specs.forEach(spec -> {
             ProjectRewardOptionDraft o = ProjectRewardOptionDraft.create();
-            o.update(spec.additionalPrice(), spec.stockQuantity(), spec.displayOrder());
+            o.update(
+                spec.name(),
+                spec.isRequired(),
+                spec.additionalPrice(),
+                spec.stockQuantity(),
+                spec.displayOrder()
+            );
             optionDrafts.add(o);
         });
     }

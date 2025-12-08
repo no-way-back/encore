@@ -29,6 +29,7 @@ import com.nowayback.project.domain.projectDraft.repository.ProjectDraftReposito
 import com.nowayback.project.domain.projectDraft.spec.RewardOptionSpec;
 import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
 import com.nowayback.project.domain.projectDraft.vo.RewardPrice;
+import com.nowayback.project.domain.projectDraft.vo.RewardType;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -202,6 +203,7 @@ public class ProjectDraftService {
 
         draft.update(
             rewardDraftCommand.title(),
+            RewardType.GENERAL,
             new RewardPrice(
                 rewardDraftCommand.price(),
                 rewardDraftCommand.shippingFee(),
@@ -211,6 +213,8 @@ public class ProjectDraftService {
             rewardDraftCommand.purchaseLimitPerPerson(),
             rewardDraftCommand.rewardOptionCommands().stream()
                 .map(o -> new RewardOptionSpec(
+                    o.name(),
+                    o.required(),
                     o.additionalPrice(),
                     o.stockQuantity(),
                     o.displayOrder()
@@ -247,7 +251,11 @@ public class ProjectDraftService {
         outboxEventPublisher.publish(
             EventType.PROJECT_REWARD_CREATION,
             EventDestination.KAFKA,
-            RewardCreationEventPayload.from(projectId, projectDraft.getRewardDrafts()),
+            RewardCreationEventPayload.from(
+                projectId,
+                projectDraft.getUserId(),
+                projectDraft.getRewardDrafts()
+            ),
             AggregateType.PROJECT_DRAFT,
             projectDraft.getId()
         );

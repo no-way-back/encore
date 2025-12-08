@@ -17,15 +17,16 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/internal/fundings")
 @RequiredArgsConstructor
-public class FundingInternalController {
+public class FundingInternalController implements FundingInternalControllerDoc {
 
-	private final FundingService fundingService;
+    private final FundingService fundingService;
 
-	@GetMapping("/{fundingId}")
-	public ResponseEntity<FundingDetailResponse> getFundingDetail(
-		@PathVariable UUID fundingId
-	) {
-		FundingDetailResult result = fundingService.getFundingDetail(fundingId);
-		return ResponseEntity.ok(FundingDetailResponse.from(result));
-	}
+    @Override
+    @GetMapping("/{fundingId}")
+    public ResponseEntity<FundingDetailResponse> getFundingDetail(
+        @PathVariable UUID fundingId
+    ) {
+        FundingDetailResult result = fundingService.getFundingDetail(fundingId);
+        return ResponseEntity.ok(FundingDetailResponse.from(result));
+    }
 }

@@ -35,72 +35,76 @@ import com.nowayback.funding.presentation.funding.dto.response.GetProjectSponsor
 
 @RestController
 @RequestMapping("/fundings")
-public class FundingController {
+public class FundingController implements FundingControllerDoc {
 
-	private final FundingService fundingService;
+    private final FundingService fundingService;
 
-	public FundingController(FundingService fundingService) {
-		this.fundingService = fundingService;
-	}
+    public FundingController(FundingService fundingService) {
+        this.fundingService = fundingService;
+    }
 
-	@PostMapping
-	public ResponseEntity<CreateFundingResponse> createFunding(
-		@RequestHeader(value = "X-User-Id") UUID userId,
-		@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
-		@Validated @RequestBody CreateFundingRequest request
-	) {
-		String finalIdempotencyKey = idempotencyKey != null ? idempotencyKey : UUID.randomUUID().toString();
+    @Override
+    @PostMapping
+    public ResponseEntity<CreateFundingResponse> createFunding(
+        @RequestHeader(value = "X-User-Id") UUID userId,
+        @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+        @Validated @RequestBody CreateFundingRequest request
+    ) {
+        String finalIdempotencyKey = idempotencyKey != null ? idempotencyKey : UUID.randomUUID().toString();
 
-		CreateFundingCommand command = request.toCommand(userId, finalIdempotencyKey);
+        CreateFundingCommand command = request.toCommand(userId, finalIdempotencyKey);
 
-		CreateFundingResult result = fundingService.createFunding(command);
+        CreateFundingResult result = fundingService.createFunding(command);
 
-		CreateFundingResponse response = CreateFundingResponse.from(result);
+        CreateFundingResponse response = CreateFundingResponse.from(result);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
-	}
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
-	@DeleteMapping("/{fundingId}")
-	public ResponseEntity<CancelFundingResponse> cancelFunding(
-		@PathVariable UUID fundingId,
-		@RequestHeader(value = "X-User-Id") UUID userId,
-		@Validated @RequestBody CancelFundingRequest request
-	) {
-		CancelFundingCommand command = request.toCommand(fundingId, userId);
+    @Override
+    @DeleteMapping("/{fundingId}")
+    public ResponseEntity<CancelFundingResponse> cancelFunding(
+        @PathVariable UUID fundingId,
+        @RequestHeader(value = "X-User-Id") UUID userId,
+        @Validated @RequestBody CancelFundingRequest request
+    ) {
+        CancelFundingCommand command = request.toCommand(fundingId, userId);
 
-		CancelFundingResult result = fundingService.cancelFunding(command);
+        CancelFundingResult result = fundingService.cancelFunding(command);
 
-		CancelFundingResponse response = CancelFundingResponse.from(result);
+        CancelFundingResponse response = CancelFundingResponse.from(result);
 
-		return ResponseEntity.ok(response);
-	}
+        return ResponseEntity.ok(response);
+    }
 
-	@GetMapping("/my")
-	public ResponseEntity<GetMyFundingsResponse> getMyFundings(
-		@RequestHeader(value = "X-User-Id") UUID userId,
-		@Validated @ModelAttribute GetMyFundingsRequest request
-	) {
-		GetMyFundingsCommand command = request.toCommand(userId);
+    @Override
+    @GetMapping("/my")
+    public ResponseEntity<GetMyFundingsResponse> getMyFundings(
+        @RequestHeader(value = "X-User-Id") UUID userId,
+        @Validated @ModelAttribute GetMyFundingsRequest request
+    ) {
+        GetMyFundingsCommand command = request.toCommand(userId);
 
-		GetMyFundingsResult result = fundingService.getMyFundings(command);
+        GetMyFundingsResult result = fundingService.getMyFundings(command);
 
-		GetMyFundingsResponse response = GetMyFundingsResponse.from(result);
+        GetMyFundingsResponse response = GetMyFundingsResponse.from(result);
 
-		return ResponseEntity.ok(response);
-	}
+        return ResponseEntity.ok(response);
+    }
 
-	@GetMapping("/projects/{projectId}")
-	public ResponseEntity<GetProjectSponsorsResponse> getProjectSponsors(
-		@PathVariable UUID projectId,
-		@RequestHeader(value = "X-User-Id") UUID creatorId,
-		@Validated @ModelAttribute GetProjectSponsorsRequest request
-	) {
-		GetProjectSponsorsCommand command = request.toCommand(projectId, creatorId);
+    @Override
+    @GetMapping("/projects/{projectId}")
+    public ResponseEntity<GetProjectSponsorsResponse> getProjectSponsors(
+        @PathVariable UUID projectId,
+        @RequestHeader(value = "X-User-Id") UUID creatorId,
+        @Validated @ModelAttribute GetProjectSponsorsRequest request
+    ) {
+        GetProjectSponsorsCommand command = request.toCommand(projectId, creatorId);
 
-		GetProjectSponsorsResult result = fundingService.getProjectSponsors(command);
+        GetProjectSponsorsResult result = fundingService.getProjectSponsors(command);
 
-		GetProjectSponsorsResponse response = GetProjectSponsorsResponse.from(result);
+        GetProjectSponsorsResponse response = GetProjectSponsorsResponse.from(result);
 
-		return ResponseEntity.ok(response);
-	}
+        return ResponseEntity.ok(response);
+    }
 }

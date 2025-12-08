@@ -30,7 +30,7 @@ spring:
             - id: project-service
               uri: lb://project-service
               predicates:
-                - Path=/projects/**
+                - Path=/projects/**, /project-drafts/**
 
             - id: project-service-docs
               uri: lb://project-service

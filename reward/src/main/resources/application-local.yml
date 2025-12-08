@@ -15,7 +15,7 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
-        default_schema: reward-service
+        default_schema: reward_service
     open-in-view: false
 
   kafka:

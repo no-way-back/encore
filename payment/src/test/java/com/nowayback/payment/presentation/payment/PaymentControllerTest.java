@@ -25,7 +25,7 @@ class PaymentControllerTest extends ControllerTest {
     @MockitoBean
     private PaymentService paymentService;
 
-    private static final String BASE_URL = "/payments";
+    private static final String BASE_URL = "/internal/payments";
 
     @Nested
     @DisplayName("결제 승인")
@@ -71,7 +71,7 @@ class PaymentControllerTest extends ControllerTest {
 
             /* when */
             /* then */
-            mockMvc.perform(post(BASE_URL + "/confirm")
+            perform(post(BASE_URL + "/confirm")
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());

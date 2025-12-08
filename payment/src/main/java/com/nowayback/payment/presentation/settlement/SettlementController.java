@@ -11,13 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/settlements")
 @RequiredArgsConstructor
 public class SettlementController {
 
     private final SettlementService settlementService;
 
-    @PostMapping("/{projectId}")
+    @PostMapping("/internal/settlements/{projectId}")
     public ResponseEntity<SettlementResponse> processSettlement(
             @PathVariable("projectId") UUID projectId
     ) {
@@ -29,7 +28,7 @@ public class SettlementController {
                 .body(response);
     }
 
-    @GetMapping("/{projectId}")
+    @GetMapping("/settlements/{projectId}")
     public ResponseEntity<SettlementResponse> getSettlement(
             @PathVariable("projectId") UUID projectId
     ) {

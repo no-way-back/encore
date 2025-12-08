@@ -11,12 +11,14 @@ import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
 import com.nowayback.payment.domain.payment.vo.FundingId;
+import com.nowayback.payment.domain.payment.vo.PaymentStatus;
+import com.nowayback.payment.domain.payment.vo.Money;
+import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.ProjectId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,6 +27,8 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentGatewayClient paymentGatewayClient;
+
+    private final PaymentStatusLogService paymentStatusLogService;
 
     @Transactional
     public PaymentResult confirmPayment(ConfirmPaymentCommand command) {
@@ -41,8 +45,11 @@ public class PaymentService {
                 command.pgInfo()
         );
 
+        PaymentStatus previous = payment.getStatus();
         payment.complete(pgResponse.approvedAt());
+
         paymentRepository.save(payment);
+        savePaymentStatusLog(payment, previous, null, Money.of(pgResponse.totalAmount()));
 
         return PaymentResult.from(payment);
     }
@@ -51,13 +58,20 @@ public class PaymentService {
     public PaymentResult refundPayment(RefundPaymentCommand command) {
         Payment payment = getPaymentById(command.paymentId());
 
+        if (payment.getStatus() == PaymentStatus.REFUNDED) {
+            throw new PaymentException(PaymentErrorCode.PAYMENT_ALREADY_REFUNDED);
+        }
+
         PgRefundResult pgResponse = paymentGatewayClient.refundPayment(
                 payment.getPgInfo().getPgPaymentKey(),
                 command.cancelReason(),
                 command.refundAccountInfo()
         );
 
+        PaymentStatus previous = payment.getStatus();
         payment.refund(command.refundAccountInfo());
+
+        savePaymentStatusLog(payment, previous, null, Money.of(pgResponse.cancelAmount()));
 
         return PaymentResult.from(payment);
     }
@@ -69,5 +83,15 @@ public class PaymentService {
     private Payment getPaymentById(UUID paymentId) {
         return paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+    }
+
+    private void savePaymentStatusLog(Payment payment, PaymentStatus prevStatus, String reason, Money amount) {
+        paymentStatusLogService.savePaymentStatusLog(
+                payment.getId(),
+                prevStatus,
+                payment.getStatus(),
+                reason,
+                amount
+        );
     }
 }

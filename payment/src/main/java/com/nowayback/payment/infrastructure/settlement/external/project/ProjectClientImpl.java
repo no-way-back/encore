@@ -24,7 +24,6 @@ public class ProjectClientImpl implements ProjectClient {
         log.info("[External Project Service] 프로젝트 계좌 정보 조회 - projectId: {}", projectId);
 
         try {
-            /*
             ProjectAccountResponse response = projectFeignClient.getProjectAccountInfo(projectId);
 
             log.info("[External Project Service] 프로젝트 계좌 정보 조회 성공 - projectId: {}", projectId);
@@ -34,16 +33,6 @@ public class ProjectClientImpl implements ProjectClient {
                     response.accountBank(),
                     response.accountNumber(),
                     response.accountHolderName()
-            );
-            */
-
-            log.info("[External Project Service] 프로젝트 계좌 정보 조회 성공 - projectId: {}", projectId);
-
-            return new ProjectAccountResult(
-                    projectId,
-                    "MockBank",
-                    "000-000-0000",
-                    "홍길동"
             );
         } catch (FeignException e){
             log.error("[External Project Service] 프로젝트 계좌 정보 조회 실패 - projectId: {}, error: {}", projectId, e.getMessage());

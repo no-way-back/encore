@@ -2,6 +2,8 @@ package com.nowayback.payment.application.payment;
 
 import com.nowayback.payment.application.payment.dto.result.PaymentResult;
 import com.nowayback.payment.application.payment.service.pg.PaymentGatewayClient;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
 import com.nowayback.payment.domain.payment.vo.Money;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
@@ -32,6 +34,9 @@ class PaymentServiceTest {
     @Mock
     private PaymentGatewayClient paymentGatewayClient;
 
+    @Mock
+    private PaymentStatusLogService paymentStatusLogService;
+
     @InjectMocks
     private PaymentService paymentService;
 
@@ -54,6 +59,7 @@ class PaymentServiceTest {
 
             verify(paymentGatewayClient, times(1)).confirmPayment(any(PgInfo.class), any(Money.class));
             verify(paymentRepository, times(1)).save(any());
+            verify(paymentStatusLogService, times(1)).savePaymentStatusLog(any(), any(), any(), any(), any());
         }
     }
 
@@ -77,6 +83,21 @@ class PaymentServiceTest {
             assertThat(result.status()).isEqualTo(PaymentStatus.REFUNDED);
 
             verify(paymentGatewayClient, times(1)).refundPayment(anyString(), anyString(), any(RefundAccountInfo.class));
+            verify(paymentStatusLogService, times(1)).savePaymentStatusLog(any(), any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("이미 환불된 결제에 대해 환불을 시도하면 예외가 발생한다.")
+        void refund_whenAlreadyRefunded_thenThrowException() {
+            /* given */
+            when(paymentRepository.findById(any(UUID.class)))
+                    .thenReturn(Optional.of(createPaymentWithStatus(PaymentStatus.REFUNDED)));
+
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> paymentService.refundPayment(REFUND_PAYMENT_COMMAND))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.PAYMENT_ALREADY_REFUNDED.getMessage());
         }
     }
 

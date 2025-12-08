@@ -49,6 +49,8 @@ public class FeignErrorDecoder implements ErrorDecoder {
 		return switch (httpStatus) {
 			case BAD_REQUEST ->
 				new FundingException(REWARD_BAD_REQUEST);
+			case NOT_FOUND ->
+				new FundingException(REWARD_NOT_FOUND);
 			case CONFLICT ->
 				new FundingException(REWARD_CONFLICT);
 			case SERVICE_UNAVAILABLE, BAD_GATEWAY ->
@@ -69,6 +71,8 @@ public class FeignErrorDecoder implements ErrorDecoder {
 		return switch (httpStatus) {
 			case BAD_REQUEST ->
 				new FundingException(PAYMENT_BAD_REQUEST);
+			case NOT_FOUND ->
+				new FundingException(PAYMENT_NOT_FOUND);
 			case CONFLICT, UNPROCESSABLE_ENTITY ->
 				new FundingException(PAYMENT_FAILED);
 			case SERVICE_UNAVAILABLE, BAD_GATEWAY ->

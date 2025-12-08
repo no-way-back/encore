@@ -1,5 +1,6 @@
 package com.nowayback.funding.application.funding.service;
 
+import static com.nowayback.funding.domain.event.FundingProducerTopics.*;
 import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ import com.nowayback.funding.application.funding.dto.command.GetMyFundingsComman
 import com.nowayback.funding.application.funding.dto.command.GetProjectSponsorsCommand;
 import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
+import com.nowayback.funding.application.funding.dto.result.FundingDetailResult;
 import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
 import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
 import com.nowayback.funding.application.outbox.service.OutboxService;
@@ -107,8 +109,8 @@ public class FundingServiceImpl implements FundingService {
 				))
 				.toList();
 
-			StockReserveRequest request = new StockReserveRequest(savedFunding.getId(), items);
-			StockReserveResponse response = rewardClient.reserveStock(request);
+			StockReserveRequest stockReserveRequest = new StockReserveRequest(savedFunding.getId(), items);
+			StockReserveResponse response = rewardClient.reserveStock(command.userId(), stockReserveRequest);
 
 			log.info("재고 예약 완료 - fundingId: {}, reservations: {}, rewardAmount: {}, totalAmount: {}",
 				savedFunding.getId(), response.reservedItems().size(), response.totalAmount(), response.totalAmount());
@@ -130,7 +132,7 @@ public class FundingServiceImpl implements FundingService {
 
 		try {
 			ProcessPaymentRequest paymentRequest = ProcessPaymentRequest.from(funding.getId(), command);
-			ProcessPaymentResponse paymentResponse = paymentClient.processPayment(paymentRequest);
+			ProcessPaymentResponse paymentResponse = paymentClient.processPayment(command.userId(), paymentRequest);
 			UUID paymentId = paymentResponse.paymentId();
 			log.info("결제 성공 - paymentId: {}", paymentId);
 
@@ -146,27 +148,26 @@ public class FundingServiceImpl implements FundingService {
 			log.error("펀딩 처리 실패 - fundingId: {}, errorCode: {}, message: {}",
 				funding.getId(), e.getErrorCode().getCode(), e.getMessage());
 
+			funding.failFunding(e.getMessage());
+
 			publishFundingFailedEvent(funding, command);
 
 			throw e;
 
-		} catch (FeignException e) {  // ⭐ 추가!
+		} catch (FeignException e) {
 			log.error("외부 서비스 호출 실패 - fundingId: {}, url: {}, error: {}",
 				funding.getId(), e.request().url(), e.getMessage());
 
+			funding.failFunding(e.getMessage());
+
 			publishFundingFailedEvent(funding, command);
 
-			String url = e.request().url();
-			if (url.contains("/rewards") || url.contains(":18083")) {
-				throw new FundingException(REWARD_SERVICE_UNAVAILABLE);
-			} else if (url.contains("/payments") || url.contains(":18084")) {
-				throw new FundingException(PAYMENT_SERVICE_UNAVAILABLE);
-			}
-			throw new FundingException(EXTERNAL_SERVICE_ERROR);
-
+			throw e;
 		} catch (Exception e) {
 			log.error("예상치 못한 오류 - fundingId: {}, error: {}",
 				funding.getId(), e.getMessage(), e);
+
+			funding.failFunding(e.getMessage());
 
 			publishFundingFailedEvent(funding, command);
 
@@ -182,7 +183,7 @@ public class FundingServiceImpl implements FundingService {
 		outboxService.publishSuccessEvent(
 			"FUNDING",
 			funding.getId(),
-			"FUNDING_COMPLETED",
+			FUNDING_COMPLETED,
 			Map.of(
 				"fundingId", funding.getId(),
 				"userId", funding.getUserId(),
@@ -201,12 +202,12 @@ public class FundingServiceImpl implements FundingService {
 		outboxService.publishCompensationEvent(
 			"FUNDING",
 			funding.getId(),
-			"FUNDING_FAILED",
+			FUNDING_FAILED,
 			Map.of(
 				"fundingId", funding.getId(),
 				"projectId", command.projectId(),
 				"userId", command.userId(),
-				"reservationIds", funding.getReservationIds()
+				"reservationId", funding.getReservationIds()
 			)
 		);
 	}
@@ -259,7 +260,7 @@ public class FundingServiceImpl implements FundingService {
 		outboxService.publishSuccessEvent(
 			"FUNDING",
 			funding.getId(),
-			"FUNDING_REFUND",
+			FUNDING_REFUND,
 			Map.of(
 				"fundingId", funding.getId(),
 				"projectId", funding.getProjectId(),
@@ -331,6 +332,14 @@ public class FundingServiceImpl implements FundingService {
 			command.page(),
 			command.size()
 		);
+	}
+
+	@Override
+	public FundingDetailResult getFundingDetail(UUID fundingId) {
+		Funding funding = fundingRepository.findById(fundingId)
+			.orElseThrow(() -> new FundingException(FUNDING_NOT_FOUND));
+
+		return FundingDetailResult.from(funding);
 	}
 
 	private LocalDateTime calculateStartDate(GetMyFundingsCommand.FundingPeriod period) {

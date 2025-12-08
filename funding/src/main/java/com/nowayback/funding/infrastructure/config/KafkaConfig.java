@@ -61,7 +61,7 @@ public class KafkaConfig {
 	 * -  인스턴스 그룹화, JSON 역직렬화, 오프셋 설정, 수동 커밋
 	 */
 	@Bean
-	public ConsumerFactory<String, Object> consumerFactory() {
+	public ConsumerFactory<String, String> consumerFactory() {
 		Map<String, Object> configProps = new HashMap<>();
 		configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -80,8 +80,8 @@ public class KafkaConfig {
 	 * - 수동 커밋(MANUAL) 모드로 설정
 	 */
 	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+	public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, String> factory =
 			new ConcurrentKafkaListenerContainerFactory<>();
 
 		factory.setConsumerFactory(consumerFactory());

@@ -6,6 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.nowayback.funding.application.client.payment.dto.request.ProcessPaymentRequest;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessPaymentResponse;
@@ -21,9 +22,10 @@ public interface PaymentClient {
 
 	@PostMapping("/internal/payments/confirm")
 	ProcessPaymentResponse processPayment(
+		@RequestHeader("X-User-Id") UUID userId,
 		@RequestBody ProcessPaymentRequest request
 	);
-
+ 
 	@PostMapping("/internal/payments/refund")
 	ProcessRefundResponse processRefund(
 		@RequestBody ProcessRefundRequest request

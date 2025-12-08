@@ -2,13 +2,12 @@ package com.nowayback.reward.domain.reward.entity;
 
 import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.application.reward.command.UpdateRewardOptionCommand;
-import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.command.CreateRewardOptionCommand;
 import com.nowayback.reward.domain.reward.vo.*;
 import com.nowayback.reward.domain.shared.BaseEntity;
-import com.nowayback.reward.domain.vo.CreatorId;
+import com.nowayback.reward.domain.vo.OwnerId;
 import com.nowayback.reward.domain.vo.ProjectId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -20,7 +19,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
-import static com.nowayback.reward.domain.reward.vo.SaleStatus.*;
+import static com.nowayback.reward.domain.reward.vo.SaleStatus.AVAILABLE;
+import static com.nowayback.reward.domain.reward.vo.SaleStatus.SOLD_OUT;
 
 @Entity
 @Table(name = "p_rewards")
@@ -39,7 +39,7 @@ public class Rewards extends BaseEntity {
     private ProjectId projectId;
 
     @Embedded
-    private CreatorId creatorId;
+    private OwnerId ownerId;
 
     @Column(nullable = false, length = 200)
     private String name;
@@ -96,7 +96,7 @@ public class Rewards extends BaseEntity {
 
         return new Rewards(
                 ProjectId.of(command.projectId()),
-                CreatorId.of(command.creatorId()),
+                OwnerId.of(command.creatorId()),
                 command.name(),
                 command.description(),
                 price,
@@ -304,6 +304,13 @@ public class Rewards extends BaseEntity {
     }
 
     /**
+     * 리워드 타입이 TICKET 인지 확인
+     */
+    public boolean isTicketType() {
+        return this.rewardType == RewardType.TICKET;
+    }
+
+    /**
      * 모든 옵션이 품절되었는지 확인
      */
     private boolean areAllOptionsSoldOut() {
@@ -380,12 +387,12 @@ public class Rewards extends BaseEntity {
     /**
      * 리워드 생성자
      */
-    private Rewards(ProjectId projectId, CreatorId creatorId, String name, String description,
+    private Rewards(ProjectId projectId, OwnerId ownerId, String name, String description,
                     Money price, Stock stock, ShippingPolicy shippingPolicy,
                     Integer purchaseLimitPerPerson, RewardType rewardType,
                     SaleStatus status) {
         this.projectId = projectId;
-        this.creatorId = creatorId;
+        this.ownerId = ownerId;
         this.name = name;
         this.description = description;
         this.price = price;

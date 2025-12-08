@@ -20,9 +20,9 @@ import java.util.UUID;
 
 import static com.nowayback.reward.fixture.KafkaFixture.createProjectCreatedEvent;
 import static com.nowayback.reward.fixture.KafkaFixture.createProjectCreatedPayload;
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.*;
+import static com.nowayback.reward.infrastructure.kafka.constant.EventType.PROJECT_CREATED;
+import static com.nowayback.reward.infrastructure.kafka.constant.EventType.REWARD_CREATION_FAILED;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 

@@ -5,7 +5,8 @@ import com.nowayback.reward.infrastructure.kafka.dto.project.payload.RewardCreat
 
 import java.time.LocalDateTime;
 
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.*;
+import static com.nowayback.reward.infrastructure.kafka.constant.EventType.REWARD_CREATION_FAILED;
+import static com.nowayback.reward.infrastructure.kafka.constant.EventType.REWARD_CREATION_SUCCESS;
 
 public record RewardCreationResultEvent(
         String eventId,

@@ -2,7 +2,7 @@ package com.nowayback.reward.application.reward.command;
 
 import java.util.UUID;
 
-import static com.nowayback.reward.presentation.reward.dto.request.UpdateRewardRequest.*;
+import static com.nowayback.reward.presentation.reward.dto.request.UpdateRewardRequest.UpdateRewardOptionRequest;
 
 public record UpdateRewardOptionCommand(
         UUID optionId,

@@ -15,6 +15,7 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+        default_schema: reward-service
     open-in-view: false
 
   kafka:
@@ -27,6 +28,14 @@ spring:
       funding-failed: funding-failed
       funding-refund: funding-refund
       funding-completed: funding-completed
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
 
 logging:
   level:

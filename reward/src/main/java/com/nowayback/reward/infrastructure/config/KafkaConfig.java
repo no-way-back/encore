@@ -47,6 +47,10 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
         configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
 
+        configProps.put(JsonSerializer.TYPE_MAPPINGS,
+                "reward-creation-result:com.nowayback.reward.infrastructure.kafka.dto.project.event.RewardCreationResultEvent"
+        );
+
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
@@ -66,6 +70,13 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         configProps.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);
+
+        configProps.put(JsonDeserializer.TYPE_MAPPINGS,
+                "project-created:com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent," +
+                        "funding-completed:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent," +
+                        "funding-failed:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent," +
+                        "funding-refund:com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingRefundEvent"
+        );
 
         return new DefaultKafkaConsumerFactory<>(configProps);
     }

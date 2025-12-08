@@ -105,4 +105,32 @@ class AuthControllerTest {
                     .andExpect(status().isBadRequest());
         }
     }
+
+    @Nested
+    @DisplayName("로그아웃")
+    class Logout {
+
+        @Test
+        @DisplayName("유효한 요청이 들어오면 로그아웃에 성공한다.")
+        void logout_validRequest_success() throws Exception {
+            /* given */
+            String authHeader = "Bearer accessToken";
+
+            /* when */
+            /* then */
+            mockMvc.perform(post(BASE_URL + "/logout")
+                            .header("Authorization", authHeader))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        @DisplayName("인증되지 않은 요청이 들어오면 응답코드 400을 반환한다.")
+        void logout_unauthenticatedRequest_badRequest() throws Exception {
+            /* given */
+            /* when */
+            /* then */
+            mockMvc.perform(post(BASE_URL + "/logout"))
+                    .andExpect(status().isBadRequest());
+        }
+    }
 }

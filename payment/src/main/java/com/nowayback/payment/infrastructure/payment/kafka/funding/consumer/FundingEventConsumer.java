@@ -26,7 +26,8 @@ public class FundingEventConsumer {
 
     @KafkaListener(
             topics = "${spring.kafka.topic.project-funding-failed}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "projectFundingEventKafkaListenerContainerFactory"
     )
     public void consumeProjectFundingFailedEvent(
             ProjectFundingFailedEvent event,

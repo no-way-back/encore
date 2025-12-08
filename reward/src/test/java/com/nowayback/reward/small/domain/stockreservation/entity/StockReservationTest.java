@@ -24,6 +24,7 @@ class StockReservationTest {
             @DisplayName("옵션이 있는 재고 예약 생성 성공")
             void createWithOption() {
                 // given
+                UUID userId = UUID.randomUUID();
                 UUID fundingId = UUID.randomUUID();
                 UUID rewardId = UUID.randomUUID();
                 UUID optionId = UUID.randomUUID();
@@ -31,11 +32,12 @@ class StockReservationTest {
 
                 // when
                 StockReservation reservation = StockReservation.create(
-                        fundingId, rewardId, optionId, quantity
+                        userId, fundingId, rewardId, optionId, quantity
                 );
 
                 // then
                 assertThat(reservation).isNotNull();
+                assertThat(reservation.getUserId().getId()).isEqualTo(userId);
                 assertThat(reservation.getFundingId().getId()).isEqualTo(fundingId);
                 assertThat(reservation.getRewardId().getId()).isEqualTo(rewardId);
                 assertThat(reservation.getOptionId().getId()).isEqualTo(optionId);
@@ -47,17 +49,19 @@ class StockReservationTest {
             @DisplayName("옵션이 없는 재고 예약 생성 성공")
             void createWithoutOption() {
                 // given
+                UUID userId = UUID.randomUUID();
                 UUID fundingId = UUID.randomUUID();
                 UUID rewardId = UUID.randomUUID();
                 Integer quantity = 1;
 
                 // when
                 StockReservation reservation = StockReservation.create(
-                        fundingId, rewardId, null, quantity
+                        userId, fundingId, rewardId, null, quantity
                 );
 
                 // then
                 assertThat(reservation).isNotNull();
+                assertThat(reservation.getUserId().getId()).isEqualTo(userId);
                 assertThat(reservation.getFundingId().getId()).isEqualTo(fundingId);
                 assertThat(reservation.getRewardId().getId()).isEqualTo(rewardId);
                 assertThat(reservation.getOptionId()).isNull();

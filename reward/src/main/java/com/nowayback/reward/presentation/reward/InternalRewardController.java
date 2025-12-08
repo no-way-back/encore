@@ -31,9 +31,10 @@ public class InternalRewardController {
 
     @PostMapping("/reserve-stock")
     public ResponseEntity<StockReserveResponse> reserveStock(
+            @RequestHeader(value = "X-User-Id") UUID userId,
             @Valid @RequestBody StockReserveRequest request
     ) {
-        StockReserveCommand command = StockReserveCommand.from(request);
+        StockReserveCommand command = StockReserveCommand.from(userId, request);
         StockReserveResult result = rewardStockService.reserveStock(command);
 
         return ResponseEntity.ok(StockReserveResponse.from(result));

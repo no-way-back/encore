@@ -7,7 +7,7 @@ import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.command.CreateRewardOptionCommand;
 import com.nowayback.reward.domain.reward.vo.*;
 import com.nowayback.reward.domain.shared.BaseEntity;
-import com.nowayback.reward.domain.vo.OwnerId;
+import com.nowayback.reward.domain.vo.UserId;
 import com.nowayback.reward.domain.vo.ProjectId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -39,7 +39,7 @@ public class Rewards extends BaseEntity {
     private ProjectId projectId;
 
     @Embedded
-    private OwnerId ownerId;
+    private UserId ownerId;
 
     @Column(nullable = false, length = 200)
     private String name;
@@ -96,7 +96,7 @@ public class Rewards extends BaseEntity {
 
         return new Rewards(
                 ProjectId.of(command.projectId()),
-                OwnerId.of(command.creatorId()),
+                UserId.of(command.creatorId()),
                 command.name(),
                 command.description(),
                 price,
@@ -387,7 +387,7 @@ public class Rewards extends BaseEntity {
     /**
      * 리워드 생성자
      */
-    private Rewards(ProjectId projectId, OwnerId ownerId, String name, String description,
+    private Rewards(ProjectId projectId, UserId ownerId, String name, String description,
                     Money price, Stock stock, ShippingPolicy shippingPolicy,
                     Integer purchaseLimitPerPerson, RewardType rewardType,
                     SaleStatus status) {

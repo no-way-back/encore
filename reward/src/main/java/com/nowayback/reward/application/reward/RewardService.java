@@ -102,7 +102,7 @@ public class RewardService {
 
         List<StockReserveResult.ReservationWithPrice> reservations
                 = command.items().stream()
-                .map(item -> reserveStockForItem(command.fundingId(), item))
+                .map(item -> reserveStockForItem(command.userId(), command.fundingId(), item))
                 .toList();
 
         StockReserveResult result = StockReserveResult.from(command.fundingId(), reservations);
@@ -156,23 +156,23 @@ public class RewardService {
      * - 옵션 ID가 있으면: 옵션 재고 차감 및 옵션 포함 가격 계산
      * - 옵션 ID가 없으면: 필수 옵션 검증 후 리워드 재고 차감 및 기본 가격 계산
      *
-     * @param fundingId 펀딩 ID
      * @param item 재고 차감할 아이템 정보 (리워드 ID, 옵션 ID, 수량)
      * @return 예약 정보와 가격 정보
      */
     private StockReserveResult.ReservationWithPrice reserveStockForItem(
+            UUID userId,
             UUID fundingId,
             StockReserveCommand.StockReserveItemCommand item
     ) {
         Rewards reward = getById(item.rewardId());
 
         if (item.optionId() != null) {
-            return reserveWithOption(fundingId, reward, item);
+            return reserveWithOption(userId, fundingId, reward, item);
         }
 
         reward.validateRequiredOption();
 
-        return reserveWithoutOption(fundingId, reward, item);
+        return reserveWithoutOption(userId, fundingId, reward, item);
     }
 
     /**
@@ -183,6 +183,7 @@ public class RewardService {
      * - 모든 옵션 품절 시 리워드 상태 동기화
      */
     private StockReserveResult.ReservationWithPrice reserveWithOption(
+            UUID userId,
             UUID fundingId,
             Rewards reward,
             StockReserveCommand.StockReserveItemCommand item
@@ -194,11 +195,11 @@ public class RewardService {
         Long itemAmount = option.calculateTotalAmount(item.quantity());
 
         StockReservation saveReservation = createAndSaveReservation(
-                fundingId, reward.getId(), option.getId(), item.quantity()
+                userId, fundingId, reward.getId(), option.getId(), item.quantity()
         );
 
-        log.info("재고 예약 완료 - fundingId: {}, rewardId: {}, optionId: {}, quantity: {}, optionStatus: {}, rewardStatus: {}",
-                fundingId, reward.getId(), option.getId(), item.quantity(), option.getStatus(), reward.getStatus());
+        log.info("재고 예약 완료 - userId: {}, fundingId: {}, rewardId: {}, optionId: {}, quantity: {}, optionStatus: {}, rewardStatus: {}",
+                userId, fundingId, reward.getId(), option.getId(), item.quantity(), option.getStatus(), reward.getStatus());
 
         return StockReserveResult.ReservationWithPrice
                 .of(saveReservation, itemAmount);
@@ -211,6 +212,7 @@ public class RewardService {
      * - 재고 0일 시 리워드 상태 변경
      */
     private StockReserveResult.ReservationWithPrice reserveWithoutOption(
+            UUID userId,
             UUID fundingId,
             Rewards reward,
             StockReserveCommand.StockReserveItemCommand item
@@ -219,11 +221,11 @@ public class RewardService {
 
         Long itemAmount = reward.calculateTotalAmount(item.quantity());
         StockReservation saveReservation = createAndSaveReservation(
-                fundingId, reward.getId(), null, item.quantity()
+                userId, fundingId, reward.getId(), null, item.quantity()
         );
 
-        log.info("재고 예약 완료 - fundingId: {}, rewardId: {}, quantity: {}, rewardStatus: {}",
-                fundingId, reward.getId(), item.quantity(), reward.getStatus());
+        log.info("재고 예약 완료 - userId: {}, fundingId: {}, rewardId: {}, quantity: {}, rewardStatus: {}",
+                userId, fundingId, reward.getId(), item.quantity(), reward.getStatus());
 
         return StockReserveResult.ReservationWithPrice
                 .of(saveReservation, itemAmount);
@@ -233,13 +235,14 @@ public class RewardService {
      * 재고 예약 엔티티 생성 및 저장
      */
     private StockReservation createAndSaveReservation(
+            UUID userId,
             UUID fundingId,
             UUID rewardId,
             UUID optionId,
             Integer quantity
     ) {
         StockReservation reservation = StockReservation.create(
-                fundingId, rewardId, optionId, quantity
+                userId, fundingId, rewardId, optionId, quantity
         );
         return stockReservationRepository.save(reservation);
     }

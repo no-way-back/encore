@@ -37,19 +37,19 @@ public class RewardStockService {
      */
     @Transactional
     public StockReserveResult reserveStock(StockReserveCommand command) {
-        log.info("재고 예약 시작 - fundingId: {}, items: {}개",
-                command.fundingId(), command.items().size()
+        log.info("재고 예약 시작 - userId: {}, fundingId: {}, items: {}개",
+                command.userId(), command.fundingId(), command.items().size()
         );
 
         List<StockReserveResult.ReservationWithPrice> reservations
                 = command.items().stream()
-                .map(item -> reserveStockForItem(command.fundingId(), item))
+                .map(item -> reserveStockForItem(command.userId(), command.fundingId(), item))
                 .toList();
 
         StockReserveResult result = StockReserveResult.from(command.fundingId(), reservations);
 
-        log.info("재고 예약 완료 - fundingId: {}, 예약: {}개, 총액: {}",
-                command.fundingId(), reservations.size(), result.totalAmount());
+        log.info("재고 예약 완료 - userId: {}, fundingId: {}, 예약: {}개, 총액: {}",
+                command.userId(), command.fundingId(), reservations.size(), result.totalAmount());
 
         return result;
     }
@@ -91,18 +91,19 @@ public class RewardStockService {
      * @return 예약 정보와 가격 정보
      */
     private StockReserveResult.ReservationWithPrice reserveStockForItem(
+            UUID userId,
             UUID fundingId,
             StockReserveCommand.StockReserveItemCommand item
     ) {
         Rewards reward = getById(item.rewardId());
 
         if (item.optionId() != null) {
-            return reserveWithOption(fundingId, reward, item);
+            return reserveWithOption(userId, fundingId, reward, item);
         }
 
         reward.validateRequiredOption();
 
-        return reserveWithoutOption(fundingId, reward, item);
+        return reserveWithoutOption(userId, fundingId, reward, item);
     }
 
     /**
@@ -113,6 +114,7 @@ public class RewardStockService {
      * - 모든 옵션 품절 시 리워드 상태 동기화
      */
     private StockReserveResult.ReservationWithPrice reserveWithOption(
+            UUID userID,
             UUID fundingId,
             Rewards reward,
             StockReserveCommand.StockReserveItemCommand item
@@ -124,7 +126,7 @@ public class RewardStockService {
         Long itemAmount = option.calculateTotalAmount(item.quantity());
 
         StockReservation saveReservation = createAndSaveReservation(
-                fundingId, reward.getId(), option.getId(), item.quantity()
+                userID, fundingId, reward.getId(), option.getId(), item.quantity()
         );
 
         log.info("재고 예약 완료 - fundingId: {}, rewardId: {}, optionId: {}, quantity: {}, optionStatus: {}, rewardStatus: {}",
@@ -141,6 +143,7 @@ public class RewardStockService {
      * - 재고 0일 시 리워드 상태 변경
      */
     private StockReserveResult.ReservationWithPrice reserveWithoutOption(
+            UUID userId,
             UUID fundingId,
             Rewards reward,
             StockReserveCommand.StockReserveItemCommand item
@@ -149,7 +152,7 @@ public class RewardStockService {
 
         Long itemAmount = reward.calculateTotalAmount(item.quantity());
         StockReservation saveReservation = createAndSaveReservation(
-                fundingId, reward.getId(), null, item.quantity()
+                userId, fundingId, reward.getId(), null, item.quantity()
         );
 
         log.info("재고 예약 완료 - fundingId: {}, rewardId: {}, quantity: {}, rewardStatus: {}",
@@ -216,13 +219,14 @@ public class RewardStockService {
      * 재고 예약 엔티티 생성 및 저장
      */
     private StockReservation createAndSaveReservation(
+            UUID userId,
             UUID fundingId,
             UUID rewardId,
             UUID optionId,
             Integer quantity
     ) {
         StockReservation reservation = StockReservation.create(
-                fundingId, rewardId, optionId, quantity
+                userId, fundingId, rewardId, optionId, quantity
         );
         return stockReservationRepository.save(reservation);
     }

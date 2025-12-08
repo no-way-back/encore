@@ -5,6 +5,7 @@ import com.nowayback.reward.domain.stockreservation.vo.ReservationStatus;
 import com.nowayback.reward.domain.vo.FundingId;
 import com.nowayback.reward.domain.vo.OptionId;
 import com.nowayback.reward.domain.vo.RewardId;
+import com.nowayback.reward.domain.vo.UserId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,10 +23,13 @@ public class StockReservation extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Embedded
+    private UserId userId;
+
+    @Embedded
     private FundingId fundingId;
 
-    @Column(nullable = false)
+    @Embedded
     private RewardId rewardId;
 
     private OptionId optionId;
@@ -41,12 +45,14 @@ public class StockReservation extends BaseEntity {
      * 재고 예약 생성
      */
     public static StockReservation create(
+            UUID userId,
             UUID fundingId,
             UUID rewardId,
             UUID optionId,
             Integer quantity
     ) {
         StockReservation reservation = new StockReservation();
+        reservation.userId = UserId.of(userId);
         reservation.fundingId = FundingId.of(fundingId);
         reservation.rewardId = RewardId.of(rewardId);
         reservation.optionId = optionId != null ? OptionId.of(optionId) : null;

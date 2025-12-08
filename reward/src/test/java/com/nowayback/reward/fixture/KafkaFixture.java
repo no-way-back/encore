@@ -14,7 +14,7 @@ public class KafkaFixture {
     public static ProjectCreatedPayload createProjectCreatedPayload(UUID projectId, UUID creatorId, int rewardCount) {
         List<RewardCreateData> rewardData = java.util.stream.IntStream.range(0, rewardCount)
                 .mapToObj(i -> new RewardCreateData(
-                        "Reward" + i, "Desc", 25000, 100, 3000, 50000, 5, RewardType.GENERAL, null
+                        "Reward" + i, "Desc", 25000L, 100, 3000, 50000, 5, RewardType.GENERAL, null
                 )).toList();
 
         return new ProjectCreatedPayload(projectId, creatorId, rewardData);

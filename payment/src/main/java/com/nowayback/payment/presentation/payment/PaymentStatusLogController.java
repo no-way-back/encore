@@ -15,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/payments/status-logs")
 @RequiredArgsConstructor
-public class PaymentStatusLogController {
+public class PaymentStatusLogController implements PaymentStatusLogControllerDoc {
 
     private final PaymentStatusLogService paymentStatusLogService;
 

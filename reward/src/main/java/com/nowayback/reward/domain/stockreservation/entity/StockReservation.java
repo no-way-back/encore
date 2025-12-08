@@ -1,9 +1,9 @@
 package com.nowayback.reward.domain.stockreservation.entity;
 
 import com.nowayback.reward.domain.shared.BaseEntity;
+import com.nowayback.reward.domain.stockreservation.vo.ReservationStatus;
 import com.nowayback.reward.domain.vo.FundingId;
 import com.nowayback.reward.domain.vo.OptionId;
-import com.nowayback.reward.domain.stockreservation.vo.ReservationStatus;
 import com.nowayback.reward.domain.vo.RewardId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

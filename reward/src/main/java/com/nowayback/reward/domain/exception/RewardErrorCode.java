@@ -1,9 +1,8 @@
 package com.nowayback.reward.domain.exception;
 
-import org.springframework.http.HttpStatus;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
@@ -41,19 +40,16 @@ public enum RewardErrorCode {
     REWARD_NOT_FOUND("RW-206", "존재하지 않는 리워드입니다", HttpStatus.NOT_FOUND),
     INVALID_RESTORE_QUANTITY("RW-207", "복원 수량은 0보다 커야 합니다", HttpStatus.BAD_REQUEST),
 
+    // QR Code
+    QRCODE_NOT_FOUND("RW-400", "존재하지 않는 QR 코드입니다", HttpStatus.NOT_FOUND),
+    QRCODE_ALREADY_USED("RW-401", "이미 사용된 QR 코드입니다", HttpStatus.CONFLICT),
+    QRCODE_CANCELLED("RW-402", "취소된 QR 코드입니다", HttpStatus.BAD_REQUEST),
+
     // Required ID Validation
     CREATOR_ID_IS_NULL("RW-300", "생성자 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
     REWARD_ID_IS_NULL("RW-301", "리워드 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
     FUNDING_ID_IS_NULL("RW-302", "펀딩 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
     PROJECT_ID_IS_NULL("RW-303", "프로젝트 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-
-
-    // Required ID Validation (새로 추가된 섹션)
-    CREATOR_ID_IS_NULL("RW-300", "생성자 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-    REWARD_ID_IS_NULL("RW-301", "리워드 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-    FUNDING_ID_IS_NULL("RW-302", "펀딩 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-    PROJECT_ID_IS_NULL("RW-303", "프로젝트 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
-
 
     // System Error
     INTERNAL_SERVER_ERROR("RW-999", "일시적인 오류가 발생했습니다", HttpStatus.INTERNAL_SERVER_ERROR);

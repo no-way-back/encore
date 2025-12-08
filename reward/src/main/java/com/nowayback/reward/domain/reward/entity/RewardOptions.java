@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-import static com.nowayback.reward.domain.reward.vo.SaleStatus.*;
+import static com.nowayback.reward.domain.reward.vo.SaleStatus.AVAILABLE;
+import static com.nowayback.reward.domain.reward.vo.SaleStatus.SOLD_OUT;
 
 @Entity
 @Table(name = "p_reward_option")

@@ -4,9 +4,10 @@ import com.nowayback.reward.infrastructure.kafka.constant.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.payload.FundingRefundPayload;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record FundingRefundEvent(
-        String eventId,
+        UUID eventId,
         EventType eventType,
         LocalDateTime timestamp,
         FundingRefundPayload payload

@@ -1,4 +1,4 @@
-package com.nowayback.project.infrastructure.config;
+package com.nowayback.funding.infrastructure.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -14,11 +14,11 @@ public class SwaggerConfig {
     private static final String SECURITY_SCHEME_NAME = "BearerAuth";
 
     @Bean
-    public OpenAPI projectOpenAPI() {
+    public OpenAPI fundingOpenAPI() {
         return new OpenAPI()
             .info(new Info()
-                .title("Project Service API")
-                .description("프로젝트 마이크로서비스 API 문서")
+                .title("Funding Service API")
+                .description("펀딩 마이크로서비스 API 문서")
                 .version("v1"))
             .components(new Components()
                 .addSecuritySchemes(SECURITY_SCHEME_NAME, new SecurityScheme()

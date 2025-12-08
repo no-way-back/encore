@@ -18,7 +18,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("User Service API")
                         .description("유저 마이크로 서비스 API 문서")
-                        .version("v1.0.0"))
+                        .version("v1"))
                 .components(new Components()
                         .addSecuritySchemes("BearerAuth", new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)

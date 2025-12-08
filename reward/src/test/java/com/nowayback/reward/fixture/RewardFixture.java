@@ -14,10 +14,10 @@ import java.util.UUID;
 public class RewardFixture {
 
     public static CreateRewardCommand createCommand() {
-        return createCommand("테스트 리워드", 25000, 100);
+        return createCommand("테스트 리워드", 25000L, 100);
     }
 
-    public static CreateRewardCommand createCommand(String name, Integer price, Integer stock) {
+    public static CreateRewardCommand createCommand(String name, Long price, Integer stock) {
         return new CreateRewardCommand(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
@@ -35,9 +35,9 @@ public class RewardFixture {
 
     public static CreateRewardCommand createCommandWithOptions() {
         List<CreateRewardOptionCommand> options = List.of(
-                createOptionCommand("S", 0, 20, 1),
-                createOptionCommand("M", 0, 30, 2),
-                createOptionCommand("L", 2000, 25, 3)
+                createOptionCommand("S", 0L, 20, 1),
+                createOptionCommand("M", 0L, 30, 2),
+                createOptionCommand("L", 2000L, 25, 3)
         );
 
         return new CreateRewardCommand(
@@ -45,7 +45,7 @@ public class RewardFixture {
                 UUID.randomUUID(),
                 "옵션 있는 리워드",
                 "설명",
-                25000,
+                25000L,
                 100,
                 3000,
                 50000,
@@ -56,7 +56,7 @@ public class RewardFixture {
     }
 
     public static CreateRewardOptionCommand createOptionCommand(
-            String name, Integer additionalPrice, Integer stock, Integer displayOrder) {
+            String name, Long additionalPrice, Integer stock, Integer displayOrder) {
         return new CreateRewardOptionCommand(
                 name,
                 additionalPrice,
@@ -67,10 +67,10 @@ public class RewardFixture {
     }
 
     public static RewardCreateCommand createRequest() {
-        return createRequest("테스트 리워드", 25000, 100);
+        return createRequest("테스트 리워드", 25000L, 100);
     }
 
-    public static RewardCreateCommand createRequest(String name, Integer price, Integer stock) {
+    public static RewardCreateCommand createRequest(String name, Long price, Integer stock) {
         return new RewardCreateCommand(
                 name,
                 "테스트 설명",
@@ -86,15 +86,15 @@ public class RewardFixture {
 
     public static RewardCreateCommand createRequestWithOptions() {
         List<RewardOptionCreateCommand> options = List.of(
-                createOptionRequest("S", 0, 20, 1),
-                createOptionRequest("M", 0, 30, 2),
-                createOptionRequest("L", 2000, 25, 3)
+                createOptionRequest("S", 0L, 20, 1),
+                createOptionRequest("M", 0L, 30, 2),
+                createOptionRequest("L", 2000L, 25, 3)
         );
 
         return new RewardCreateCommand(
                 "옵션 있는 리워드",
                 "설명",
-                25000,
+                25000L,
                 100,
                 3000,
                 50000,
@@ -111,7 +111,7 @@ public class RewardFixture {
                 UUID.randomUUID(),
                 "배송 정책 테스트 리워드",
                 "테스트 설명",
-                25000,
+                25000L,
                 100,
                 shippingFee,
                 freeShippingAmount,
@@ -122,7 +122,7 @@ public class RewardFixture {
     }
 
     public static RewardOptionCreateCommand createOptionRequest(
-            String name, Integer additionalPrice, Integer stock, Integer displayOrder) {
+            String name, Long additionalPrice, Integer stock, Integer displayOrder) {
         return new RewardOptionCreateCommand(
                 name,
                 additionalPrice,
@@ -134,13 +134,13 @@ public class RewardFixture {
 
     public static List<CreateRewardOptionCommand> createOptionCommands(int count) {
         return java.util.stream.IntStream.range(0, count)
-                .mapToObj(i -> createOptionCommand("Option" + i, 0, 10, i))
+                .mapToObj(i -> createOptionCommand("Option" + i, 0L, 10, i))
                 .toList();
     }
 
     public static List<RewardCreateCommand> createRequests(int count) {
         return java.util.stream.IntStream.range(0, count)
-                .mapToObj(i -> createRequest("리워드" + i, 25000, 100))
+                .mapToObj(i -> createRequest("리워드" + i, 25000L, 100))
                 .toList();
     }
 
@@ -149,7 +149,7 @@ public class RewardFixture {
                 rewardId,
                 "수정된 리워드",
                 "수정된 설명",
-                30000,
+                30000L,
                 10,
                 4000,
                 60000,
@@ -159,7 +159,7 @@ public class RewardFixture {
         );
     }
 
-    public static UpdateRewardCommand createUpdateCommand(UUID rewardId, String name, Integer price, Integer stock) {
+    public static UpdateRewardCommand createUpdateCommand(UUID rewardId, String name, Long price, Integer stock) {
         return new UpdateRewardCommand(
                 rewardId,
                 name,
@@ -178,14 +178,14 @@ public class RewardFixture {
         return new UpdateRewardOptionCommand(
                 optionId,
                 "수정된 옵션",
-                1000,
+                1000L,
                 10,
                 true,
                 1
         );
     }
 
-    public static UpdateRewardOptionCommand createUpdateOptionCommand(UUID optionId, String name, Integer price, Integer stock) {
+    public static UpdateRewardOptionCommand createUpdateOptionCommand(UUID optionId, String name, Long price, Integer stock) {
         return new UpdateRewardOptionCommand(
                 optionId,
                 name,

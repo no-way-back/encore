@@ -69,9 +69,9 @@ class RewardServiceTest {
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(
-                        createRequest("티셔츠", 25000, 100),
-                        createRequest("입장권", 30000, 200),
-                        createRequest("응원봉", 15000, 150)
+                        createRequest("티셔츠", 25000L, 100),
+                        createRequest("입장권", 30000L, 200),
+                        createRequest("응원봉", 15000L, 150)
                 );
 
                 when(rewardRepository.save(any(Rewards.class)))
@@ -169,7 +169,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateCommand> requests = List.of(createRequest("리워드", 500, 100));
+                List<RewardCreateCommand> requests = List.of(createRequest("리워드", 500L, 100));
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))
@@ -186,7 +186,7 @@ class RewardServiceTest {
                 // given
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
-                List<RewardCreateCommand> requests = List.of(createRequest("리워드", 25000, 0));
+                List<RewardCreateCommand> requests = List.of(createRequest("리워드", 25000L, 0));
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))

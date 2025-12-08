@@ -21,7 +21,7 @@ public class StockReserveFixture {
                 UUID.randomUUID(),
                 "기본 티셔츠",
                 "기본 리워드 상품입니다",
-                30000,
+                30000L,
                 stock,
                 3000,
                 50000,
@@ -39,9 +39,9 @@ public class StockReserveFixture {
      */
     public static Rewards createRewardWithOptions() {
         List<CreateRewardOptionCommand> options = List.of(
-                new CreateRewardOptionCommand("S 사이즈", 0, 30, false, 1),
-                new CreateRewardOptionCommand("M 사이즈", 2000, 50, false, 2),
-                new CreateRewardOptionCommand("L 사이즈", 4000, 20, false, 3)
+                new CreateRewardOptionCommand("S 사이즈", 0L, 30, false, 1),
+                new CreateRewardOptionCommand("M 사이즈", 2000L, 50, false, 2),
+                new CreateRewardOptionCommand("L 사이즈", 4000L, 20, false, 3)
         );
 
         CreateRewardCommand command = new CreateRewardCommand(
@@ -49,20 +49,19 @@ public class StockReserveFixture {
                 UUID.randomUUID(),
                 "프리미엄 티셔츠",
                 "사이즈를 선택할 수 있는 티셔츠입니다",
-                50000,
-                100, // 옵션이 있어도 리워드 자체 재고는 1 이상이어야 함
+                50000L,
+                100,
                 3000,
                 50000,
                 3,
                 RewardType.GENERAL,
-                null // options는 addOptionList로 추가
+                null
         );
 
         Rewards reward = Rewards.create(command);
         setRewardId(reward, UUID.randomUUID());
         reward.addOptionList(options);
 
-        // 각 옵션에도 ID 설정
         for (int i = 0; i < reward.getOptionList().size(); i++) {
             setOptionId(reward.getOptionList().get(i), UUID.randomUUID());
         }
@@ -75,8 +74,8 @@ public class StockReserveFixture {
      */
     public static Rewards createRewardWithRequiredOption() {
         List<CreateRewardOptionCommand> options = List.of(
-                new CreateRewardOptionCommand("블랙", 0, 15, true, 1),
-                new CreateRewardOptionCommand("화이트", 5000, 25, true, 2)
+                new CreateRewardOptionCommand("블랙", 0L, 15, true, 1),
+                new CreateRewardOptionCommand("화이트", 5000L, 25, true, 2)
         );
 
         CreateRewardCommand command = new CreateRewardCommand(
@@ -84,8 +83,8 @@ public class StockReserveFixture {
                 UUID.randomUUID(),
                 "커스텀 후드",
                 "필수 옵션이 있는 상품입니다",
-                80000,
-                100, // 옵션이 있어도 리워드 자체 재고는 1 이상이어야 함
+                80000L,
+                100,
                 5000,
                 null,
                 2,
@@ -97,7 +96,6 @@ public class StockReserveFixture {
         setRewardId(reward, UUID.randomUUID());
         reward.addOptionList(options);
 
-        // 각 옵션에도 ID 설정
         for (int i = 0; i < reward.getOptionList().size(); i++) {
             setOptionId(reward.getOptionList().get(i), UUID.randomUUID());
         }
@@ -113,10 +111,11 @@ public class StockReserveFixture {
             UUID rewardId,
             Integer quantity
     ) {
+        UUID userId = UUID.randomUUID();
         List<StockReserveCommand.StockReserveItemCommand> items = List.of(
                 new StockReserveCommand.StockReserveItemCommand(rewardId, null, quantity)
         );
-        return new StockReserveCommand(fundingId, items);
+        return new StockReserveCommand(userId, fundingId, items);
     }
 
     /**
@@ -128,10 +127,11 @@ public class StockReserveFixture {
             UUID optionId,
             Integer quantity
     ) {
+        UUID userId = UUID.randomUUID();
         List<StockReserveCommand.StockReserveItemCommand> items = List.of(
                 new StockReserveCommand.StockReserveItemCommand(rewardId, optionId, quantity)
         );
-        return new StockReserveCommand(fundingId, items);
+        return new StockReserveCommand(userId, fundingId, items);
     }
 
     /**
@@ -142,16 +142,14 @@ public class StockReserveFixture {
             UUID rewardId1, UUID optionId1, Integer quantity1,
             UUID rewardId2, UUID optionId2, Integer quantity2
     ) {
+        UUID userId = UUID.randomUUID();
         List<StockReserveCommand.StockReserveItemCommand> items = List.of(
                 new StockReserveCommand.StockReserveItemCommand(rewardId1, optionId1, quantity1),
                 new StockReserveCommand.StockReserveItemCommand(rewardId2, optionId2, quantity2)
         );
-        return new StockReserveCommand(fundingId, items);
+        return new StockReserveCommand(userId, fundingId, items);
     }
 
-    /**
-     * Reflection을 사용하여 Rewards의 ID 설정
-     */
     private static void setRewardId(Rewards reward, UUID id) {
         try {
             Field idField = Rewards.class.getDeclaredField("id");
@@ -162,9 +160,6 @@ public class StockReserveFixture {
         }
     }
 
-    /**
-     * Reflection을 사용하여 RewardOptions의 ID 설정
-     */
     private static void setOptionId(com.nowayback.reward.domain.reward.entity.RewardOptions option, UUID id) {
         try {
             Field idField = com.nowayback.reward.domain.reward.entity.RewardOptions.class.getDeclaredField("id");

@@ -54,7 +54,7 @@ class RewardsTest {
             @DisplayName("금액이 최소 금액 미만일 때 예외 발생")
             void priceBelowMinimum() {
                 // given
-                CreateRewardCommand command = createCommand("리워드", 500, 100);
+                CreateRewardCommand command = createCommand("리워드", 500L, 100);
 
                 // when & then
                 assertThatThrownBy(() -> Rewards.create(command))
@@ -67,7 +67,7 @@ class RewardsTest {
             @DisplayName("재고가 최소 수량 미만일 때 예외 발생")
             void stockBelowMinimum() {
                 // given
-                CreateRewardCommand command = createCommand("리워드", 25000, 0);
+                CreateRewardCommand command = createCommand("리워드", 25000L, 0);
 
                 // when & then
                 assertThatThrownBy(() -> Rewards.create(command))
@@ -80,7 +80,7 @@ class RewardsTest {
             @DisplayName("금액이 음수일 때 예외 발생")
             void negativePrice() {
                 // given
-                CreateRewardCommand command = createCommand("리워드", -1000, 100);
+                CreateRewardCommand command = createCommand("리워드", -1000L, 100);
 
                 // when & then
                 assertThatThrownBy(() -> Rewards.create(command))
@@ -93,7 +93,7 @@ class RewardsTest {
             @DisplayName("재고가 음수일 때 예외 발생")
             void negativeStock() {
                 // given
-                CreateRewardCommand command = createCommand("리워드", 25000, -10);
+                CreateRewardCommand command = createCommand("리워드", 25000L, -10);
 
                 // when & then
                 assertThatThrownBy(() -> Rewards.create(command))
@@ -120,7 +120,7 @@ class RewardsTest {
             void negativeOptionAdditionalPrice() {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                CreateRewardOptionCommand optionCommand = createOptionCommand("S", -500, 20, 1);
+                CreateRewardOptionCommand optionCommand = createOptionCommand("S", -500L, 20, 1);
 
                 // when & then
                 assertThatThrownBy(() -> reward.addOption(optionCommand))
@@ -144,7 +144,7 @@ class RewardsTest {
             void addOption() {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                CreateRewardOptionCommand optionCommand = createOptionCommand("S", 0, 20, 1);
+                CreateRewardOptionCommand optionCommand = createOptionCommand("S", 0L, 20, 1);
 
                 // when
                 RewardOptions option = reward.addOption(optionCommand);
@@ -161,9 +161,9 @@ class RewardsTest {
                 // given
                 Rewards reward = Rewards.create(createCommand());
                 List<CreateRewardOptionCommand> options = List.of(
-                        createOptionCommand("S", 0, 20, 1),
-                        createOptionCommand("M", 0, 30, 2),
-                        createOptionCommand("L", 2000, 25, 3)
+                        createOptionCommand("S", 0L, 20, 1),
+                        createOptionCommand("M", 0L, 30, 2),
+                        createOptionCommand("L", 2000L, 25, 3)
                 );
 
                 // when
@@ -207,8 +207,8 @@ class RewardsTest {
             void duplicateOptionName() {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                CreateRewardOptionCommand option1 = createOptionCommand("S", 0, 20, 1);
-                CreateRewardOptionCommand option2 = createOptionCommand("S", 0, 30, 2);
+                CreateRewardOptionCommand option1 = createOptionCommand("S", 0L, 20, 1);
+                CreateRewardOptionCommand option2 = createOptionCommand("S", 0L, 30, 2);
 
                 reward.addOption(option1);
 
@@ -223,8 +223,8 @@ class RewardsTest {
             void duplicateDisplayOrder() {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                CreateRewardOptionCommand option1 = createOptionCommand("S", 0, 20, 1);
-                CreateRewardOptionCommand option2 = createOptionCommand("M", 0, 30, 1);
+                CreateRewardOptionCommand option1 = createOptionCommand("S", 0L, 20, 1);
+                CreateRewardOptionCommand option2 = createOptionCommand("M", 0L, 30, 1);
 
                 reward.addOption(option1);
 
@@ -279,7 +279,7 @@ class RewardsTest {
             @DisplayName("일부 필드만 수정 - null 필드는 기존 값 유지")
             void updatePartialFields() {
                 // given
-                Rewards reward = Rewards.create(createCommand("원래 이름", 25000, 100));
+                Rewards reward = Rewards.create(createCommand("원래 이름", 25000L, 100));
                 UpdateRewardCommand command = createUpdateCommand(reward.getId(), "수정된 이름", null, null);
 
                 // when
@@ -301,7 +301,7 @@ class RewardsTest {
             void updatePriceBelowMinimum() {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                UpdateRewardCommand command = createUpdateCommand(reward.getId(), null, 500, null);
+                UpdateRewardCommand command = createUpdateCommand(reward.getId(), null, 500L, null);
 
                 // when & then
                 assertThatThrownBy(() -> reward.update(command))
@@ -345,7 +345,7 @@ class RewardsTest {
             void updateAllFields() throws Exception {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                RewardOptions option = reward.addOption(createOptionCommand("S", 0, 20, 1));
+                RewardOptions option = reward.addOption(createOptionCommand("S", 0L, 20, 1));
                 UUID optionId = UUID.randomUUID();
                 setOptionId(option, optionId);
 
@@ -369,7 +369,7 @@ class RewardsTest {
             void updatePartialFields() throws Exception {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                RewardOptions option = reward.addOption(createOptionCommand("S", 1000, 20, 1));
+                RewardOptions option = reward.addOption(createOptionCommand("S", 1000L, 20, 1));
                 UUID optionId = UUID.randomUUID();
                 setOptionId(option, optionId);
 
@@ -398,8 +398,8 @@ class RewardsTest {
             void updateOptionNameToDuplicate() throws Exception {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                RewardOptions option1 = reward.addOption(createOptionCommand("S", 0, 20, 1));
-                reward.addOption(createOptionCommand("M", 0, 30, 2));
+                RewardOptions option1 = reward.addOption(createOptionCommand("S", 0L, 20, 1));
+                reward.addOption(createOptionCommand("M", 0L, 30, 2));
                 UUID optionId1 = UUID.randomUUID();
                 setOptionId(option1, optionId1);
 
@@ -421,7 +421,7 @@ class RewardsTest {
             void updateOptionStockBelowMinimum() throws Exception {
                 // given
                 Rewards reward = Rewards.create(createCommand());
-                RewardOptions option = reward.addOption(createOptionCommand("S", 0, 20, 1));
+                RewardOptions option = reward.addOption(createOptionCommand("S", 0L, 20, 1));
                 UUID optionId = UUID.randomUUID();
                 setOptionId(option, optionId);
 

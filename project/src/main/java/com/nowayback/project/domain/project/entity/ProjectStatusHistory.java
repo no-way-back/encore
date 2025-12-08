@@ -9,7 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -42,22 +41,17 @@ public class ProjectStatusHistory extends BaseEntity {
     @Column(name = "occurred_at", nullable = false)
     private LocalDateTime occurredAt;
 
-    @Column(name = "reason", length = 500)
-    private String reason;
-
     @Builder
     private ProjectStatusHistory(
         UUID projectId,
         ProjectStatus fromStatus,
         ProjectStatus toStatus,
-        LocalDateTime occurredAt,
-        String reason
+        LocalDateTime occurredAt
     ) {
         this.projectId = projectId;
         this.fromStatus = fromStatus;
         this.toStatus = toStatus;
         this.occurredAt = occurredAt;
-        this.reason = reason;
     }
 
     public static ProjectStatusHistory create(
@@ -71,22 +65,6 @@ public class ProjectStatusHistory extends BaseEntity {
             .fromStatus(fromStatus)
             .toStatus(toStatus)
             .occurredAt(occurredAt)
-            .build();
-    }
-
-    public static ProjectStatusHistory createWithReason(
-        UUID projectId,
-        ProjectStatus fromStatus,
-        ProjectStatus toStatus,
-        LocalDateTime occurredAt,
-        String reason
-    ) {
-        return ProjectStatusHistory.builder()
-            .projectId(projectId)
-            .fromStatus(fromStatus)
-            .toStatus(toStatus)
-            .occurredAt(occurredAt)
-            .reason(reason)
             .build();
     }
 }

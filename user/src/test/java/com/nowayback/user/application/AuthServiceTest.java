@@ -4,6 +4,7 @@ import com.nowayback.user.application.dto.result.LoginResult;
 import com.nowayback.user.domain.entity.User;
 import com.nowayback.user.domain.exception.UserErrorCode;
 import com.nowayback.user.domain.exception.UserException;
+import com.nowayback.user.domain.repository.TokenBlacklistRepository;
 import com.nowayback.user.domain.repository.UserRepository;
 import com.nowayback.user.domain.vo.UserStatus;
 import com.nowayback.user.infrastructure.security.JwtTokenProvider;
@@ -35,6 +36,9 @@ class AuthServiceTest {
 
     @Mock
     private JwtTokenProvider tokenProvider;
+
+    @Mock
+    private TokenBlacklistRepository tokenBlacklistRepository;
 
     @InjectMocks
     private AuthService authService;
@@ -191,6 +195,38 @@ class AuthServiceTest {
             assertThatThrownBy(() -> authService.login(LOGIN_USER_COMMAND))
                     .isInstanceOf(UserException.class)
                     .hasMessage(UserErrorCode.USER_STATUS_SUSPENDED.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("로그아웃")
+    class Logout {
+
+        @Test
+        @DisplayName("유효한 토큰으로 로그아웃을 요청하면 토큰이 블랙리스트에 추가된다.")
+        void logout_whenValidToken_thenAddToBlacklist() {
+            /* given */
+            when(tokenProvider.validateToken(ACCESS_TOKEN)).thenReturn(true);
+            when(tokenProvider.getExpirationTime(ACCESS_TOKEN)).thenReturn(EXPIRATION_TIME);
+
+            /* when */
+            authService.logout(ACCESS_TOKEN);
+
+            /* then */
+            verify(tokenBlacklistRepository).addToBlacklist(ACCESS_TOKEN, EXPIRATION_TIME);
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 토큰으로 로그아웃을 시도하면 예외가 발생한다.")
+        void logout_whenInvalidToken_thenThrowException() {
+            /* given */
+            when(tokenProvider.validateToken(ACCESS_TOKEN)).thenReturn(false);
+
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> authService.logout(ACCESS_TOKEN))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_TOKEN.getMessage());
         }
     }
 }

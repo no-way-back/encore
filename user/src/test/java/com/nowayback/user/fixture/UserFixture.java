@@ -32,6 +32,7 @@ public class UserFixture {
     public static final String MODIFIED_NICKNAME = "modifiedNickname";
 
     public static final String ACCESS_TOKEN = "access token";
+    public static final long EXPIRATION_TIME = 3600000L;
 
     private static final Pageable PAGEABLE = PageRequest.of(0, 10);
 

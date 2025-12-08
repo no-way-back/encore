@@ -32,10 +32,24 @@ spring:
               predicates:
                 - Path=/projects/**
 
+            - id: project-service-docs
+              uri: lb://project-service
+              predicates:
+                - Path=/project-service/v3/api-docs
+              filters:
+                - RewritePath=/project-service/v3/api-docs, /v3/api-docs
+
             - id: funding-service
               uri: lb://funding-service
               predicates:
                 - Path=/fundings/**
+
+            - id: funding-service-docs
+              uri: lb://funding-service
+              predicates:
+                - Path=/funding-service/v3/api-docs
+              filters:
+                - RewritePath=/funding-service/v3/api-docs, /v3/api-docs
 
             - id: reward-service
               uri: lb://reward-service
@@ -96,10 +110,14 @@ springdoc:
     urls:
       - name: User Service
         url: /user-service/v3/api-docs
+      - name: Funding Service
+        url: /funding-service/v3/api-docs
       - name: Reward Service
         url: /reward-service/v3/api-docs
       - name: Payment Service
         url: /payment-service/v3/api-docs
+      - name: Project Service
+        url: /project-service/v3/api-docs
 
 eureka:
   client:

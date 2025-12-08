@@ -29,7 +29,8 @@ public class FundingEventListener {
      */
     @KafkaListener(
             topics = "${spring.kafka.topic.funding-failed}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "fundingFailedEventKafkaListenerContainerFactory"
     )
     public void consumeFundingFailedEvent(
             @Payload FundingFailedEvent event,
@@ -68,7 +69,8 @@ public class FundingEventListener {
      */
     @KafkaListener(
             topics = "${spring.kafka.topic.funding-refund}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "fundingRefundEventKafkaListenerContainerFactory"
     )
     public void consumeFundingRefundEvent(
             @Payload FundingRefundEvent event,
@@ -108,7 +110,8 @@ public class FundingEventListener {
      */
     @KafkaListener(
             topics = "${spring.kafka.topic.funding-completed}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "fundingCompletedEventKafkaListenerContainerFactory"
     )
     public void consumeFundingCompletedEvent(
             @Payload FundingCompletedEvent event,

@@ -4,6 +4,7 @@ import com.nowayback.funding.presentation.exception.FundingExceptionHandler.Erro
 import com.nowayback.funding.presentation.funding.dto.request.*;
 import com.nowayback.funding.presentation.funding.dto.response.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,7 +36,7 @@ public interface FundingControllerDoc {
         )
     })
     ResponseEntity<CreateFundingResponse> createFunding(
-        @RequestHeader("X-User-Id") UUID userId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId,
         @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
         @RequestBody CreateFundingRequest request
     );
@@ -59,7 +60,7 @@ public interface FundingControllerDoc {
     })
     ResponseEntity<CancelFundingResponse> cancelFunding(
         @PathVariable UUID fundingId,
-        @RequestHeader("X-User-Id") UUID userId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId,
         @RequestBody CancelFundingRequest request
     );
 
@@ -71,7 +72,7 @@ public interface FundingControllerDoc {
         @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     ResponseEntity<GetMyFundingsResponse> getMyFundings(
-        @RequestHeader("X-User-Id") UUID userId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId,
         @ModelAttribute GetMyFundingsRequest request
     );
 
@@ -89,7 +90,7 @@ public interface FundingControllerDoc {
     })
     ResponseEntity<GetProjectSponsorsResponse> getProjectSponsors(
         @PathVariable UUID projectId,
-        @RequestHeader("X-User-Id") UUID creatorId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID creatorId,
         @ModelAttribute GetProjectSponsorsRequest request
     );
 }

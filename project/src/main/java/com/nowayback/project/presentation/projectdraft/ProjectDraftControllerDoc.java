@@ -5,6 +5,7 @@ import com.nowayback.project.presentation.projectdraft.dto.request.*;
 import com.nowayback.project.presentation.projectdraft.dto.response.*;
 import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,7 +41,7 @@ public interface ProjectDraftControllerDoc {
         )
     })
     ResponseEntity<ProjectDraftCreateResponse> createProjectDraft(
-        @RequestHeader("X-User-Id") UUID userId
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId
     );
 
 
@@ -77,7 +78,7 @@ public interface ProjectDraftControllerDoc {
         )
     })
     ResponseEntity<ProjectStoryDraftResponse> saveProjectStoryDraft(
-        @RequestHeader("X-User-Id") UUID userId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId,
         @PathVariable UUID draftId,
         @RequestBody SaveProjectStoryDraftRequest request
     );
@@ -116,7 +117,7 @@ public interface ProjectDraftControllerDoc {
         )
     })
     ResponseEntity<ProjectFundingDraftResponse> saveProjectFundingDraft(
-        @RequestHeader("X-User-Id") UUID userId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId,
         @PathVariable UUID draftId,
         @RequestBody SaveProjectFundingDraftRequest request
     );
@@ -155,7 +156,7 @@ public interface ProjectDraftControllerDoc {
         )
     })
     ResponseEntity<ProjectSettlementDraftResponse> saveProjectSettlementDraft(
-        @RequestHeader("X-User-Id") UUID userId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId,
         @PathVariable UUID draftId,
         @RequestBody SaveProjectSettlementDraft request
     );
@@ -194,7 +195,7 @@ public interface ProjectDraftControllerDoc {
         )
     })
     ResponseEntity<ProjectRewardDraftResponse> saveRewardDraft(
-        @RequestHeader("X-User-Id") UUID userId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId,
         @PathVariable UUID projectDraftId,
         @RequestBody SaveRewardDraftRequest request
     );
@@ -255,7 +256,7 @@ public interface ProjectDraftControllerDoc {
         @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     ResponseEntity<PageResponse<ProjectDraftResponse>> getDrafts(
-        @RequestHeader("X-User-Id") UUID userId,
+        @Parameter(hidden = true) @RequestHeader("X-User-Id") UUID userId,
         @RequestParam(required = false) ProjectDraftStatus status,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size

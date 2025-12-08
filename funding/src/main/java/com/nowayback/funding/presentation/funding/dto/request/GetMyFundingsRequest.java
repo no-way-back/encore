@@ -15,7 +15,7 @@ public record GetMyFundingsRequest(
     @Schema(description = "후원 상태 필터", example = "COMPLETED")
     FundingStatus status,
 
-    @Schema(description = "조회 기간", example = "LAST_30_DAYS")
+    @Schema(description = "조회 기간", example = "ALL")
     GetMyFundingsCommand.FundingPeriod period,
 
     @Schema(description = "정렬 기준", example = "LATEST")

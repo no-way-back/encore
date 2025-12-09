@@ -31,7 +31,7 @@ class PaymentTest {
             assertThat(payment.getFundingId()).isEqualTo(FUNDING_ID);
             assertThat(payment.getAmount()).isEqualTo(AMOUNT);
             assertThat(payment.getStatus()).isEqualTo(PaymentStatus.PENDING);
-            assertThat(payment.getPgInfo()).isEqualTo(PG_INFO);
+            assertThat(payment.getPgInfo()).isNull();
             assertThat(payment.getRefundAccountInfo()).isNull();
         }
 
@@ -41,7 +41,7 @@ class PaymentTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> Payment.create(null, FUNDING_ID, PROJECT_ID, AMOUNT, PG_INFO))
+            assertThatThrownBy(() -> Payment.create(null, FUNDING_ID, PROJECT_ID, AMOUNT))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.NULL_USER_ID_OBJECT.getMessage());
         }
@@ -52,7 +52,7 @@ class PaymentTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> Payment.create(USER_ID, null, PROJECT_ID, AMOUNT, PG_INFO))
+            assertThatThrownBy(() -> Payment.create(USER_ID, null, PROJECT_ID, AMOUNT))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.NULL_FUNDING_ID_OBJECT.getMessage());
         }
@@ -63,7 +63,7 @@ class PaymentTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, null, AMOUNT, PG_INFO))
+            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, null, AMOUNT))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.NULL_PAYMENT_PROJECT_ID_OBJECT.getMessage());
         }
@@ -74,38 +74,28 @@ class PaymentTest {
             /* given */
             /* when */
             /* then */
-            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, PROJECT_ID, null, PG_INFO))
+            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, PROJECT_ID, null))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.NULL_PAYMENT_MONEY_OBJECT.getMessage());
-        }
-
-        @Test
-        @DisplayName("null PG 정보로 생성 시 예외가 발생한다.")
-        void create_givenNullPgInfo_thenThrow() {
-            /* given */
-            /* when */
-            /* then */
-            assertThatThrownBy(() -> Payment.create(USER_ID, FUNDING_ID, PROJECT_ID, AMOUNT, null))
-                    .isInstanceOf(PaymentException.class)
-                    .hasMessage(PaymentErrorCode.NULL_PG_INFO_OBJECT.getMessage());
         }
     }
 
     @Nested
     @DisplayName("결제 승인")
-    class Complete {
+    class Confirm {
 
         @Test
-        @DisplayName("상태가 PENDING인 결제를 승인하면 상태가 COMPLETED로 변경되고 승인 시간이 설정된다.")
+        @DisplayName("상태가 PENDING인 결제를 승인하면 상태가 COMPLETED로 변경되고 PG 정보와 승인 시간이 저장된다.")
         void complete_givenPendingPayment_thenStatusChangedToCompletedAndApprovedAtSet() {
             /* given */
             Payment payment = createPayment();
 
             /* when */
-            payment.complete(APPROVED_AT);
+            payment.confirm(PG_INFO, APPROVED_AT);
 
             /* then */
             assertThat(payment.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
+            assertThat(payment.getPgInfo()).isEqualTo(PG_INFO);
             assertThat(payment.getApprovedAt()).isEqualTo(APPROVED_AT);
         }
 
@@ -118,9 +108,22 @@ class PaymentTest {
 
             /* when */
             /* then */
-            assertThatThrownBy(() -> payment.complete(APPROVED_AT))
+            assertThatThrownBy(() -> payment.confirm(PG_INFO, APPROVED_AT))
                     .isInstanceOf(PaymentException.class)
                     .hasMessage(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
+        }
+
+        @Test
+        @DisplayName("null PG 정보로 결제 승인 시도 시 예외가 발생한다.")
+        void complete_givenNullPgInfo_thenThrowException() {
+            /* given */
+            Payment payment = createPayment();
+
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> payment.confirm(null, APPROVED_AT))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.NULL_PG_INFO_OBJECT.getMessage());
         }
     }
 

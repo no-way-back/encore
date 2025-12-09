@@ -64,8 +64,7 @@ public class PaymentFixture {
                 USER_ID,
                 FUNDING_ID,
                 PROJECT_ID,
-                AMOUNT,
-                PG_INFO
+                AMOUNT
         );
     }
 
@@ -80,8 +79,7 @@ public class PaymentFixture {
                 userId,
                 FUNDING_ID,
                 projectId,
-                AMOUNT,
-                PG_INFO
+                AMOUNT
         );
     }
 

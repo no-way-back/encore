@@ -36,11 +36,10 @@ public class FundingEventListener {
             @Payload FundingFailedEvent event,
             Acknowledgment acknowledgment
     ) {
-        log.info("결제 실패 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}, 예약: {}",
+        log.info("결제 실패 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
                 event.eventId(),
                 event.eventType(),
-                event.payload().fundingId(),
-                event.payload().reservationId()
+                event.payload().fundingId()
         );
 
         if (validateEventType(
@@ -53,11 +52,11 @@ public class FundingEventListener {
         try {
             rewardStockService.restoreStock(event.payload().fundingId());
 
-            log.info("결제 실패 재고 복원 완료 - 펀딩: {}, 예약: {}", event.payload().fundingId(), event.payload().reservationId());
+            log.info("결제 실패 재고 복원 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("결제 실패 이벤트 처리 실패 - 펀딩: {}, 예약: {}",
-                    event.payload().fundingId(), event.payload().reservationId(), e);
+            log.error("결제 실패 이벤트 처리 실패 - 펀딩: {}",
+                    event.payload().fundingId(), e);
         } finally {
             acknowledgment.acknowledge();
         }
@@ -76,11 +75,10 @@ public class FundingEventListener {
             @Payload FundingRefundEvent event,
             Acknowledgment acknowledgment
     ) {
-        log.info("펀딩 환불 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}, 예약: {}",
+        log.info("펀딩 환불 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
                 event.eventId(),
                 event.eventType(),
-                event.payload().fundingId(),
-                event.payload().reservationId()
+                event.payload().fundingId()
         );
 
         if (validateEventType(
@@ -93,11 +91,11 @@ public class FundingEventListener {
         try {
             rewardStockService.restoreStock(event.payload().fundingId());
 
-            log.info("펀딩 환불 재고 복원 완료 - 펀딩: {}, 예약: {}", event.payload().fundingId(), event.payload().reservationId());
+            log.info("펀딩 환불 재고 복원 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("펀딩 환불 이벤트 처리 실패 - 펀딩: {}, 예약: {}",
-                    event.payload().fundingId(), event.payload().reservationId(), e);
+            log.error("펀딩 환불 이벤트 처리 실패 - 펀딩: {}",
+                    event.payload().fundingId(), e);
         } finally {
             acknowledgment.acknowledge();
         }

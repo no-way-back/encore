@@ -64,6 +64,9 @@ public class Payment extends BaseEntity {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
+    @Column(name = "failed_at")
+    private LocalDateTime failedAt;
+
     @Column(name = "refunded_at")
     private LocalDateTime refundedAt;
 
@@ -89,6 +92,11 @@ public class Payment extends BaseEntity {
     public void complete(LocalDateTime approvedAt) {
         changeStatus(PaymentStatus.COMPLETED);
         this.approvedAt = approvedAt;
+    }
+
+    public void fail(LocalDateTime failedAt) {
+        changeStatus(PaymentStatus.FAILED);
+        this.failedAt = failedAt;
     }
 
     public void refund(RefundAccountInfo refundAccountInfo, String reason, LocalDateTime refundedAt) {

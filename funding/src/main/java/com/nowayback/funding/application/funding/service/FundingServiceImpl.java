@@ -131,7 +131,7 @@ public class FundingServiceImpl implements FundingService {
 		}
 
 		try {
-			ProcessPaymentRequest paymentRequest = ProcessPaymentRequest.from(funding.getId(), command);
+			ProcessPaymentRequest paymentRequest = ProcessPaymentRequest.from(funding.getId(), funding.getAmount(), command);
 			ProcessPaymentResponse paymentResponse = paymentClient.processPayment(command.userId(), paymentRequest);
 			UUID paymentId = paymentResponse.paymentId();
 			log.info("결제 성공 - paymentId: {}", paymentId);

@@ -125,6 +125,38 @@ class PaymentTest {
     }
 
     @Nested
+    @DisplayName("결제 실패")
+    class Fail {
+
+        @Test
+        @DisplayName("상태가 PENDING인 결제를 실패 처리하면 상태가 FAILED로 변경된다.")
+        void fail_givenPendingPayment_thenStatusChangedToFailed() {
+            /* given */
+            Payment payment = createPayment();
+
+            /* when */
+            payment.fail(FAILED_AT);
+
+            /* then */
+            assertThat(payment.getStatus()).isEqualTo(PaymentStatus.FAILED);
+        }
+
+        @ParameterizedTest(name = "상태가 {0}인 결제를 실패 처리 시도")
+        @DisplayName("PENDING 상태가 아닌 결제를 실패 처리하면 예외가 발생한다.")
+        @EnumSource(value = PaymentStatus.class, names = {"COMPLETED", "REFUNDED"})
+        void fail_givenNonPendingPayment_thenThrowException(PaymentStatus status) {
+            /* given */
+            Payment payment = createPaymentWithStatus(status);
+
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> payment.fail(FAILED_AT))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.INVALID_PAYMENT_STATUS_TRANSITION.getMessage());
+        }
+    }
+
+    @Nested
     @DisplayName("결제 환불")
     class Refund {
 

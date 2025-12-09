@@ -50,6 +50,7 @@ public class PaymentFixture {
     public static final String REFUND_REASON = "단순 변심";
 
     public static final LocalDateTime APPROVED_AT = LocalDateTime.now();
+    public static final LocalDateTime FAILED_AT = LocalDateTime.now();
     public static final LocalDateTime REFUNDED_AT = LocalDateTime.now();
 
     public static final int PAGE = 0;

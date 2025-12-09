@@ -21,4 +21,16 @@ public class AsyncConfig {
 		executor.initialize();
 		return executor;
 	}
+
+	@Bean(name = "statisticsTaskExecutor")
+	public Executor statisticsTaskExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(20);
+		executor.setMaxPoolSize(50);
+		executor.setQueueCapacity(2000);
+		executor.setThreadNamePrefix("statistics-");
+		executor.setRejectedExecutionHandler(new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy());
+		executor.initialize();
+		return executor;
+	}
 }

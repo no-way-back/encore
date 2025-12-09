@@ -1,5 +1,11 @@
 server:
   port: 18082
+  tomcat:
+    threads:
+      max: 250
+      min-spare: 50
+    accept-count: 1000
+    max-connections: 10000
 
 spring:
   datasource:
@@ -7,13 +13,17 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 40
+      minimum-idle: 20
+      connection-timeout: 3000
+      validation-timeout: 1000
+      leak-detection-threshold: 60000
 
   jpa:
     hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        show-sql: true
+      ddl-auto: validate
+    show-sql: false
 
   data:
     redis:

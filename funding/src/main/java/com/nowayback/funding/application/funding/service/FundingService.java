@@ -11,6 +11,7 @@ import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
 import com.nowayback.funding.application.funding.dto.result.FundingDetailResult;
 import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
 import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
+import com.nowayback.funding.domain.funding.entity.Funding;
 
 public interface FundingService {
 
@@ -23,4 +24,8 @@ public interface FundingService {
 	GetProjectSponsorsResult getProjectSponsors(GetProjectSponsorsCommand command);
 
 	FundingDetailResult getFundingDetail(UUID fundingId);
+
+	Funding completeFunding(UUID fundingId, UUID paymentId);
+
+	Funding failFunding(UUID fundingId);
 }

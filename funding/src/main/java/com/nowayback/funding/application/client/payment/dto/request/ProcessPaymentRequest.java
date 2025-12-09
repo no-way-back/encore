@@ -12,11 +12,11 @@ public record ProcessPaymentRequest(
 	String pgOrderId,
 	String pgMethod
 ) {
-	public static ProcessPaymentRequest from(UUID fundingId, CreateFundingCommand command) {
+	public static ProcessPaymentRequest from(UUID fundingId, Long totalAmount, CreateFundingCommand command) {
 		return new ProcessPaymentRequest(
 			fundingId,
 			command.projectId(),
-			command.amount(),
+			totalAmount,
 			command.pgPaymentKey(),
 			command.pgOrderId(),
 			command.pgMethod()

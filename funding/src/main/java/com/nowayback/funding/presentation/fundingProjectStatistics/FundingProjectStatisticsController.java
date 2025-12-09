@@ -22,12 +22,11 @@ public class FundingProjectStatisticsController implements FundingProjectStatist
         this.fundingProjectStatisticsService = fundingProjectStatisticsService;
     }
 
-    @Override
-    @GetMapping("/status?projectId={projectId}")
-    public ResponseEntity<FundingProjectStatisticsResponse> getFundingProjectStatistics(
-        @PathVariable("projectId") UUID projectId
-    ) {
-        FundingProjectStatisticsResult result = fundingProjectStatisticsService.getFundingProjectStatistics(projectId);
+	@GetMapping("/status/{projectId}")
+	public ResponseEntity<FundingProjectStatisticsResponse> getFundingProjectStatistics(
+		    @PathVariable("projectId") UUID projectId
+	) {
+		    FundingProjectStatisticsResult result = fundingProjectStatisticsService.getFundingProjectStatistics(projectId);
 
         FundingProjectStatisticsResponse response = FundingProjectStatisticsResponse.from(result);
 

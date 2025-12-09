@@ -22,7 +22,7 @@ public class FundingProjectStatisticsController {
 		this.fundingProjectStatisticsService = fundingProjectStatisticsService;
 	}
 
-	@GetMapping("/status?projectId={projectId}")
+	@GetMapping("/status/{projectId}")
 	public ResponseEntity<FundingProjectStatisticsResponse> getFundingProjectStatistics(
 		@PathVariable("projectId") UUID projectId
 	) {

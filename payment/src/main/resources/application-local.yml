@@ -25,6 +25,8 @@ spring:
     topic:
       funding-payment-process: funding-payment-process
       project-funding-failed: project-funding-failed
+      payment-confirm-succeeded: payment-confirm-succeeded
+      payment-confirm-failed: payment-confirm-failed
 
 payment:
   toss:

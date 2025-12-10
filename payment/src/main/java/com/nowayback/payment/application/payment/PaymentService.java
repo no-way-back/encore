@@ -15,6 +15,9 @@ import com.nowayback.payment.domain.payment.vo.FundingId;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.Money;
 import com.nowayback.payment.domain.payment.vo.ProjectId;
+import com.nowayback.payment.infrastructure.payment.kafka.funding.dto.PaymentConfirmFailedEvent;
+import com.nowayback.payment.infrastructure.payment.kafka.funding.dto.PaymentConfirmSucceededEvent;
+import com.nowayback.payment.infrastructure.payment.kafka.funding.producer.PaymentConfirmEventProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,8 +33,8 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentGatewayClient paymentGatewayClient;
-
     private final PaymentStatusLogService paymentStatusLogService;
+    private final PaymentConfirmEventProducer paymentConfirmEventProducer;
 
     private static final int MAX_PAGE_SIZE = 50;
 
@@ -73,6 +76,8 @@ public class PaymentService {
                 command.pgInfo(),
                 payment.getAmount()
         );
+
+        publishConfirmEvent(payment, pgResult);
 
         PaymentStatus previous = payment.getStatus();
         payment.confirm(command.pgInfo(), pgResult.approvedAt());
@@ -127,6 +132,23 @@ public class PaymentService {
                 reason,
                 amount
         );
+    }
+
+    private void publishConfirmEvent(Payment payment, PgConfirmResult pgResult) {
+        if (pgResult.status().equals("DONE")) {
+            paymentConfirmEventProducer.publishPaymentConfirmSucceededEvent(
+                    new PaymentConfirmSucceededEvent(
+                            payment.getFundingId().getId(),
+                            payment.getId()
+                    )
+            );
+        } else if (pgResult.status().equals("ABORTED") || pgResult.status().equals("EXPIRED")) {
+            paymentConfirmEventProducer.publishPaymentConfirmFailedEvent(
+                    new PaymentConfirmFailedEvent(
+                            payment.getFundingId().getId()
+                    )
+            );
+        }
     }
 
     private void validateSelf(UUID userId, UUID requesterId) {

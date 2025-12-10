@@ -3,6 +3,7 @@ package com.nowayback.reward.infrastructure.config;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingRefundEvent;
+import com.nowayback.reward.infrastructure.kafka.dto.funding.event.ProjectFundingSuccessEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -57,7 +58,7 @@ public class KafkaConfig {
     // ========== ProjectCreatedEvent 전용 설정 ==========
 
     @Bean
-    public ConsumerFactory<String, ProjectCreatedEvent> projectEventConsumerFactory() {
+    public ConsumerFactory<String, ProjectCreatedEvent> projectCreatedConsumerFactory() {
         JsonDeserializer<ProjectCreatedEvent> valueDeserializer =
                 new JsonDeserializer<>(ProjectCreatedEvent.class);
         valueDeserializer.addTrustedPackages("*");
@@ -78,9 +79,9 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ProjectCreatedEvent>
-    projectEventKafkaListenerContainerFactory() {
+    projectCreatedListenerFactory() {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, ProjectCreatedEvent>();
-        factory.setConsumerFactory(projectEventConsumerFactory());
+        factory.setConsumerFactory(projectCreatedConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
@@ -88,7 +89,7 @@ public class KafkaConfig {
     // ========== FundingCompletedEvent 전용 설정 ==========
 
     @Bean
-    public ConsumerFactory<String, FundingCompletedEvent> fundingCompletedEventConsumerFactory() {
+    public ConsumerFactory<String, FundingCompletedEvent> fundingCompletedConsumerFactory() {
         JsonDeserializer<FundingCompletedEvent> valueDeserializer =
                 new JsonDeserializer<>(FundingCompletedEvent.class);
         valueDeserializer.addTrustedPackages("*");
@@ -109,9 +110,9 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FundingCompletedEvent>
-    fundingCompletedEventKafkaListenerContainerFactory() {
+    fundingCompletedListenerFactory() {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingCompletedEvent>();
-        factory.setConsumerFactory(fundingCompletedEventConsumerFactory());
+        factory.setConsumerFactory(fundingCompletedConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
@@ -119,7 +120,7 @@ public class KafkaConfig {
     // ========== FundingFailedEvent 전용 설정 ==========
 
     @Bean
-    public ConsumerFactory<String, FundingFailedEvent> fundingFailedEventConsumerFactory() {
+    public ConsumerFactory<String, FundingFailedEvent> fundingFailedConsumerFactory() {
         JsonDeserializer<FundingFailedEvent> valueDeserializer =
                 new JsonDeserializer<>(FundingFailedEvent.class);
         valueDeserializer.addTrustedPackages("*");
@@ -140,9 +141,9 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FundingFailedEvent>
-    fundingFailedEventKafkaListenerContainerFactory() {
+    fundingFailedListenerFactory() {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingFailedEvent>();
-        factory.setConsumerFactory(fundingFailedEventConsumerFactory());
+        factory.setConsumerFactory(fundingFailedConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
@@ -150,7 +151,7 @@ public class KafkaConfig {
     // ========== FundingRefundEvent 전용 설정 ==========
 
     @Bean
-    public ConsumerFactory<String, FundingRefundEvent> fundingRefundEventConsumerFactory() {
+    public ConsumerFactory<String, FundingRefundEvent> fundingRefundConsumerFactory() {
         JsonDeserializer<FundingRefundEvent> valueDeserializer =
                 new JsonDeserializer<>(FundingRefundEvent.class);
         valueDeserializer.addTrustedPackages("*");
@@ -171,10 +172,42 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FundingRefundEvent>
-    fundingRefundEventKafkaListenerContainerFactory() {
+    fundingRefundListenerFactory() {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingRefundEvent>();
-        factory.setConsumerFactory(fundingRefundEventConsumerFactory());
+        factory.setConsumerFactory(fundingRefundConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
+
+    // ========== ProjectFundingSuccessEvent 전용 설정 ==========
+
+    @Bean
+    public ConsumerFactory<String, ProjectFundingSuccessEvent> projectFundingSuccessConsumerFactory() {
+        JsonDeserializer<ProjectFundingSuccessEvent> valueDeserializer =
+                new JsonDeserializer<>(ProjectFundingSuccessEvent.class);
+        valueDeserializer.addTrustedPackages("*");
+        valueDeserializer.setUseTypeMapperForKey(false);
+
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+
+        return new DefaultKafkaConsumerFactory<>(
+                props,
+                new StringDeserializer(),
+                valueDeserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, ProjectFundingSuccessEvent>
+    projectFundingSuccessListenerFactory() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, ProjectFundingSuccessEvent>();
+        factory.setConsumerFactory(projectFundingSuccessConsumerFactory());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        return factory;
+    }
+
 }

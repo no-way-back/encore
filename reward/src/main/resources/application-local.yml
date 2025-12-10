@@ -30,6 +30,7 @@ spring:
       funding-failed: funding-failed
       funding-refund: funding-refund
       funding-completed: funding-completed
+      project-funding-success: project-funding-success
 
   cloud:
     openfeign:

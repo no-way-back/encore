@@ -4,7 +4,6 @@ import com.nowayback.payment.application.settlement.SettlementService;
 import com.nowayback.payment.application.settlement.dto.result.SettlementResult;
 import com.nowayback.payment.presentation.settlement.dto.response.SettlementResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +12,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/settlements")
-public class SettlementController {
+public class SettlementController implements SettlementControllerDoc {
 
     private final SettlementService settlementService;
 

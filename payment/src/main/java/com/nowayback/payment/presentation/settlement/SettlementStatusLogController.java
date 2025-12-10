@@ -16,7 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/settlements/status-logs")
 @RequiredArgsConstructor
-public class SettlementStatusLogController {
+public class SettlementStatusLogController implements SettlementStatusLogControllerDoc {
 
     private final SettlementStatusLogService settlementStatusLogService;
 

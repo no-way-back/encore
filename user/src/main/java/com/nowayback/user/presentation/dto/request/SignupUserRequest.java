@@ -1,12 +1,16 @@
 package com.nowayback.user.presentation.dto.request;
 
 import com.nowayback.user.domain.vo.UserRole;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+@Schema(description = "회원가입 요청")
 public record SignupUserRequest (
+
+        @Schema(description = "아이디", example = "user", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "아이디를 입력해주세요.")
         @Pattern(
                 regexp = "^[a-z0-9_-]{4,20}$",
@@ -14,6 +18,7 @@ public record SignupUserRequest (
         )
         String username,
 
+        @Schema(description = "비밀번호", example = "password123!", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "비밀번호를 입력해주세요.")
         @Pattern(
                 regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,20}$",
@@ -21,10 +26,12 @@ public record SignupUserRequest (
         )
         String password,
 
+        @Schema(description = "이메일", example = "user@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "이메일을 입력해주세요.")
         @Email(message = "올바른 이메일 형식이 아닙니다.")
         String email,
 
+        @Schema(description = "닉네임", example = "유저", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "닉네임을 입력해주세요.")
         @Pattern(
                 regexp = "^[a-zA-Z0-9가-힣]{2,20}$",
@@ -32,6 +39,7 @@ public record SignupUserRequest (
         )
         String nickname,
 
+        @Schema(description = "역할", example = "USER", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull(message = "역할을 선택해주세요.")
         UserRole role
 ) {

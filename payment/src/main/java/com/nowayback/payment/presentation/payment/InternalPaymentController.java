@@ -18,7 +18,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/internal/payments")
 @RequiredArgsConstructor
-public class InternalPaymentController {
+public class InternalPaymentController implements InternalPaymentControllerDoc {
 
     private final PaymentService paymentService;
 

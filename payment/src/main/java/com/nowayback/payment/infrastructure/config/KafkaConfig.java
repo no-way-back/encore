@@ -1,5 +1,6 @@
 package com.nowayback.payment.infrastructure.config;
 
+import com.nowayback.payment.infrastructure.payment.kafka.funding.dto.FundingPaymentProcessEvent;
 import com.nowayback.payment.infrastructure.payment.kafka.funding.dto.ProjectFundingFailedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -72,6 +73,28 @@ public class KafkaConfig {
     }
 
     @Bean
+    public ConsumerFactory<String, FundingPaymentProcessEvent> fundingPaymentProcessEventConsumerFactory() {
+        JsonDeserializer<FundingPaymentProcessEvent> deserializer = new JsonDeserializer<>(FundingPaymentProcessEvent.class);
+
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeMapperForKey(false);
+        deserializer.setRemoveTypeHeaders(false);
+
+        Map<String, Object> props = new HashMap<>();
+
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+
+        return new DefaultKafkaConsumerFactory<>(
+                props,
+                new StringDeserializer(),
+                deserializer
+        );
+    }
+
+    @Bean
     public ConsumerFactory<String, ProjectFundingFailedEvent> projectFundingFailedEventConsumerFactory() {
         JsonDeserializer<ProjectFundingFailedEvent> deserializer = new JsonDeserializer<>(ProjectFundingFailedEvent.class);
 
@@ -97,6 +120,17 @@ public class KafkaConfig {
      * KafkaListener 컨테이너 팩토리
      * - 수동 커밋(MANUAL) 모드로 설정
      */
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, FundingPaymentProcessEvent> fundingPaymentProcessEventKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, FundingPaymentProcessEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(fundingPaymentProcessEventConsumerFactory());
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+
+        return factory;
+    }
+
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ProjectFundingFailedEvent> projectFundingEventKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, ProjectFundingFailedEvent> factory =

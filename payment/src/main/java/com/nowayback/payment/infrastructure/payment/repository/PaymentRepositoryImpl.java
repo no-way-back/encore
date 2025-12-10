@@ -27,13 +27,18 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     }
 
     @Override
+    public boolean existsByFundingIdAndStatus(FundingId fundingId, PaymentStatus paymentStatus) {
+        return jpaRepository.existsByFundingIdAndStatus(fundingId, paymentStatus);
+    }
+
+    @Override
     public Optional<Payment> findById(UUID paymentId) {
         return jpaRepository.findById(paymentId);
     }
 
     @Override
-    public Optional<Payment> findByFundingId(FundingId fundingId) {
-        return jpaRepository.findByFundingId(fundingId);
+    public Optional<Payment> findByFundingIdAndStatus(FundingId fundingId, PaymentStatus paymentStatus) {
+        return jpaRepository.findByFundingIdAndStatus(fundingId, paymentStatus);
     }
 
     @Override

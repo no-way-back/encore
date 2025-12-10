@@ -20,14 +20,14 @@ public class QRCodeMailService {
     /**
      * QR 코드 발급 이메일 발송
      */
-    public void sendQRCodeEmail(String email, UUID qrCodeId, String projectSubject) {
+    public void sendQRCodeEmail(String email, UUID qrCodeId, String projectTitle) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(email);
-            helper.setSubject("[encore] " + projectSubject + " 입장권 QR 코드가 발급되었습니다");
-            helper.setText(buildQRCodeEmailContent(qrCodeId, projectSubject), true);
+            helper.setSubject("[encore] " + projectTitle + " 입장권 QR 코드가 발급되었습니다");
+            helper.setText(buildQRCodeEmailContent(qrCodeId, projectTitle), true);
 
             mailSender.send(message);
             log.info("QR 코드 이메일 발송 성공 - 수신자: {}, QR ID: {}", email, qrCodeId);

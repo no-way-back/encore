@@ -1,11 +1,13 @@
 package com.nowayback.reward.application.qrcode;
 
+import com.nowayback.reward.application.external.ProjectClient;
 import com.nowayback.reward.application.qrcode.command.CreateQRCodeCommand;
 import com.nowayback.reward.application.qrcode.dto.QRCodeUseResult;
 import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
 import com.nowayback.reward.domain.qrcode.repository.QRCodeRepository;
+import com.nowayback.reward.infrastructure.client.dto.ProjectResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,12 +27,16 @@ public class QRCodeService {
     private final QRCodeRepository qrCodeRepository;
     private final RewardService rewardService;
     private final QRCodeMailService qrCodeMailService;
+    private final ProjectClient projectClient;
 
     /**
      * QR코드 생성
      * - UNUSED 상태로 저장
+     * - 프로젝트 제목 포함
      */
     public void createQRCode(CreateQRCodeCommand command) {
+        String projectTitle = projectClient.getProjectTitle(command.projectId());
+
         command.purchasedRewards().stream()
                 .filter(pr -> rewardService.isTicketType(pr.rewardId()))
                 .forEach(pr -> {
@@ -38,7 +44,8 @@ public class QRCodeService {
                                     () -> QRCodes.create(
                                             pr.rewardId(),
                                             command.fundingId(),
-                                            command.email()
+                                            command.email(),
+                                            projectTitle
                                     ))
                             .limit(pr.purchasedQuantity())
                             .toList();
@@ -61,7 +68,7 @@ public class QRCodeService {
      * 펀딩 목표 달성 시 해당 펀딩의 모든 QR 코드를 이메일로 발송
      */
     @Transactional(readOnly = true)
-    public void sendQRCodesByFunding(UUID projectId, String projectSubject) {
+    public void sendQRCodesByFunding(UUID projectId) {
         log.info("프로젝트 {} QR 코드 이메일 발송 시작", projectId);
 
         List<QRCodes> qrCodes = qrCodeRepository.findByFundingId(projectId);
@@ -72,7 +79,11 @@ public class QRCodeService {
         }
 
         qrCodes.forEach(qrCode ->
-                qrCodeMailService.sendQRCodeEmail(qrCode.getEmail(), qrCode.getId(), projectSubject)
+                qrCodeMailService.sendQRCodeEmail(
+                        qrCode.getEmail(),
+                        qrCode.getId(),
+                        qrCode.getTitle()
+                )
         );
 
         log.info("프로젝트 {} QR 코드 이메일 발송 완료 - 총 {}개", projectId, qrCodes.size());

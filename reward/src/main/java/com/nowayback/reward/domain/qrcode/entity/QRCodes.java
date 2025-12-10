@@ -33,8 +33,11 @@ public class QRCodes {
     @Embedded
     private FundingId fundingId;
 
-    @Column(name = "email", nullable = false)
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    private String title;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
@@ -43,17 +46,19 @@ public class QRCodes {
     private LocalDateTime usedAt;
 
     @Builder
-    public QRCodes(RewardId rewardId, FundingId fundingId, String email) {
+    public QRCodes(RewardId rewardId, FundingId fundingId, String email, String title) {
         this.rewardId = rewardId;
         this.fundingId = fundingId;
         this.email = email;
+        this.title = title;
     }
 
-    public static QRCodes create(UUID rewardId, UUID fundingId, String email) {
+    public static QRCodes create(UUID rewardId, UUID fundingId, String email, String title) {
         return QRCodes.builder()
                 .rewardId(RewardId.of(rewardId))
                 .fundingId(FundingId.of(fundingId))
                 .email(email)
+                .title(title)
                 .build();
     }
 

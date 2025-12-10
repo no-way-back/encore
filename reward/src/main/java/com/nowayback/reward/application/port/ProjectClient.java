@@ -1,4 +1,4 @@
-package com.nowayback.reward.application.external;
+package com.nowayback.reward.application.port;
 
 import java.util.UUID;
 

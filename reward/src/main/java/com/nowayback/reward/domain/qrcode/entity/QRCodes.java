@@ -24,8 +24,7 @@ import static com.nowayback.reward.domain.qrcode.vo.QrCodeStatus.*;
 public class QRCodes {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private UUID id;  // @GeneratedValue 제거
 
     @Embedded
     private RewardId rewardId;
@@ -39,6 +38,9 @@ public class QRCodes {
     @Column(nullable = false)
     private String title;
 
+    @Column(length = 1000)
+    private String qrCodeImageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private QrCodeStatus status = UNUSED;
@@ -46,19 +48,25 @@ public class QRCodes {
     private LocalDateTime usedAt;
 
     @Builder
-    public QRCodes(RewardId rewardId, FundingId fundingId, String email, String title) {
+    private QRCodes(UUID id, RewardId rewardId, FundingId fundingId,
+                    String email, String title, String qrCodeImageUrl) {
+        this.id = id;
         this.rewardId = rewardId;
         this.fundingId = fundingId;
         this.email = email;
         this.title = title;
+        this.qrCodeImageUrl = qrCodeImageUrl;
     }
 
-    public static QRCodes create(UUID rewardId, UUID fundingId, String email, String title) {
+    public static QRCodes createWithId(UUID id, UUID rewardId, UUID fundingId,
+                                        String email, String title, String qrCodeImageUrl) {
         return QRCodes.builder()
+                .id(id)
                 .rewardId(RewardId.of(rewardId))
                 .fundingId(FundingId.of(fundingId))
                 .email(email)
                 .title(title)
+                .qrCodeImageUrl(qrCodeImageUrl)
                 .build();
     }
 
@@ -71,7 +79,6 @@ public class QRCodes {
         this.usedAt = LocalDateTime.now();
     }
 
-    // private 헬퍼 메서드
     private void validateUsable() {
         if (this.status == USED) {
             throw new RewardException(QRCODE_ALREADY_USED);

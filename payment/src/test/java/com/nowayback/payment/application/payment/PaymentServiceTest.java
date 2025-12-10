@@ -6,6 +6,7 @@ import com.nowayback.payment.domain.exception.PaymentErrorCode;
 import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
 import com.nowayback.payment.domain.payment.vo.*;
+import com.nowayback.payment.infrastructure.payment.kafka.funding.producer.PaymentConfirmEventProducer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,9 @@ class PaymentServiceTest {
 
     @Mock
     private PaymentStatusLogService paymentStatusLogService;
+
+    @Mock
+    private PaymentConfirmEventProducer paymentConfirmEventProducer;
 
     @InjectMocks
     private PaymentService paymentService;

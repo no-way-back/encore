@@ -37,6 +37,8 @@ public class PaymentService {
 
     @Transactional
     public PaymentResult createPayment(CreatePaymentCommand command) {
+        validateExistingPendingPayment(command.fundingId());
+
         Payment payment = Payment.create(
                 command.userId(),
                 command.fundingId(),
@@ -64,7 +66,7 @@ public class PaymentService {
 
     @Transactional
     public PaymentResult confirmPayment(ConfirmPaymentCommand command, UUID requesterId) {
-        Payment payment = getPaymentByFundingId(command.fundingId());
+        Payment payment = getPendingPaymentByFundingId(command.fundingId());
         validateSelf(payment.getUserId().getId(), requesterId);
 
         PgConfirmResult pgResult = paymentGatewayClient.confirmPayment(
@@ -112,9 +114,9 @@ public class PaymentService {
                 .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
     }
 
-    private Payment getPaymentByFundingId(FundingId fundingId) {
-        return paymentRepository.findByFundingId(fundingId)
-                .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+    private Payment getPendingPaymentByFundingId(FundingId fundingId) {
+        return paymentRepository.findByFundingIdAndStatus(fundingId, PaymentStatus.PENDING)
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.PENDING_PAYMENT_NOT_FOUND));
     }
 
     private void savePaymentStatusLog(Payment payment, PaymentStatus prevStatus, String reason, Money amount) {
@@ -130,6 +132,12 @@ public class PaymentService {
     private void validateSelf(UUID userId, UUID requesterId) {
         if (!userId.equals(requesterId)) {
             throw new PaymentException(PaymentErrorCode.FORBIDDEN_PAYMENT_SELF_ACCESS);
+        }
+    }
+
+    private void validateExistingPendingPayment(FundingId fundingId) {
+        if (paymentRepository.existsByFundingIdAndStatus(fundingId, PaymentStatus.PENDING)) {
+            throw new PaymentException(PaymentErrorCode.PAYMENT_ALREADY_PENDING);
         }
     }
 

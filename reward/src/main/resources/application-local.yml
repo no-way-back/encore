@@ -2,6 +2,8 @@ server:
   port: 18083
 
 spring:
+  application:
+    name: reward-service
   datasource:
     url: jdbc:postgresql://localhost:5432/encore_db
     username: user
@@ -29,6 +31,14 @@ spring:
       funding-refund: funding-refund
       funding-completed: funding-completed
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 5000
+            loggerLevel: BASIC
 
 eureka:
   client:
@@ -36,6 +46,10 @@ eureka:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
     fetch-registry: true
     register-with-eureka: true
+
+service:
+  project:
+    url: http://localhost:18085
 
 logging:
   level:

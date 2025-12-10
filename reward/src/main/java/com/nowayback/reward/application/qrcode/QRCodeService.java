@@ -1,14 +1,11 @@
 package com.nowayback.reward.application.qrcode;
 
 import com.nowayback.reward.application.port.ProjectClient;
-import com.nowayback.reward.application.port.QRCodeImageStorage;
 import com.nowayback.reward.application.qrcode.command.CreateQRCodeCommand;
 import com.nowayback.reward.application.qrcode.dto.QRCodeUseResult;
-import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
 import com.nowayback.reward.domain.qrcode.repository.QRCodeRepository;
-import com.nowayback.reward.infrastructure.qrcode.QRCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.nowayback.reward.domain.exception.RewardErrorCode.QRCODE_NOT_FOUND;
 
@@ -28,41 +24,19 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.QRCODE_NOT_F
 public class QRCodeService {
 
     private final QRCodeRepository qrCodeRepository;
-    private final RewardService rewardService;
     private final QRCodeMailService qrCodeMailService;
     private final ProjectClient projectClient;
-    private final QRCodeGenerator qrCodeGenerator;
-    private final QRCodeImageStorage imageStorage;
+    private final TicketQRCodeGenerator ticketQRCodeGenerator;
 
     @Transactional
     public void createQRCode(CreateQRCodeCommand command) {
         String projectTitle = projectClient.getProjectTitle(command.projectId());
         log.info("프로젝트 제목 조회 완료: {}", projectTitle);
 
-        command.purchasedRewards().stream()
-                .filter(pr -> rewardService.isTicketType(pr.rewardId()))
-                .forEach(pr -> {
-                    var qrCodes = Stream.generate(() -> {
-                                UUID qrCodeId = UUID.randomUUID();
+        List<QRCodes> qrCodes = ticketQRCodeGenerator.generateFromPurchasedRewards(command, projectTitle);
 
-                                byte[] qrImage = qrCodeGenerator.generateQRCodeImage(qrCodeId);
-                                String imageUrl = imageStorage.saveQRCodeImage(qrCodeId, qrImage);
-
-                                return QRCodes.createWithId(
-                                        qrCodeId,
-                                        pr.rewardId(),
-                                        command.fundingId(),
-                                        command.email(),
-                                        projectTitle,
-                                        imageUrl
-                                );
-                            })
-                            .limit(pr.purchasedQuantity())
-                            .toList();
-
-                    qrCodeRepository.saveAll(qrCodes);
-                    log.info("QR 코드 {}개 생성 완료", qrCodes.size());
-                });
+        qrCodeRepository.saveAll(qrCodes);
+        log.info("총 {}개의 QR 코드 생성 완료", qrCodes.size());
     }
 
     @Transactional

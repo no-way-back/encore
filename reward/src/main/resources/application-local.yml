@@ -51,6 +51,11 @@ service:
   project:
     url: http://localhost:18085
 
+qrcode:
+  width: 300
+  height: 300
+  base-url: http://localhost:8080
+
 logging:
   level:
     root: INFO

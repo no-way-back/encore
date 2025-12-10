@@ -33,7 +33,7 @@ spring:
             - id: reward-service
               uri: lb://reward-service
               predicates:
-                - Path=/rewards/**
+                - Path=/rewards/**, /qrcodes/**
 
             - id: payment-service
               uri: lb://payment-service

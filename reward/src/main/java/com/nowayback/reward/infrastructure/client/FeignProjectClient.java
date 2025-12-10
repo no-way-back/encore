@@ -2,7 +2,7 @@ package com.nowayback.reward.infrastructure.client;
 
 import java.util.UUID;
 
-import com.nowayback.reward.application.external.ProjectClient;
+import com.nowayback.reward.application.port.ProjectClient;
 import com.nowayback.reward.infrastructure.client.dto.ProjectResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

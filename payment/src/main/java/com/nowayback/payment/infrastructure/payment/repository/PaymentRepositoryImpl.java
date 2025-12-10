@@ -2,6 +2,7 @@ package com.nowayback.payment.infrastructure.payment.repository;
 
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
+import com.nowayback.payment.domain.payment.vo.FundingId;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.ProjectId;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,11 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     @Override
     public Optional<Payment> findById(UUID paymentId) {
         return jpaRepository.findById(paymentId);
+    }
+
+    @Override
+    public Optional<Payment> findByFundingId(FundingId fundingId) {
+        return jpaRepository.findByFundingId(fundingId);
     }
 
     @Override

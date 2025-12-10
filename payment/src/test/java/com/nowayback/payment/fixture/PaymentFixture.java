@@ -1,6 +1,7 @@
 package com.nowayback.payment.fixture;
 
 import com.nowayback.payment.application.payment.dto.command.ConfirmPaymentCommand;
+import com.nowayback.payment.application.payment.dto.command.CreatePaymentCommand;
 import com.nowayback.payment.application.payment.dto.command.RefundPaymentCommand;
 import com.nowayback.payment.application.payment.dto.result.PaymentResult;
 import com.nowayback.payment.application.payment.service.pg.dto.PgConfirmResult;
@@ -68,6 +69,12 @@ public class PaymentFixture {
         );
     }
 
+    public static Payment createConfirmedPayment() {
+        Payment payment = createPayment();
+        payment.confirm(PG_INFO, APPROVED_AT);
+        return payment;
+    }
+
     public static Payment createPaymentWithStatus(PaymentStatus status) {
         Payment payment = createPayment();
         setPrivateField(payment, "status", status);
@@ -92,11 +99,15 @@ public class PaymentFixture {
 
     /* payment command */
 
-    public static final ConfirmPaymentCommand CONFIRM_PAYMENT_COMMAND = ConfirmPaymentCommand.of(
+    public static final CreatePaymentCommand CREATE_PAYMENT_COMMAND = CreatePaymentCommand.of(
             USER_UUID,
             FUNDING_UUID,
             PROJECT_UUID,
-            AMOUNT_VALUE,
+            AMOUNT_VALUE
+    );
+
+    public static final ConfirmPaymentCommand CONFIRM_PAYMENT_COMMAND = ConfirmPaymentCommand.of(
+            FUNDING_UUID,
             PG_METHOD,
             PG_PAYMENT_KEY,
             PG_ORDER_ID
@@ -122,16 +133,12 @@ public class PaymentFixture {
 
     public static final ConfirmPaymentRequest VALID_CONFIRM_PAYMENT_REQUEST = new ConfirmPaymentRequest(
             FUNDING_UUID,
-            PROJECT_UUID,
-            AMOUNT_VALUE,
             PG_METHOD,
             PG_PAYMENT_KEY,
             PG_ORDER_ID
     );
 
     public static final ConfirmPaymentRequest INVALID_CONFIRM_PAYMENT_REQUEST = new ConfirmPaymentRequest(
-            null,
-            null,
             null,
             "",
             "",

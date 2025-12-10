@@ -120,7 +120,7 @@ public class Funding extends BaseEntity {
 			throw new FundingException(INVALID_STATUS_TRANSITION);
 		}
 
-		this.amount += newAmount;
+		this.amount = newAmount;
 	}
 
 	// ==================== 예약 관리 ====================

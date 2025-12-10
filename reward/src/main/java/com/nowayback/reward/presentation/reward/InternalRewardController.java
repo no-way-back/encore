@@ -17,11 +17,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/internal/rewards")
 @RequiredArgsConstructor
-public class InternalRewardController {
+public class InternalRewardController implements InternalRewardControllerDoc {
 
     private final RewardService rewardService;
     private final RewardStockService rewardStockService;
 
+    @Override
     @GetMapping("/{projectId}")
     public ResponseEntity<RewardListResponse> getById(@PathVariable UUID projectId) {
         return ResponseEntity.ok(
@@ -29,6 +30,7 @@ public class InternalRewardController {
         );
     }
 
+    @Override
     @PostMapping("/reserve-stock")
     public ResponseEntity<StockReserveResponse> reserveStock(
             @RequestHeader(value = "X-User-Id") UUID userId,

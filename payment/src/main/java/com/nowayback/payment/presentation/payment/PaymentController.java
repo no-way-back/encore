@@ -1,8 +1,6 @@
 package com.nowayback.payment.presentation.payment;
 
 import com.nowayback.payment.application.payment.PaymentService;
-import com.nowayback.payment.application.payment.dto.command.ConfirmPaymentCommand;
-import com.nowayback.payment.application.payment.dto.command.RefundPaymentCommand;
 import com.nowayback.payment.application.payment.dto.result.PaymentResult;
 import com.nowayback.payment.infrastructure.auth.user.AuthUser;
 import com.nowayback.payment.infrastructure.auth.user.CurrentUser;
@@ -18,7 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/payments")
 @RequiredArgsConstructor
-public class PaymentController {
+public class PaymentController implements PaymentControllerDoc {
 
     private final PaymentService paymentService;
 

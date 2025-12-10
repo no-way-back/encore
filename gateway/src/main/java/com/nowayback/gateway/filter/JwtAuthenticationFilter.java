@@ -34,6 +34,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/auth/signup"
     );
 
+    private static final List<String> SWAGGER_PATTERNS = List.of(
+            "/v3/api-docs",
+            "/swagger-ui",
+            "/swagger-ui.html"
+    );
+
     public JwtAuthenticationFilter(
             @Value("${jwt.secret}") String secret,
             TokenBlacklistRepository tokenBlacklistRepository
@@ -114,7 +120,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isPublicPath(String path) {
-        return PUBLIC_PATHS.stream().anyMatch(path::equals);
+        if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
+            return true;
+        }
+
+        return SWAGGER_PATTERNS.stream().anyMatch(path::contains);
     }
 
     @Override

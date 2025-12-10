@@ -20,25 +20,60 @@ spring:
               predicates:
                 - Path=/users/**,/auth/**
 
+            - id: user-service-docs
+              uri: lb://user-service
+              predicates:
+                - Path=/user-service/v3/api-docs
+              filters:
+                - RewritePath=/user-service/v3/api-docs, /v3/api-docs
+
             - id: project-service
               uri: lb://project-service
               predicates:
-                - Path=/projects/**
+                - Path=/projects/**, /project-drafts/**
+
+            - id: project-service-docs
+              uri: lb://project-service
+              predicates:
+                - Path=/project-service/v3/api-docs
+              filters:
+                - RewritePath=/project-service/v3/api-docs, /v3/api-docs
 
             - id: funding-service
               uri: lb://funding-service
               predicates:
                 - Path=/fundings/**
 
+            - id: funding-service-docs
+              uri: lb://funding-service
+              predicates:
+                - Path=/funding-service/v3/api-docs
+              filters:
+                - RewritePath=/funding-service/v3/api-docs, /v3/api-docs
+
             - id: reward-service
               uri: lb://reward-service
               predicates:
                 - Path=/rewards/**, /qrcodes/**
 
+            - id: reward-service-docs
+              uri: lb://reward-service
+              predicates:
+                - Path=/reward-service/v3/api-docs
+              filters:
+                - RewritePath=/reward-service/v3/api-docs, /v3/api-docs
+
             - id: payment-service
               uri: lb://payment-service
               predicates:
                 - Path=/payments/**
+
+            - id: payment-service-docs
+              uri: lb://payment-service
+              predicates:
+                - Path=/payment-service/v3/api-docs
+              filters:
+                - RewritePath=/payment-service/v3/api-docs, /v3/api-docs
 
           globalcors:
             corsConfigurations:
@@ -69,6 +104,20 @@ spring:
       health:
         show-details: always
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: User Service
+        url: /user-service/v3/api-docs
+      - name: Funding Service
+        url: /funding-service/v3/api-docs
+      - name: Reward Service
+        url: /reward-service/v3/api-docs
+      - name: Payment Service
+        url: /payment-service/v3/api-docs
+      - name: Project Service
+        url: /project-service/v3/api-docs
 
 eureka:
   client:

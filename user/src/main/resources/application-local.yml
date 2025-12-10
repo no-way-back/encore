@@ -27,6 +27,17 @@ jwt:
   secret: ${JWT_SECRET:yH2Nf5Q9bV4mE1uU2Z+8HsWlQq7R3pOjfL5xB0kDcZ8=}
   access-expire-time-ms: 86400000
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    display-request-duration: true
+    groups-order: desc
+  show-actuator: false
+
 eureka:
   client:
     service-url:

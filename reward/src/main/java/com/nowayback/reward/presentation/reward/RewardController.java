@@ -13,10 +13,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/rewards")
 @RequiredArgsConstructor
-public class RewardController {
+public class RewardController implements RewardControllerDoc {
 
     private final RewardService rewardService;
 
+    @Override
     @GetMapping("/{projectId}")
     public ResponseEntity<?> getById(@PathVariable("projectId") UUID projectId) {
         return ResponseEntity.ok(
@@ -25,6 +26,7 @@ public class RewardController {
         );
     }
 
+    @Override
     @PatchMapping("/{rewardId}")
     public ResponseEntity<UpdateRewardRequest> updateReward(
             @PathVariable UUID rewardId,
@@ -36,6 +38,7 @@ public class RewardController {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @DeleteMapping("/{rewardId}")
     public ResponseEntity<Void> deleteReward(@PathVariable UUID rewardId) {
         rewardService.delete(rewardId);

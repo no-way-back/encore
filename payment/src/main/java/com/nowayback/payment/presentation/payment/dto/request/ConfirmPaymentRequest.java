@@ -13,15 +13,6 @@ public record ConfirmPaymentRequest (
         @NotNull(message = "펀딩 ID는 필수 값입니다.")
         UUID fundingId,
 
-        @Schema(description = "프로젝트 ID", example = "00000000-0000-0000-0000-000000000000")
-        @NotNull(message = "프로젝트 ID는 필수 값입니다.")
-        UUID projectId,
-
-        @Schema(description = "결제 금액", example = "10000")
-        @NotNull(message = "결제 금액은 필수 값입니다.")
-        Long amount,
-
-        @Schema(description = "PG 결제 키", example = "pg_payment_key_123456")
         @NotBlank(message = "PG 결제 키는 필수 값입니다.")
         String pgPaymentKey,
 

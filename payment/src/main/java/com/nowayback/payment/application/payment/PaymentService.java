@@ -1,6 +1,7 @@
 package com.nowayback.payment.application.payment;
 
 import com.nowayback.payment.application.payment.dto.command.ConfirmPaymentCommand;
+import com.nowayback.payment.application.payment.dto.command.CreatePaymentCommand;
 import com.nowayback.payment.application.payment.dto.command.RefundPaymentCommand;
 import com.nowayback.payment.application.payment.dto.result.PaymentResult;
 import com.nowayback.payment.application.payment.service.pg.PaymentGatewayClient;
@@ -10,6 +11,7 @@ import com.nowayback.payment.domain.exception.PaymentErrorCode;
 import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.entity.Payment;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
+import com.nowayback.payment.domain.payment.vo.FundingId;
 import com.nowayback.payment.domain.payment.vo.PaymentStatus;
 import com.nowayback.payment.domain.payment.vo.Money;
 import com.nowayback.payment.domain.payment.vo.ProjectId;
@@ -33,6 +35,20 @@ public class PaymentService {
 
     private static final int MAX_PAGE_SIZE = 50;
 
+    @Transactional
+    public PaymentResult createPayment(CreatePaymentCommand command) {
+        Payment payment = Payment.create(
+                command.userId(),
+                command.fundingId(),
+                command.projectId(),
+                command.amount()
+        );
+
+        Payment savedPayment = paymentRepository.save(payment);
+
+        return PaymentResult.from(savedPayment);
+    }
+
     @Transactional(readOnly = true)
     public Page<PaymentResult> getPayments(UUID userId, UUID projectId, int page, int size, UUID requesterId, String role) {
         Pageable pageable = getPageable(page, size);
@@ -47,25 +63,20 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResult confirmPayment(ConfirmPaymentCommand command) {
-        PgConfirmResult pgResponse = paymentGatewayClient.confirmPayment(
-                command.pgInfo(),
-                command.amount()
-        );
+    public PaymentResult confirmPayment(ConfirmPaymentCommand command, UUID requesterId) {
+        Payment payment = getPaymentByFundingId(command.fundingId());
+        validateSelf(payment.getUserId().getId(), requesterId);
 
-        Payment payment = Payment.create(
-                command.userId(),
-                command.fundingId(),
-                command.projectId(),
-                command.amount(),
-                command.pgInfo()
+        PgConfirmResult pgResult = paymentGatewayClient.confirmPayment(
+                command.pgInfo(),
+                payment.getAmount()
         );
 
         PaymentStatus previous = payment.getStatus();
-        payment.complete(pgResponse.approvedAt());
+        payment.confirm(command.pgInfo(), pgResult.approvedAt());
 
         paymentRepository.save(payment);
-        savePaymentStatusLog(payment, previous, null, Money.of(pgResponse.totalAmount()));
+        savePaymentStatusLog(payment, previous, null, Money.of(pgResult.totalAmount()));
 
         return PaymentResult.from(payment);
     }
@@ -98,6 +109,11 @@ public class PaymentService {
 
     private Payment getPaymentById(UUID paymentId) {
         return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+    }
+
+    private Payment getPaymentByFundingId(FundingId fundingId) {
+        return paymentRepository.findByFundingId(fundingId)
                 .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
     }
 

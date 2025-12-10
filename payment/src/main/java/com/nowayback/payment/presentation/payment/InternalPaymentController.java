@@ -22,22 +22,20 @@ public class InternalPaymentController implements InternalPaymentControllerDoc {
 
     private final PaymentService paymentService;
 
+    @Deprecated
     @PostMapping("/confirm")
     public ResponseEntity<ConfirmPaymentResponse> confirmPayment(
             @RequestHeader(name = "X-User-Id") UUID userId,
             @Valid @RequestBody ConfirmPaymentRequest request
     ) {
         ConfirmPaymentCommand command = ConfirmPaymentCommand.of(
-                userId,
                 request.fundingId(),
-                request.projectId(),
-                request.amount(),
                 request.pgMethod(),
                 request.pgPaymentKey(),
                 request.pgOrderId()
         );
 
-        ConfirmPaymentResponse response = ConfirmPaymentResponse.from(paymentService.confirmPayment(command));
+        ConfirmPaymentResponse response = ConfirmPaymentResponse.from(paymentService.confirmPayment(command, userId));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

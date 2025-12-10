@@ -66,6 +66,37 @@ class PaymentRepositoryTest {
     }
 
     @Nested
+    @DisplayName("펀딩 ID와 상태로 결제 존재 여부 확인")
+    class ExistsByFundingIdAndStatus {
+
+        @Test
+        @DisplayName("펀딩 ID와 상태에 대한 결제가 존재하면 true를 반환한다.")
+        void existsByFundingIdAndStatus_whenExists_returnTrue() {
+            /* given */
+            Payment payment = createPayment();
+            entityManager.persist(payment);
+            entityManager.flush();
+
+            /* when */
+            boolean exists = paymentRepository.existsByFundingIdAndStatus(payment.getFundingId(), PaymentStatus.PENDING);
+
+            /* then */
+            assertThat(exists).isTrue();
+        }
+
+        @Test
+        @DisplayName("펀딩 ID와 상태에 대한 결제가 존재하지 않으면 false를 반환한다.")
+        void existsByFundingIdAndStatus_whenNotExists_returnFalse() {
+            /* given */
+            /* when */
+            boolean exists = paymentRepository.existsByFundingIdAndStatus(FUNDING_ID, PaymentStatus.PENDING);
+
+            /* then */
+            assertThat(exists).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("ID로 결제 조회")
     class FindById {
 
@@ -97,11 +128,11 @@ class PaymentRepositoryTest {
     }
 
     @Nested
-    @DisplayName("펀딩 ID로 결제 조회")
-    class FindByFundingId {
+    @DisplayName("펀딩 ID와 상태로 결제 조회")
+    class FindByFundingIdAndStatus {
 
         @Test
-        @DisplayName("펀딩 ID에 대한 결제가 존재하면 결제를 반환한다.")
+        @DisplayName("펀딩 ID와 상태에 대한 결제가 존재하면 결제를 반환한다.")
         void findByFundingId_whenExists_returnPayment() {
             /* given */
             Payment payment = createPayment();
@@ -109,7 +140,7 @@ class PaymentRepositoryTest {
             entityManager.flush();
 
             /* when */
-            Optional<Payment> foundPayment = paymentRepository.findByFundingId(FUNDING_ID);
+            Optional<Payment> foundPayment = paymentRepository.findByFundingIdAndStatus(FUNDING_ID, PaymentStatus.PENDING);
 
             /* then */
             assertThat(foundPayment).isPresent();
@@ -120,7 +151,7 @@ class PaymentRepositoryTest {
         void findByFundingId_whenNotExists_returnEmptyOptional() {
             /* given */
             /* when */
-            Optional<Payment> foundPayment = paymentRepository.findByFundingId(FUNDING_ID);
+            Optional<Payment> foundPayment = paymentRepository.findByFundingIdAndStatus(FUNDING_ID, PaymentStatus.PENDING);
 
             /* then */
             assertThat(foundPayment).isNotPresent();

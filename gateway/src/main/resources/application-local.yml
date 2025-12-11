@@ -54,7 +54,7 @@ spring:
             - id: reward-service
               uri: lb://reward-service
               predicates:
-                - Path=/rewards/**,/qrcodes/**
+                - Path=/rewards/**, /qrcodes/**
 
             - id: reward-service-docs
               uri: lb://reward-service

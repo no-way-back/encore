@@ -55,4 +55,9 @@ public class FundingRepositoryImpl implements FundingRepository {
 	public Long sumAmountByProjectIdAndStatus(UUID projectId, FundingStatus status) {
 		return fundingJpaRepository.sumAmountByProjectIdAndStatus(projectId, status);
 	}
+
+    @Override
+    public Optional<Funding> findByIdWithReservations(UUID id) {
+        return fundingJpaRepository.findByIdWithReservations(id);
+    }
 }

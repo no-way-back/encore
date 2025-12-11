@@ -284,7 +284,7 @@ public class FundingServiceImpl implements FundingService {
 	public Funding completeFunding(UUID fundingId, UUID paymentId) {
 		log.info("펀딩 완료 처리 시작 - fundingId: {}, paymentId: {}", fundingId, paymentId);
 
-		Funding funding = fundingRepository.findById(fundingId)
+		Funding funding = fundingRepository.findByIdWithReservations(fundingId)
 			.orElseThrow(() -> new FundingException(FUNDING_NOT_FOUND));
 
 		funding.completeFunding(paymentId);
@@ -306,7 +306,7 @@ public class FundingServiceImpl implements FundingService {
 	public Funding failFunding(UUID fundingId) {
 		log.info("펀딩 실패 처리 시작 - fundingId: {}", fundingId);
 
-		Funding funding = fundingRepository.findById(fundingId)
+		Funding funding = fundingRepository.findByIdWithReservations(fundingId)
 			.orElseThrow(() -> {
 				log.error("Funding을 찾을 수 없음 - fundingId: {}", fundingId);
 				return new FundingException(FUNDING_NOT_FOUND);

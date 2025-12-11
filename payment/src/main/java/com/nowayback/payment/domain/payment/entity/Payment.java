@@ -44,9 +44,9 @@ public class Payment extends BaseEntity {
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "pgMethod", column = @Column(name = "pg_method", updatable = false, nullable = false, length = 20)),
-            @AttributeOverride(name = "pgPaymentKey", column = @Column(name = "pg_payment_key", updatable = false, nullable = false, length = 100)),
-            @AttributeOverride(name = "pgOrderId", column = @Column(name = "pg_order_id", updatable = false, nullable = false, length = 255))
+            @AttributeOverride(name = "pgMethod", column = @Column(name = "pg_method", length = 20)),
+            @AttributeOverride(name = "pgPaymentKey", column = @Column(name = "pg_payment_key", length = 100)),
+            @AttributeOverride(name = "pgOrderId", column = @Column(name = "pg_order_id"))
     })
     private PgInfo pgInfo;
 
@@ -64,6 +64,9 @@ public class Payment extends BaseEntity {
     @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
+    @Column(name = "failed_at")
+    private LocalDateTime failedAt;
+
     @Column(name = "refunded_at")
     private LocalDateTime refundedAt;
 
@@ -79,16 +82,29 @@ public class Payment extends BaseEntity {
 
     /* Factory Method */
 
-    public static Payment create(UserId userId, FundingId fundingId, ProjectId projectId, Money amount, PgInfo pgInfo) {
-        validatePayment(userId, fundingId, projectId, amount, pgInfo);
-        return new Payment(userId, fundingId, projectId, amount, pgInfo, null);
+    public static Payment create(UserId userId, FundingId fundingId, ProjectId projectId, Money amount) {
+        validatePayment(userId, fundingId, projectId, amount);
+        return new Payment(userId, fundingId, projectId, amount, null, null);
     }
 
     /* Business Methods */
 
+    // Deprecated: Use confirm(PgInfo pgInfo) instead
     public void complete(LocalDateTime approvedAt) {
         changeStatus(PaymentStatus.COMPLETED);
         this.approvedAt = approvedAt;
+    }
+
+    public void confirm(PgInfo pgInfo, LocalDateTime approvedAt) {
+        validatePgInfo(pgInfo);
+        changeStatus(PaymentStatus.COMPLETED);
+        this.pgInfo = pgInfo;
+        this.approvedAt = approvedAt;
+    }
+
+    public void fail(LocalDateTime failedAt) {
+        changeStatus(PaymentStatus.FAILED);
+        this.failedAt = failedAt;
     }
 
     public void refund(RefundAccountInfo refundAccountInfo, String reason, LocalDateTime refundedAt) {
@@ -108,12 +124,11 @@ public class Payment extends BaseEntity {
 
     /* Validation Methods */
 
-    private static void validatePayment(UserId userId, FundingId fundingId, ProjectId projectId, Money amount, PgInfo pgInfo) {
+    private static void validatePayment(UserId userId, FundingId fundingId, ProjectId projectId, Money amount) {
         validateUserId(userId);
         validateFundingId(fundingId);
         validateProjectId(projectId);
         validateAmount(amount);
-        validatePgInfo(pgInfo);
     }
 
     private static void validateUserId(UserId userId) {

@@ -13,7 +13,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PaymentJpaRepository extends JpaRepository<Payment, UUID> {
-    Optional<Payment> findByFundingId(FundingId fundingId);
+    boolean existsByFundingIdAndStatus(FundingId fundingId, PaymentStatus paymentStatus);
+    Optional<Payment> findByFundingIdAndStatus(FundingId fundingId, PaymentStatus paymentStatus);
 
     @Query("SELECT SUM(p.amount.amount) FROM Payment p WHERE p.projectId = :projectId AND p.status = 'COMPLETED'")
     Long sumAmountByProjectId(@Param("projectId") ProjectId projectId);

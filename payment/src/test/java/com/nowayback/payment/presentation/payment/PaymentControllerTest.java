@@ -1,12 +1,15 @@
 package com.nowayback.payment.presentation.payment;
 
 import com.nowayback.payment.application.payment.PaymentService;
+import com.nowayback.payment.application.payment.dto.command.ConfirmPaymentCommand;
 import com.nowayback.payment.presentation.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import java.util.UUID;
 
 import static com.nowayback.payment.fixture.PaymentFixture.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -59,6 +62,51 @@ class PaymentControllerTest extends ControllerTest {
                     .param("page", "0")
                     .param("size", "10"))
 
+                    .andExpect(status().isUnauthorized());
+        }
+    }
+
+    @Nested
+    @DisplayName("결제 승인")
+    class ConfirmPayment {
+
+        @Test
+        @DisplayName("유효한 요청이 들어오면 결제 승인에 성공한다.")
+        void confirmPayment_validRequest_success() throws Exception {
+            /* given */
+            given(paymentService.confirmPayment(any(ConfirmPaymentCommand.class), any(UUID.class)))
+                    .willReturn(PAYMENT_RESULT_COMPLETED);
+
+            /* when */
+            /* then */
+            performWithAuth(post(BASE_URL + "/confirm")
+                    .contentType("application/json")
+                    .content(objectMapper.writeValueAsString(VALID_CONFIRM_PAYMENT_REQUEST)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("pgPaymentKey").value(PAYMENT_RESULT_COMPLETED.pgPaymentKey()));
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 요청이 들어오면 결제 승인에 실패한다.")
+        void confirmPayment_invalidRequest_fail() throws Exception {
+            /* given */
+            /* when */
+            /* then */
+            performWithAuth(post(BASE_URL + "/confirm")
+                    .contentType("application/json")
+                    .content(objectMapper.writeValueAsString(INVALID_CONFIRM_PAYMENT_REQUEST)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("인증되지 않은 요청이 들어오면 결제 승인에 실패한다.")
+        void confirmPayment_unauthenticatedRequest_fail() throws Exception {
+            /* given */
+            /* when */
+            /* then */
+            perform(post(BASE_URL + "/confirm")
+                    .contentType("application/json")
+                    .content(objectMapper.writeValueAsString(VALID_CONFIRM_PAYMENT_REQUEST)))
                     .andExpect(status().isUnauthorized());
         }
     }

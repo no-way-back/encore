@@ -41,7 +41,7 @@ public record RewardListResult(
                     reward.getName(),
                     reward.getDescription(),
                     reward.getPrice().getAmount(),
-                    reward.getStock().getQuantity(),
+                    reward.getTotalAvailableStock(),
                     reward.getShippingPolicy().getShippingFee(),
                     reward.getShippingPolicy().getFreeShippingAmount(),
                     reward.getPurchaseLimitPerPerson(),

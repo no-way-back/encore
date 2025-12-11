@@ -45,6 +45,13 @@ public enum RewardErrorCode {
     QRCODE_ALREADY_USED("RW-401", "이미 사용된 QR 코드입니다", HttpStatus.CONFLICT),
     QRCODE_CANCELLED("RW-402", "취소된 QR 코드입니다", HttpStatus.BAD_REQUEST),
 
+    // OpenFeign Project Service
+    PROJECT_SERVICE_UNAVAILABLE("RW-501", "프로젝트 서비스 연결 실패", HttpStatus.SERVICE_UNAVAILABLE),
+    PROJECT_BAD_REQUEST("RW-502", "잘못된 프로젝트 요청", HttpStatus.BAD_REQUEST),
+    PROJECT_NOT_FOUND("RW-503", "프로젝트 정보 없음", HttpStatus.NOT_FOUND),
+    PROJECT_CONFLICT("RW-504", "프로젝트 처리 충돌", HttpStatus.CONFLICT),
+    PROJECT_SERVICE_TIMEOUT("RW-505", "프로젝트 서비스 타임아웃", HttpStatus.GATEWAY_TIMEOUT),
+
     // Required ID Validation
     CREATOR_ID_IS_NULL("RW-300", "생성자 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),
     REWARD_ID_IS_NULL("RW-301", "리워드 ID는 null일 수 없습니다", HttpStatus.BAD_REQUEST),

@@ -61,6 +61,8 @@ dependencies {
     // Redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.52.0'
 
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+
     // WireMock
     testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 

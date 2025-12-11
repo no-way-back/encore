@@ -14,22 +14,22 @@ import com.nowayback.funding.presentation.fundingProjectStatistics.dto.response.
 
 @RestController
 @RequestMapping("/fundings")
-public class FundingProjectStatisticsController {
+public class FundingProjectStatisticsController implements FundingProjectStatisticsControllerDoc {
 
-	private final FundingProjectStatisticsService fundingProjectStatisticsService;
+    private final FundingProjectStatisticsService fundingProjectStatisticsService;
 
-	public FundingProjectStatisticsController(FundingProjectStatisticsService fundingProjectStatisticsService) {
-		this.fundingProjectStatisticsService = fundingProjectStatisticsService;
-	}
+    public FundingProjectStatisticsController(FundingProjectStatisticsService fundingProjectStatisticsService) {
+        this.fundingProjectStatisticsService = fundingProjectStatisticsService;
+    }
 
 	@GetMapping("/status/{projectId}")
 	public ResponseEntity<FundingProjectStatisticsResponse> getFundingProjectStatistics(
-		@PathVariable("projectId") UUID projectId
+		    @PathVariable("projectId") UUID projectId
 	) {
-		FundingProjectStatisticsResult result = fundingProjectStatisticsService.getFundingProjectStatistics(projectId);
+		    FundingProjectStatisticsResult result = fundingProjectStatisticsService.getFundingProjectStatistics(projectId);
 
-		FundingProjectStatisticsResponse response = FundingProjectStatisticsResponse.from(result);
+        FundingProjectStatisticsResponse response = FundingProjectStatisticsResponse.from(result);
 
-		return ResponseEntity.ok(response);
-	}
+        return ResponseEntity.ok(response);
+    }
 }

@@ -16,7 +16,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/internal/settlements")
-public class InternalSettlementController {
+public class InternalSettlementController implements InternalSettlementControllerDoc {
 
     private final SettlementService settlementService;
 

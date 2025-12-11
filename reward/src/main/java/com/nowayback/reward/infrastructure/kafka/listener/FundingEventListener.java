@@ -3,6 +3,7 @@ package com.nowayback.reward.infrastructure.kafka.listener;
 import com.nowayback.reward.application.qrcode.QRCodeService;
 import com.nowayback.reward.application.reward.RewardStockService;
 import com.nowayback.reward.infrastructure.kafka.constant.EventType;
+import com.nowayback.reward.infrastructure.kafka.dto.funding.event.ProjectFundingSuccessEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingRefundEvent;
@@ -30,7 +31,7 @@ public class FundingEventListener {
     @KafkaListener(
             topics = "${spring.kafka.topic.funding-failed}",
             groupId = "${spring.kafka.consumer.group-id}",
-            containerFactory = "fundingFailedEventKafkaListenerContainerFactory"
+            containerFactory = "fundingFailedListenerFactory"
     )
     public void consumeFundingFailedEvent(
             @Payload FundingFailedEvent event,
@@ -69,7 +70,7 @@ public class FundingEventListener {
     @KafkaListener(
             topics = "${spring.kafka.topic.funding-refund}",
             groupId = "${spring.kafka.consumer.group-id}",
-            containerFactory = "fundingRefundEventKafkaListenerContainerFactory"
+            containerFactory = "fundingRefundListenerFactory"
     )
     public void consumeFundingRefundEvent(
             @Payload FundingRefundEvent event,
@@ -109,7 +110,7 @@ public class FundingEventListener {
     @KafkaListener(
             topics = "${spring.kafka.topic.funding-completed}",
             groupId = "${spring.kafka.consumer.group-id}",
-            containerFactory = "fundingCompletedEventKafkaListenerContainerFactory"
+            containerFactory = "fundingCompletedListenerFactory"
     )
     public void consumeFundingCompletedEvent(
             @Payload FundingCompletedEvent event,
@@ -139,6 +140,42 @@ public class FundingEventListener {
     }
 
     /**
+     * 프로젝트 펀딩 성공 이벤트 처리
+     * - 프로젝트의 모든 펀딩에 대한 QR 코드 이메일을 발송한다
+     */
+    @KafkaListener(
+            topics = "${spring.kafka.topic.project-funding-success}",
+            groupId = "${spring.kafka.consumer.group-id}",
+            containerFactory = "projectFundingSuccessListenerFactory"
+    )
+    public void consumeProjectFundingSuccessEvent(
+            @Payload ProjectFundingSuccessEvent event,
+            Acknowledgment acknowledgment
+    ) {
+        log.info("프로젝트 펀딩 성공 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
+                event.eventId(),
+                event.eventType(),
+                event.payload().fundingId()
+        );
+
+        if (validateEventType(PROJECT_FUNDING_SUCCESS, event.eventType(), acknowledgment)) {
+            return;
+        }
+
+        try {
+            qrCodeService.sendQRCodesByFunding(event.payload().fundingId());
+
+            log.info("QR 코드 이메일 발송 완료 - 펀딩: {}", event.payload().fundingId());
+
+        } catch (Exception e) {
+            log.error("프로젝트 펀딩 성공 이벤트 처리 실패 - 펀딩: {}",
+                    event.payload().fundingId(), e);
+        } finally {
+            acknowledgment.acknowledge();
+        }
+    }
+
+    /**
      * 처리 가능한 이벤트인지 확인
      */
     private boolean validateEventType(EventType eventType, EventType event, Acknowledgment acknowledgment) {
@@ -150,5 +187,4 @@ public class FundingEventListener {
 
         return false;
     }
-
 }

@@ -15,13 +15,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/qrcodes")
 @RequiredArgsConstructor
-public class QRCodeController {
+public class QRCodeController implements QRCodeControllerDoc {
 
     private final QRCodeService qrCodeService;
 
-    /**
-     * QR 코드 사용 처리
-     */
+    @Override
     @PostMapping("/{qrCodeId}/use")
     public ResponseEntity<QRCodeUseResponse> useQRCode(@PathVariable UUID qrCodeId) {
         QRCodeUseResult result = qrCodeService.useQRCode(qrCodeId);

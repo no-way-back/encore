@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.UUID;
 
 public record FundingCompletedPayload(
+        UUID projectId,
         UUID fundingId,
         String email,
         List<PurchasedRewardData> purchasedRewards
 ) {
     public CreateQRCodeCommand toCommand() {
         return new CreateQRCodeCommand(
+                projectId,
                 fundingId,
                 email,
                 purchasedRewards.stream()

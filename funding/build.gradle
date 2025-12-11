@@ -101,6 +101,8 @@ flyway {
     password = project.findProperty("flyway.password")
     locations = ["filesystem:src/main/resources/db/migration"]
     cleanDisabled = false
+    schemas = ['funding_service']
+    defaultSchema = 'funding_service'
 }
 
 tasks.named('test') {

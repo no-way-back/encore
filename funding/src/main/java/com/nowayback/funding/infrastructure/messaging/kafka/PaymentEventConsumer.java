@@ -28,56 +28,67 @@ public class PaymentEventConsumer {
 	private final OutboxService outboxService;
 	private final ObjectMapper objectMapper;
 
-	/**
-	 * 결제 성공 이벤트 처리
-	 */
 	@KafkaListener(
 		topics = PAYMENT_CONFIRM_SUCCEEDED,
 		groupId = "${spring.kafka.consumer.group-id}"
 	)
-	public void onPaymentSuccess(String message, Acknowledgment ack) throws Exception {
+	public void onPaymentSuccess(String message, Acknowledgment ack) {
+		PaymentSuccessEvent event = null;
 
-		log.info("결제 성공 이벤트 수신");
+		try {
+			log.info("결제 성공 이벤트 수신");
 
-		PaymentSuccessEvent event = objectMapper.readValue(message, PaymentSuccessEvent.class);
+			event = objectMapper.readValue(message, PaymentSuccessEvent.class);
 
-		Funding funding = fundingService.completeFunding(event.fundingId(), event.paymentId());
+			Funding funding = fundingService.completeFunding(event.fundingId(), event.paymentId());
 
-		if (funding.hasReservation()) {
-			publishFundingCompletedEvent(event, funding);
+			if (funding.hasReservation()) {
+				publishFundingCompletedEvent(event, funding);
+			}
+
+			log.info("결제 성공 처리 완료 - fundingId: {}, paymentId: {}, hasReservation: {}",
+				event.fundingId(), event.paymentId(), funding.hasReservation());
+
+		} catch (Exception e) {
+			log.error("결제 성공 이벤트 처리 중 오류 발생 - fundingId: {}, error: {}",
+				event != null ? event.fundingId() : "unknown",
+				e.getMessage(), e);
+
+		} finally {
+			ack.acknowledge();
 		}
-
-		ack.acknowledge();
-
-		log.info("결제 성공 처리 완료 - fundingId: {}, paymentId: {}, hasReservation: {}",
-			event.fundingId(), event.paymentId(), funding.hasReservation());
 	}
 
-	/**
-	 * 결제 실패 이벤트 처리
-	 * 실패 시 자동 재시도 (예외가 자동으로 던져짐)
-	 */
 	@KafkaListener(
 		topics = PAYMENT_CONFIRM_FAILED,
 		groupId = "${spring.kafka.consumer.group-id}"
 	)
-	public void onPaymentFailure(String message, Acknowledgment ack) throws Exception {
+	public void onPaymentFailure(String message, Acknowledgment ack) {
+		PaymentFailureEvent event = null;
 
-		log.info("결제 실패 이벤트 수신");
+		try {
+			log.info("결제 실패 이벤트 수신");
 
-		PaymentFailureEvent event = objectMapper.readValue(message, PaymentFailureEvent.class);
+			event = objectMapper.readValue(message, PaymentFailureEvent.class);
 
-		Funding funding = fundingService.failFunding(event.fundingId());
+			Funding funding = fundingService.failFunding(event.fundingId());
 
-		if (funding.hasReservation()) {
-			publishFundingFailedEvent(event, funding);
-			log.info("재고 복구 이벤트 발행 - fundingId: {}, reservationIds: {}",
-				event.fundingId(), funding.getReservationIds());
-		} else {
-			log.info("순수 후원 - 재고 복구 불필요 - fundingId: {}", event.fundingId());
+			if (funding.hasReservation()) {
+				publishFundingFailedEvent(event, funding);
+				log.info("재고 복구 이벤트 발행 - fundingId: {}, reservationIds: {}",
+					event.fundingId(), funding.getReservationIds());
+			} else {
+				log.info("순수 후원 - 재고 복구 불필요 - fundingId: {}", event.fundingId());
+			}
+
+		} catch (Exception e) {
+			log.error("결제 실패 이벤트 처리 중 오류 발생 - fundingId: {}, error: {}",
+				event != null ? event.fundingId() : "unknown",
+				e.getMessage(), e);
+
+		} finally {
+			ack.acknowledge();
 		}
-
-		ack.acknowledge();
 	}
 
 	/**

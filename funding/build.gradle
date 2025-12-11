@@ -51,6 +51,9 @@ dependencies {
     // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // Kafka IAM
+    implementation 'software.amazon.msk:aws-msk-iam-auth:2.3.5'
+
     // PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
 

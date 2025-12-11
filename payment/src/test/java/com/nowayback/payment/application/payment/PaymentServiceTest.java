@@ -5,10 +5,8 @@ import com.nowayback.payment.application.payment.service.pg.PaymentGatewayClient
 import com.nowayback.payment.domain.exception.PaymentErrorCode;
 import com.nowayback.payment.domain.exception.PaymentException;
 import com.nowayback.payment.domain.payment.repository.PaymentRepository;
-import com.nowayback.payment.domain.payment.vo.Money;
-import com.nowayback.payment.domain.payment.vo.PaymentStatus;
-import com.nowayback.payment.domain.payment.vo.PgInfo;
-import com.nowayback.payment.domain.payment.vo.RefundAccountInfo;
+import com.nowayback.payment.domain.payment.vo.*;
+import com.nowayback.payment.infrastructure.payment.kafka.funding.producer.PaymentConfirmEventProducer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,8 +38,45 @@ class PaymentServiceTest {
     @Mock
     private PaymentStatusLogService paymentStatusLogService;
 
+    @Mock
+    private PaymentConfirmEventProducer paymentConfirmEventProducer;
+
     @InjectMocks
     private PaymentService paymentService;
+
+    @Nested
+    @DisplayName("결제 생성")
+    class CreatePayment {
+
+        @Test
+        @DisplayName("유효한 정보로 결제를 생성하면 결제 정보가 저장되고 생성된 결제 정보가 반환된다.")
+        void createPayment_whenValid_thenCreatePayment() {
+            /* given */
+            when(paymentRepository.save(any()))
+                    .thenReturn(createPaymentWithStatus(PaymentStatus.PENDING));
+
+            /* when */
+            PaymentResult result = paymentService.createPayment(CREATE_PAYMENT_COMMAND);
+
+            /* then */
+            assertThat(result.status()).isEqualTo(PaymentStatus.PENDING);
+            verify(paymentRepository, times(1)).save(any());
+        }
+
+        @Test
+        @DisplayName("이미 대기중인 결제가 존재하는 경우 결제 생성 시 예외가 발생한다.")
+        void createPayment_whenExistingPendingPayment_thenThrowException() {
+            /* given */
+            when(paymentRepository.existsByFundingIdAndStatus(any(FundingId.class), any()))
+                    .thenReturn(true);
+
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> paymentService.createPayment(CREATE_PAYMENT_COMMAND))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.PAYMENT_ALREADY_PENDING.getMessage());
+        }
+    }
 
     @Nested
     @DisplayName("결제 목록 조회")
@@ -141,11 +176,13 @@ class PaymentServiceTest {
         @DisplayName("유효한 정보로 결제 승인을 하면 결제 승인이 요청되고 결제 정보가 저장된다.")
         void confirm_whenValid_thenCreatePayment() {
             /* given */
+            when(paymentRepository.findByFundingIdAndStatus(any(FundingId.class), any()))
+                    .thenReturn(Optional.of(createPaymentWithStatus(PaymentStatus.PENDING)));
             when(paymentGatewayClient.confirmPayment(any(PgInfo.class), any(Money.class)))
                     .thenReturn(PG_CONFIRM_RESULT);
 
             /* when */
-            PaymentResult result = paymentService.confirmPayment(CONFIRM_PAYMENT_COMMAND);
+            PaymentResult result = paymentService.confirmPayment(CONFIRM_PAYMENT_COMMAND, USER_UUID);
 
             /* then */
             assertThat(result.status()).isEqualTo(PaymentStatus.COMPLETED);
@@ -153,6 +190,34 @@ class PaymentServiceTest {
             verify(paymentGatewayClient, times(1)).confirmPayment(any(PgInfo.class), any(Money.class));
             verify(paymentRepository, times(1)).save(any());
             verify(paymentStatusLogService, times(1)).savePaymentStatusLog(any(), any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("대기중인 결제가 없으면 결제 승인 시 예외가 발생한다.")
+        void confirm_whenNoPendingPayment_thenThrowException() {
+            /* given */
+            when(paymentRepository.findByFundingIdAndStatus(any(FundingId.class), any()))
+                    .thenReturn(Optional.empty());
+
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> paymentService.confirmPayment(CONFIRM_PAYMENT_COMMAND, USER_UUID))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.PENDING_PAYMENT_NOT_FOUND.getMessage());
+        }
+
+        @Test
+        @DisplayName("본인이 아닌 사용자가 결제 승인을 시도하면 예외가 발생한다.")
+        void confirm_whenNotSelf_thenThrowException() {
+            /* given */
+            when(paymentRepository.findByFundingIdAndStatus(any(FundingId.class), any()))
+                    .thenReturn(Optional.of(createPaymentWithStatus(PaymentStatus.PENDING)));
+
+            /* when */
+            /* then */
+            assertThatThrownBy(() -> paymentService.confirmPayment(CONFIRM_PAYMENT_COMMAND, UUID.randomUUID()))
+                    .isInstanceOf(PaymentException.class)
+                    .hasMessage(PaymentErrorCode.FORBIDDEN_PAYMENT_SELF_ACCESS.getMessage());
         }
     }
 
@@ -165,7 +230,7 @@ class PaymentServiceTest {
         void refund_whenValid_thenRefundPayment() {
             /* given */
             when(paymentRepository.findById(any(UUID.class)))
-                    .thenReturn(Optional.of(createPaymentWithStatus(PaymentStatus.COMPLETED)));
+                    .thenReturn(Optional.of(createConfirmedPayment()));
             when(paymentGatewayClient.refundPayment(anyString(), anyString(), any(RefundAccountInfo.class)))
                     .thenReturn(PG_REFUND_RESULT);
 

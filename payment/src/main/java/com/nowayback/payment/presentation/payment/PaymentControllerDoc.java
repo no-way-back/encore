@@ -4,14 +4,19 @@ import com.nowayback.payment.infrastructure.auth.user.AuthUser;
 import com.nowayback.payment.infrastructure.auth.user.CurrentUser;
 import com.nowayback.payment.presentation.dto.response.PageResponse;
 import com.nowayback.payment.presentation.exception.response.ErrorResponse;
+import com.nowayback.payment.presentation.exception.response.FieldErrorResponse;
+import com.nowayback.payment.presentation.payment.dto.request.ConfirmPaymentRequest;
+import com.nowayback.payment.presentation.payment.dto.response.ConfirmPaymentResponse;
 import com.nowayback.payment.presentation.payment.dto.response.PaymentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
@@ -35,5 +40,23 @@ public interface PaymentControllerDoc {
             @Parameter(description = "조회할 프로젝트 ID", required = false) @RequestParam(required = false) UUID projectId,
             @Parameter(description = "페이지 번호 (0부터 시작)", required = false) @RequestParam(required = false, defaultValue = "0") int page,
             @Parameter(description = "페이지 크기", required = false) @RequestParam(required = false, defaultValue = "10") int size
+    );
+
+    @Operation(summary = "결제 승인", description = "결제 승인을 처리합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "결제 승인 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "권한 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = FieldErrorResponse.class))
+            )
+    })
+    ResponseEntity<ConfirmPaymentResponse> confirmPayment(
+            @Parameter(hidden = true) @CurrentUser AuthUser authUser,
+            @Parameter(description = "결제 승인 요청 정보", required = true) @RequestBody ConfirmPaymentRequest request
     );
 }

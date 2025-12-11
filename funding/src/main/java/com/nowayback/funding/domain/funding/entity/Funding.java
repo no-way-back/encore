@@ -17,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -111,7 +112,7 @@ public class Funding extends BaseEntity {
 			throw new FundingException(INVALID_STATUS_TRANSITION);
 		}
 
-		this.amount += newAmount;
+		this.amount = newAmount;
 	}
 
 	// ==================== 예약 관리 ====================

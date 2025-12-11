@@ -16,11 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nowayback.funding.application.client.payment.PaymentClient;
-import com.nowayback.funding.application.client.payment.dto.request.ProcessPaymentRequest;
 import com.nowayback.funding.application.client.payment.dto.request.ProcessRefundRequest;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
 import com.nowayback.funding.application.client.reward.RewardClient;
-import com.nowayback.funding.application.client.payment.dto.response.ProcessPaymentResponse;
 import com.nowayback.funding.application.client.reward.dto.request.StockReserveRequest;
 import com.nowayback.funding.application.client.reward.dto.response.StockReserveResponse;
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
@@ -39,7 +37,6 @@ import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
 
-import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -130,84 +127,24 @@ public class FundingServiceImpl implements FundingService {
 			funding.updateAmount(totalAmount);
 		}
 
-		try {
-			ProcessPaymentRequest paymentRequest = ProcessPaymentRequest.from(funding.getId(), funding.getAmount(), command);
-			ProcessPaymentResponse paymentResponse = paymentClient.processPayment(command.userId(), paymentRequest);
-			UUID paymentId = paymentResponse.paymentId();
-			log.info("결제 성공 - paymentId: {}", paymentId);
+		publishPaymentProcessEvent(funding, command);
 
-			funding.completeFunding(paymentId);
-			log.info("펀딩 완료 - funding: {}", funding.getId());
+		log.info("결제 이벤트 발행 완료 - fundingId: {}", savedFunding.getId());
 
-			fundingProjectStatisticsService.increaseFundingStatusRate(funding.getProjectId(), funding.getAmount());
-
-			publishFundingCompletedEvent(funding);
-
-			return CreateFundingResult.success(funding.getId());
-		} catch (FundingException e) {
-			log.error("펀딩 처리 실패 - fundingId: {}, errorCode: {}, message: {}",
-				funding.getId(), e.getErrorCode().getCode(), e.getMessage());
-
-			funding.failFunding(e.getMessage());
-
-			publishFundingFailedEvent(funding, command);
-
-			throw e;
-
-		} catch (FeignException e) {
-			log.error("외부 서비스 호출 실패 - fundingId: {}, url: {}, error: {}",
-				funding.getId(), e.request().url(), e.getMessage());
-
-			funding.failFunding(e.getMessage());
-
-			publishFundingFailedEvent(funding, command);
-
-			throw e;
-		} catch (Exception e) {
-			log.error("예상치 못한 오류 - fundingId: {}, error: {}",
-				funding.getId(), e.getMessage(), e);
-
-			funding.failFunding(e.getMessage());
-
-			publishFundingFailedEvent(funding, command);
-
-			throw new FundingException(FUNDING_PROCESS_FAILED);
-		}
+		return CreateFundingResult.success(savedFunding.getId());
 	}
 
-	private void publishFundingCompletedEvent(Funding funding) {
-		if (!funding.hasReservation()) {
-			return;
-		}
+	private void publishPaymentProcessEvent(Funding funding, CreateFundingCommand command) {
 
 		outboxService.publishSuccessEvent(
 			"FUNDING",
 			funding.getId(),
-			FUNDING_COMPLETED,
-			Map.of(
-				"fundingId", funding.getId(),
-				"userId", funding.getUserId(),
-				"projectId", funding.getProjectId(),
-				"reservationId", funding.getReservationIds(),
-				"amount", funding.getAmount()
-			)
-		);
-	}
-
-	private void publishFundingFailedEvent(Funding funding, CreateFundingCommand command) {
-		if (!funding.hasReservation()) {
-			return;
-		}
-
-		outboxService.publishCompensationEvent(
-			"FUNDING",
-			funding.getId(),
-			FUNDING_FAILED,
+			FUNDING_PAYMENT_PROCESS,
 			Map.of(
 				"fundingId", funding.getId(),
 				"projectId", command.projectId(),
 				"userId", command.userId(),
-				"reservationId", funding.getReservationIds()
+				"amount", funding.getAmount()
 			)
 		);
 	}
@@ -340,6 +277,47 @@ public class FundingServiceImpl implements FundingService {
 			.orElseThrow(() -> new FundingException(FUNDING_NOT_FOUND));
 
 		return FundingDetailResult.from(funding);
+	}
+
+	@Override
+	@Transactional
+	public Funding completeFunding(UUID fundingId, UUID paymentId) {
+		log.info("펀딩 완료 처리 시작 - fundingId: {}, paymentId: {}", fundingId, paymentId);
+
+		Funding funding = fundingRepository.findById(fundingId)
+			.orElseThrow(() -> new FundingException(FUNDING_NOT_FOUND));
+
+		funding.completeFunding(paymentId);
+		fundingRepository.save(funding);
+
+		fundingProjectStatisticsService.increaseFundingStatusRate(
+			funding.getProjectId(),
+			funding.getAmount()
+		);
+
+		log.info("펀딩 완료 처리 완료 - fundingId: {}, projectId: {}, amount: {}",
+			fundingId, funding.getProjectId(), funding.getAmount());
+
+		return funding;
+	}
+
+	@Override
+	@Transactional
+	public Funding failFunding(UUID fundingId) {
+		log.info("펀딩 실패 처리 시작 - fundingId: {}", fundingId);
+
+		Funding funding = fundingRepository.findById(fundingId)
+			.orElseThrow(() -> {
+				log.error("Funding을 찾을 수 없음 - fundingId: {}", fundingId);
+				return new FundingException(FUNDING_NOT_FOUND);
+			});
+
+		funding.failFunding("결제 실패");
+		fundingRepository.save(funding);
+
+		log.info("펀딩 실패 처리 완료 - fundingId: {}, status: FAILED", fundingId);
+
+		return funding;
 	}
 
 	private LocalDateTime calculateStartDate(GetMyFundingsCommand.FundingPeriod period) {

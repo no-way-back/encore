@@ -12,4 +12,5 @@ public final class FundingProducerTopics {
 	public static final String PROJECT_FUNDING_SUCCESS = "project-funding-success";
 	public static final String PROJECT_FUNDING_FAILED = "project-funding-failed";
 	public static final String PROJECT_FUNDING_CREATED_FAILED = "project-funding-created-failed";
+	public static final String FUNDING_PAYMENT_PROCESS = "funding-payment-process";
 }

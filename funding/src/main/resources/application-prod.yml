@@ -1,5 +1,11 @@
 server:
   port: 18082
+  tomcat:
+    threads:
+      max: 250
+      min-spare: 50
+    accept-count: 1000
+    max-connections: 10000
 
 spring:
   datasource:
@@ -7,13 +13,38 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 40
+      minimum-idle: 20
+      connection-timeout: 3000
+      validation-timeout: 1000
+      leak-detection-threshold: 60000
 
   jpa:
     hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        show-sql: true
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true                       # Flyway 활성화
+    url: ${SPRING_DATASOURCE_URL}       # 운영 DB 정보
+    user: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    locations: classpath:db/migration
+    schemas: funding_service
+    default-schema: funding_service
+    encoding: UTF-8
+    baseline-on-migrate: true           # 기존 DB에 Flyway 처음 적용 시
+    baseline-version: "0"
+    validate-on-migrate: true           # 마이그레이션 파일 변경 감지
+    out-of-order: false                 # 순서대로 실행 강제
+    group: true                         # 트랜잭션 단위로 개별 실행
+    mixed: false                        # SQL과 Java 마이그레이션 혼용 방지
+    clean-disabled: true                # 운영 환경에서는 clean 금지
+    fail-on-missing-locations: true     # 마이그레이션 위치 누락시 실패
+    placeholder-replacement: false      # 플레이스홀더 비활성화 (보안)
+    sql-migration-suffixes: [".sql"]    # SQL 파일 확장자 명시
+
 
   data:
     redis:

@@ -32,7 +32,7 @@ public class PaymentEventConsumer {
 	 * 결제 성공 이벤트 처리
 	 */
 	@KafkaListener(
-		topics = FUNDING_PAYMENT_SUCCESS,
+		topics = PAYMENT_CONFIRM_SUCCEEDED,
 		groupId = "${spring.kafka.consumer.group-id}"
 	)
 	public void onPaymentSuccess(String message, Acknowledgment ack) throws Exception {
@@ -58,7 +58,7 @@ public class PaymentEventConsumer {
 	 * 실패 시 자동 재시도 (예외가 자동으로 던져짐)
 	 */
 	@KafkaListener(
-		topics = FUNDING_PAYMENT_FAILURE,
+		topics = PAYMENT_CONFIRM_FAILED,
 		groupId = "${spring.kafka.consumer.group-id}"
 	)
 	public void onPaymentFailure(String message, Acknowledgment ack) throws Exception {

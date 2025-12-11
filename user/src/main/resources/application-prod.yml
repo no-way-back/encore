@@ -18,8 +18,22 @@ spring:
         default_schema: user_service
     show-sql: true
 
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true
+    out-of-order: false
+    group: true
+    mixed: false
+    clean-disabled: false
+    baseline-on-migrate: true
+    fail-on-missing-locations: true
+    placeholder-replacement: false
+    sql-migration-suffixes: [ ".sql" ]
+
 jwt:
-  secret: ${JWT_SECRET:yH2Nf5Q9bV4mE1uU2Z+8HsWlQq7R3pOjfL5xB0kDcZ8=}
+  secret: ${JWT_SECRET}
   access-expire-time-ms: 86400000
 
 eureka:

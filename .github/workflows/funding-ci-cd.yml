@@ -118,26 +118,31 @@ jobs:
       # 6. ECR 로그인 및 Docker 이미지 빌드
       # ===========================================
 
+      # ECR(Elastic Container Registry)에 Docker 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-        # ECR(Elastic Container Registry)에 Docker 로그인
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}  # Git 커밋 해시를 이미지 태그로 사용
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: ./${{ env.SERVICE_DIR }}
         run: |
-          # Docker 이미지 빌드 (ARM 맥에서도 ECS에서 실행되도록 linux/amd64 플랫폼 지정)
-          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          echo "🐳 Building Docker image..."
           
-          # ECR에 이미지 푸시 (커밋별 태그 + latest 태그)
+          # Docker 이미지 빌드 (linux/amd64 플랫폼)
+          docker build --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            .
+          
+          # ECR에 푸시
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           
-          # 다음 단계에서 사용할 이미지 URI 출력
+          echo "✅ Image pushed successfully!"
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # ===========================================
@@ -165,31 +170,14 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
           environment-variables: |
-            DB_URL=${{ secrets.DB_URL }}
-            DB_USERNAME=${{ secrets.DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            SPRING_PROFILES_ACTIVE=prod
+            FUNDING_DATASOURCE_URL=${{ secrets.FUNDING_DATASOURCE_URL }}
+            FUNDING_DATASOURCE_USERNAME=${{ secrets.FUNDING_DATASOURCE_USERNAME }}
+            FUNDING_DATASOURCE_PASSWORD=${{ secrets.FUNDING_DATASOURCE_PASSWORD }}
+            INTERNAL_SERVICE_BASE_URL=${{ secrets.INTERNAL_SERVICE_BASE_URL }}
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             REDIS_PORT=${{ secrets.REDIS_PORT }}
-            ELASTICSEARCH_HOST=${{ secrets.ELASTICSEARCH_HOST }}
-            ELASTICSEARCH_PORT=${{ secrets.ELASTICSEARCH_PORT }}
-            RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}
-            RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}
-            RABBITMQ_USER=${{ secrets.RABBITMQ_USER }}
-            RABBITMQ_PASS=${{ secrets.RABBITMQ_PASS }}
-            NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
-            NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            TOSS_SECRET_KEY=${{ secrets.TOSS_SECRET_KEY }}
-            TOSS_CLIENT_KEY=${{ secrets.TOSS_CLIENT_KEY }}
-            TOSS_BASE_URL=${{ secrets.TOSS_BASE_URL }}
-            WEBCLIENT_SECRET_KEY=${{ secrets.WEBCLIENT_SECRET_KEY }}
-            WEBCLIENT_BASE_URL=${{ secrets.WEBCLIENT_BASE_URL }}
-            SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
-            FIREBASE_CREDENTIALS=${{ secrets.FIREBASE_CREDENTIALS }}
-            OTEL_COLLECTOR_ENDPOINT=${{ secrets.OTEL_COLLECTOR_ENDPOINT }}
-            SPRING_PROFILES_ACTIVE=prod
+            KAFKA_BOOTSTRAP_SERVERS=${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
 
       # ===========================================
       # 8. ECS 서비스 배포 및 완료 확인

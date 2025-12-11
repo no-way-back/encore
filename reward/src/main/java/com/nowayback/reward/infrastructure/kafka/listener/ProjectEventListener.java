@@ -27,7 +27,7 @@ public class ProjectEventListener {
     @KafkaListener(
             topics = "${spring.kafka.topic.project-reward-creation}",
             groupId = "${spring.kafka.consumer.group-id}",
-            containerFactory = "projectCreatedConsumerFactory"
+            containerFactory = "projectCreatedListenerFactory"
     )
     public void consumeProjectEvent(
             @Payload ProjectCreatedEvent event,

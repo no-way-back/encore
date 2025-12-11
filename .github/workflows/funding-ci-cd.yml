@@ -1,0 +1,216 @@
+name: Funding Service - CI/CD
+
+on:
+  push:
+    branches: [ "main" ]  # main 브랜치에 푸시할 때만 배포 실행
+    paths:
+      - 'funding/**'              # funding 디렉토리 변경 시에만
+      - '.github/workflows/funding-ci-cd.yml'  # 워크플로우 자체 변경 시
+
+# 환경 변수 설정
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: encore-funding-service
+  ECS_SERVICE: funding-service
+  ECS_CLUSTER: encore-cluster
+  ECS_TASK_DEFINITION: funding-task
+  CONTAINER_NAME: funding
+  SERVICE_DIR: funding
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Funding Service
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      # ===========================================
+      # 1. 코드 체크아웃 및 Java 환경 설정
+      # ===========================================
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        working-directory: ./${{ env.SERVICE_DIR }}
+
+      # ===========================================
+      # 2. AWS 인증 설정 (Bastion 접근을 위해 먼저 설정)
+      # ===========================================
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # ===========================================
+      # 3. Bastion SSH 터널링 설정
+      # ===========================================
+
+      - name: Setup SSH key for Bastion
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.BASTION_SSH_PRIVATE_KEY }}" > ~/.ssh/bastion_key
+          chmod 600 ~/.ssh/bastion_key
+          
+          # SSH 설정 파일 생성
+          cat >> ~/.ssh/config << EOF
+          Host bastion
+            HostName ${{ secrets.BASTION_HOST }}
+            User ${{ secrets.BASTION_USER }}
+            IdentityFile ~/.ssh/bastion_key
+            StrictHostKeyChecking no
+          EOF
+
+      - name: Setup SSH tunnel to Funding database
+        run: |
+          # SSH 터널 시작 (백그라운드) / PostgreSQL 기본 포트 5432 → 로컬 5433으로 포워딩
+          ssh -f -N -L 5433:${{ secrets.FUNDING_DB_PRIVATE_HOST }}:5432 bastion
+          
+          sleep 10
+          
+          # 터널 연결 확인
+          netstat -tulnp | grep 5433
+
+      # ===========================================
+      # 4. Flyway DB 마이그레이션 (SSH 터널 경유)
+      # ===========================================
+
+      - name: Run Flyway Migration via SSH tunnel
+        working-directory: ./${{ env.SERVICE_DIR }}
+        run: |
+          echo "🔄 Starting Flyway migration for Funding service..."
+          ./gradlew flywayMigrate \
+            -Dflyway.url=jdbc:postgresql://localhost:5433/encore_db?currentSchema=funding_service \
+            -Dflyway.user=${{ secrets.FUNDING_FLYWAY_USER }} \
+            -Dflyway.password=${{ secrets.FUNDING_FLYWAY_PASSWORD }}
+          echo "✅ Flyway migration completed!"
+
+      # SSH 터널 정리
+      - name: Cleanup SSH tunnel
+        if: always()
+        run: |
+          pkill -f "ssh.*5433" || true
+
+
+      # ===========================================
+      # 5. Spring Boot 애플리케이션 빌드
+      # ===========================================
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+        # Spring Boot JAR 파일 생성 (테스트는 제외하여 빌드 시간 단축)
+
+      # ===========================================
+      # 6. ECR 로그인 및 Docker 이미지 빌드
+      # ===========================================
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        # ECR(Elastic Container Registry)에 Docker 로그인
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}  # Git 커밋 해시를 이미지 태그로 사용
+        run: |
+          # Docker 이미지 빌드 (ARM 맥에서도 ECS에서 실행되도록 linux/amd64 플랫폼 지정)
+          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          
+          # ECR에 이미지 푸시 (커밋별 태그 + latest 태그)
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          # 다음 단계에서 사용할 이미지 URI 출력
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # ===========================================
+      # 7. ECS Task Definition 업데이트
+      # ===========================================
+
+      - name: Download current task definition
+        run: |
+          # 현재 ECS에서 실행 중인 Task Definition을 JSON으로 다운로드
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
+            --query taskDefinition \
+            --output json > task-definition.json
+          
+          # ECS 등록 시 불필요한 필드들 제거 (오류 방지)
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .placementConstraints, .compatibilities, .registeredAt, .registeredBy, .enableFaultInjection)' \
+            task-definition.json > task-definition-clean.json
+          mv task-definition-clean.json task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+          environment-variables: |
+            DB_URL=${{ secrets.DB_URL }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            ELASTICSEARCH_HOST=${{ secrets.ELASTICSEARCH_HOST }}
+            ELASTICSEARCH_PORT=${{ secrets.ELASTICSEARCH_PORT }}
+            RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}
+            RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}
+            RABBITMQ_USER=${{ secrets.RABBITMQ_USER }}
+            RABBITMQ_PASS=${{ secrets.RABBITMQ_PASS }}
+            NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
+            NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            TOSS_SECRET_KEY=${{ secrets.TOSS_SECRET_KEY }}
+            TOSS_CLIENT_KEY=${{ secrets.TOSS_CLIENT_KEY }}
+            TOSS_BASE_URL=${{ secrets.TOSS_BASE_URL }}
+            WEBCLIENT_SECRET_KEY=${{ secrets.WEBCLIENT_SECRET_KEY }}
+            WEBCLIENT_BASE_URL=${{ secrets.WEBCLIENT_BASE_URL }}
+            SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
+            FIREBASE_CREDENTIALS=${{ secrets.FIREBASE_CREDENTIALS }}
+            OTEL_COLLECTOR_ENDPOINT=${{ secrets.OTEL_COLLECTOR_ENDPOINT }}
+            SPRING_PROFILES_ACTIVE=prod
+
+      # ===========================================
+      # 8. ECS 서비스 배포 및 완료 확인
+      # ===========================================
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Verify deployment
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "Service: ${{ env.ECS_SERVICE }}"
+          echo "Cluster: ${{ env.ECS_CLUSTER }}"
+          echo "Image: ${{ steps.build-image.outputs.image }}"
+          echo ""
+          echo "배포된 애플리케이션 확인:"
+          echo "- ECS 콘솔에서 서비스 상태 확인"
+          echo "- 로드 밸런서 DNS로 접속 테스트"
+          echo "- /actuator/health 엔드포인트로 헬스체크"

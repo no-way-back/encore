@@ -1,7 +1,19 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.flywaydb:flyway-core:11.7.2"
+        classpath "org.flywaydb:flyway-database-postgresql:11.7.2"
+        classpath "org.postgresql:postgresql:42.7.7"
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.flywaydb.flyway' version '11.7.2'
 }
 
 group = 'com.nowayback'
@@ -29,44 +41,39 @@ ext {
 }
 
 dependencies {
+    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-    // actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Spring Cloud
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // Open feign
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-
-    // Apache HttpClient 5
+    // OpenFeign
     implementation 'io.github.openfeign:feign-hc5:13.1'
+
+    // Swagger/OpenAPI (SpringDoc)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 
     // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
-    // Kafka IAM
-    implementation 'software.amazon.msk:aws-msk-iam-auth:2.3.5'
-
-    // PostgreSQL
-    runtimeOnly 'org.postgresql:postgresql'
-
-    // Flyway - Spring Boot Auto-configuration 사용
-    implementation 'org.flywaydb:flyway-core'
-    implementation 'org.flywaydb:flyway-database-postgresql'
+    // PostgreSQL (최신 버전)
+    runtimeOnly 'org.postgresql:postgresql:42.7.7'
 
     // Redisson
     implementation 'org.redisson:redisson-spring-boot-starter:3.52.0'
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+    // MSK IAM Auth
+    implementation 'software.amazon.msk:aws-msk-iam-auth:2.0.3'
 
-    // WireMock
+    // WireMock (테스트용)
     testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 
     // H2 Database (테스트용)
@@ -86,6 +93,14 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
+}
+
+flyway {
+    url = project.findProperty("flyway.url")
+    user = project.findProperty("flyway.user")
+    password = project.findProperty("flyway.password")
+    locations = ["filesystem:src/main/resources/db/migration"]
+    cleanDisabled = false
 }
 
 tasks.named('test') {

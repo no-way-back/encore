@@ -25,15 +25,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(
-	name = "p_fundings",
-	indexes = {
-		@Index(
-			name = "idx_funding_user_project_status",
-			columnList = "user_id, project_id, status"
-		)
-	}
-)
+@Table(name = "p_fundings")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Funding extends BaseEntity {

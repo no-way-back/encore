@@ -39,3 +39,6 @@ out/
 ### ETC ###
 .env
 application-smtp.yml
+
+
+gradle.properties

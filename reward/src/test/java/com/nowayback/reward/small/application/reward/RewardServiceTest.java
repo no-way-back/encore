@@ -6,7 +6,7 @@ import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.reward.entity.Rewards;
-import com.nowayback.reward.domain.reward.repository.RewardRepository;
+import com.nowayback.reward.application.reward.repository.RewardRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

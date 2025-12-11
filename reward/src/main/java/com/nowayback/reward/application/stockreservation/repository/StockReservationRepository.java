@@ -1,4 +1,4 @@
-package com.nowayback.reward.domain.stockreservation.repository;
+package com.nowayback.reward.application.stockreservation.repository;
 
 import com.nowayback.reward.domain.stockreservation.entity.StockReservation;
 import com.nowayback.reward.domain.vo.FundingId;

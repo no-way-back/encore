@@ -1,7 +1,7 @@
 package com.nowayback.reward.infrastructure.repository.reward.persistence;
 
 import com.nowayback.reward.domain.reward.entity.Rewards;
-import com.nowayback.reward.domain.reward.repository.RewardRepository;
+import com.nowayback.reward.application.reward.repository.RewardRepository;
 import com.nowayback.reward.domain.vo.ProjectId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

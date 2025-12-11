@@ -1,4 +1,4 @@
-package com.nowayback.reward.infrastructure.kafka.constant;
+package com.nowayback.reward.domain.outbox.vo;
 
 public enum EventType {
     PROJECT_CREATED("PROJECT_CREATED"),

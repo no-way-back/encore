@@ -1,7 +1,7 @@
 package com.nowayback.reward.infrastructure.kafka.listener;
 
 import com.nowayback.reward.application.reward.RewardService;
-import com.nowayback.reward.infrastructure.kafka.constant.EventType;
+import com.nowayback.reward.domain.outbox.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.ProjectCreatedPayload;
 import com.nowayback.reward.infrastructure.kafka.publisher.ProjectEventPublisher;
@@ -20,8 +20,8 @@ import java.util.UUID;
 
 import static com.nowayback.reward.fixture.KafkaFixture.createProjectCreatedEvent;
 import static com.nowayback.reward.fixture.KafkaFixture.createProjectCreatedPayload;
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.PROJECT_CREATED;
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.REWARD_CREATION_FAILED;
+import static com.nowayback.reward.domain.outbox.vo.EventType.PROJECT_CREATED;
+import static com.nowayback.reward.domain.outbox.vo.EventType.REWARD_CREATION_FAILED;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

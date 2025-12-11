@@ -1,12 +1,12 @@
 package com.nowayback.reward.infrastructure.kafka.dto.project.event;
 
-import com.nowayback.reward.infrastructure.kafka.constant.EventType;
+import com.nowayback.reward.domain.outbox.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.RewardCreationResultPayload;
 
 import java.time.LocalDateTime;
 
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.REWARD_CREATION_FAILED;
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.REWARD_CREATION_SUCCESS;
+import static com.nowayback.reward.domain.outbox.vo.EventType.REWARD_CREATION_FAILED;
+import static com.nowayback.reward.domain.outbox.vo.EventType.REWARD_CREATION_SUCCESS;
 
 public record RewardCreationResultEvent(
         String eventId,

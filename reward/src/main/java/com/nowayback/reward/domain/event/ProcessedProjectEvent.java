@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * 처리 완료된 프로젝트 이벤트 기록
+ * Kafka에서 수신한 PROJECT_CREATED 이벤트의 중복 처리 방지
+ */
 @Entity
 @Table(
         name = "processed_project_events",

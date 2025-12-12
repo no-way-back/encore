@@ -13,12 +13,12 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(
-        name = "processed_project_events",
+        name = "p_idempotent_keys",
         indexes = @Index(name = "idx_event_id", columnList = "event_id", unique = true)
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProcessedProjectEvent {
+public class IdempotentKeys {
 
     @Id
     @Column(name = "event_id", length = 100)
@@ -30,7 +30,7 @@ public class ProcessedProjectEvent {
     @Column(name = "processed_at", nullable = false)
     private LocalDateTime processedAt;
 
-    public ProcessedProjectEvent(String eventId, String projectId) {
+    public IdempotentKeys(String eventId, String projectId) {
         this.eventId = eventId;
         this.projectId = projectId;
         this.processedAt = LocalDateTime.now();
@@ -39,7 +39,7 @@ public class ProcessedProjectEvent {
     /**
      * 처리 완료된 이벤트 생성
      */
-    public static ProcessedProjectEvent create(String eventId, String projectId) {
-        return new ProcessedProjectEvent(eventId, projectId);
+    public static IdempotentKeys create(String eventId, String projectId) {
+        return new IdempotentKeys(eventId, projectId);
     }
 }

@@ -1,13 +1,13 @@
 package com.nowayback.reward.application.reward;
 
-import com.nowayback.reward.application.event.repository.ProcessedProjectEventRepository;
+import com.nowayback.reward.application.idempotentkey.repository.IdempotentKeyRepository;
 import com.nowayback.reward.application.outbox.event.OutboxEventPublisher;
 import com.nowayback.reward.application.reward.command.RewardCreateCommand;
 import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.application.reward.dto.RewardCreationResult;
 import com.nowayback.reward.application.reward.dto.RewardListResult;
 import com.nowayback.reward.application.reward.repository.RewardRepository;
-import com.nowayback.reward.domain.event.ProcessedProjectEvent;
+import com.nowayback.reward.domain.event.IdempotentKeys;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
@@ -32,7 +32,7 @@ public class RewardService {
 
     private final RewardRepository rewardRepository;
     private final OutboxEventPublisher outboxEventPublisher;
-    private final ProcessedProjectEventRepository processedEventRepository;
+    private final IdempotentKeyRepository idempotentKeyRepository;
 
     private static final int MAX_REWARD_COUNT = 10;
 
@@ -43,7 +43,7 @@ public class RewardService {
             UUID creatorId,
             List<RewardCreateCommand> commandList
     ) {
-        if (processedEventRepository.existsByEventId(eventId)) {
+        if (idempotentKeyRepository.existsByEventId(eventId)) {
             log.info("이미 처리된 이벤트 - eventId: {}, projectId: {}",
                     eventId, projectId);
             return List.of();
@@ -65,8 +65,8 @@ public class RewardService {
 
             saveSuccessOutbox(projectId);
 
-            processedEventRepository.save(
-                    ProcessedProjectEvent.create(eventId, projectId.toString())
+            idempotentKeyRepository.save(
+                    IdempotentKeys.create(eventId, projectId.toString())
             );
 
             return createdRewards;

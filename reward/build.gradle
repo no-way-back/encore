@@ -1,7 +1,19 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.flywaydb:flyway-core:11.7.2"
+        classpath "org.flywaydb:flyway-database-postgresql:11.7.2"
+        classpath "org.postgresql:postgresql:42.7.7"
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.flywaydb.flyway' version '11.7.2'
 }
 
 group = 'com.nowayback'
@@ -31,35 +43,49 @@ ext {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+    /* QR Code */
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'com.google.zxing:javase:3.5.3'
 
+    /* Kafka & Feign */
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    /* AWS S3 */
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.0'
 
+    /* Swagger */
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.postgresql:postgresql:42.7.7'
+
+    /* Test */
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
 }
 
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
+}
+
+flyway {
+    url = project.findProperty("flyway.url")
+    user = project.findProperty("flyway.user")
+    password = project.findProperty("flyway.password")
+    schemas = ['reward_service']
+    defaultSchema = 'reward_service'
+    locations = ["filesystem:src/main/resources/db/migration"]
+    cleanDisabled = false
 }
 
 tasks.named('test') {

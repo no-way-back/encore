@@ -1,12 +1,17 @@
 package com.nowayback.reward.application.reward;
 
 import com.nowayback.reward.application.event.repository.ProcessedProjectEventRepository;
+import com.nowayback.reward.application.outbox.event.OutboxEventPublisher;
 import com.nowayback.reward.application.reward.command.RewardCreateCommand;
 import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
+import com.nowayback.reward.application.reward.dto.RewardCreationResult;
 import com.nowayback.reward.application.reward.dto.RewardListResult;
 import com.nowayback.reward.application.reward.repository.RewardRepository;
 import com.nowayback.reward.domain.event.ProcessedProjectEvent;
 import com.nowayback.reward.domain.exception.RewardException;
+import com.nowayback.reward.domain.outbox.vo.AggregateType;
+import com.nowayback.reward.domain.outbox.vo.EventDestination;
+import com.nowayback.reward.domain.outbox.vo.EventType;
 import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
 import com.nowayback.reward.domain.reward.entity.Rewards;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +31,7 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.REWARD_NOT_F
 public class RewardService {
 
     private final RewardRepository rewardRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
     private final ProcessedProjectEventRepository processedEventRepository;
 
     private static final int MAX_REWARD_COUNT = 10;
@@ -50,17 +56,25 @@ public class RewardService {
             throw new RewardException(REWARD_COUNT_EXCEEDED);
         }
 
-        List<Rewards> createdRewards = commandList.stream()
-                .map(request -> createReward(projectId, creatorId, request))
-                .toList();
+        try {
+            List<Rewards> createdRewards = commandList.stream()
+                    .map(request -> createReward(projectId, creatorId, request))
+                    .toList();
 
-        log.info("프로젝트 {} 총 {}개 리워드 생성 완료", projectId, createdRewards.size());
+            log.info("프로젝트 {} 총 {}개 리워드 생성 완료", projectId, createdRewards.size());
 
-        processedEventRepository.save(
-                ProcessedProjectEvent.create(eventId, projectId.toString())
-        );
+            saveSuccessOutbox(projectId);
 
-        return createdRewards;
+            processedEventRepository.save(
+                    ProcessedProjectEvent.create(eventId, projectId.toString())
+            );
+
+            return createdRewards;
+        } catch (Exception e) {
+            saveFailureOutbox(projectId);
+            throw e;
+        }
+
     }
 
     @Transactional(readOnly = true)
@@ -89,6 +103,26 @@ public class RewardService {
     public Rewards getById(UUID rewardId) {
         return rewardRepository.findById(rewardId).orElseThrow(
                 () -> new RewardException(REWARD_NOT_FOUND)
+        );
+    }
+
+    private void saveSuccessOutbox(UUID projectId) {
+        outboxEventPublisher.publish(
+                EventType.REWARD_CREATION_SUCCESS,
+                EventDestination.PROJECT_SERVICE,
+                RewardCreationResult.success(projectId),
+                AggregateType.PROJECT,
+                projectId
+        );
+    }
+
+    private void saveFailureOutbox(UUID projectId) {
+        outboxEventPublisher.publish(
+                EventType.REWARD_CREATION_FAILED,
+                EventDestination.PROJECT_SERVICE,
+                RewardCreationResult.failure(projectId),
+                AggregateType.PROJECT,
+                projectId
         );
     }
 

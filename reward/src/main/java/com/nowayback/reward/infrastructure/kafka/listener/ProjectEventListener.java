@@ -1,11 +1,7 @@
 package com.nowayback.reward.infrastructure.kafka.listener;
 
-import com.nowayback.reward.application.outbox.event.OutboxEventPublisher;
 import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.application.reward.command.RewardCreateCommand;
-import com.nowayback.reward.application.reward.dto.RewardCreationResult;
-import com.nowayback.reward.domain.outbox.vo.AggregateType;
-import com.nowayback.reward.domain.outbox.vo.EventDestination;
 import com.nowayback.reward.domain.outbox.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.data.RewardCreateData;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
@@ -25,7 +21,6 @@ import java.util.UUID;
 public class ProjectEventListener {
 
     private final RewardService rewardService;
-    private final OutboxEventPublisher outboxEventPublisher;
 
     @KafkaListener(
             topics = "${spring.kafka.topic.project-reward-creation}",
@@ -64,29 +59,8 @@ public class ProjectEventListener {
 
             log.info("리워드 생성 완료 - 프로젝트: {}", projectId);
 
-            RewardCreationResult result = RewardCreationResult.success(projectId);
-
-            outboxEventPublisher.publish(
-                    EventType.REWARD_CREATION_SUCCESS,
-                    EventDestination.PROJECT_SERVICE,
-                    result,
-                    AggregateType.PROJECT,
-                    projectId
-            );
-
         } catch (Exception e) {
             log.error("리워드 생성 실패 - 프로젝트: {}", projectId, e);
-
-            RewardCreationResult result = RewardCreationResult.failure(projectId);
-
-            outboxEventPublisher.publish(
-                    EventType.REWARD_CREATION_FAILED,
-                    EventDestination.PROJECT_SERVICE,
-                    result,
-                    AggregateType.PROJECT,
-                    projectId
-            );
-
         } finally {
             acknowledgment.acknowledge();
         }

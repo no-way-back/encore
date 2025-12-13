@@ -52,11 +52,11 @@ public class RewardService {
         log.info("프로젝트 {} 리워드 생성 시작 - {}개, eventId: {}",
                 projectId, commandList.size(), eventId);
 
-        if (commandList.size() > MAX_REWARD_COUNT) {
-            throw new RewardException(REWARD_COUNT_EXCEEDED);
-        }
-
         try {
+            if (commandList.size() > MAX_REWARD_COUNT) {
+                throw new RewardException(REWARD_COUNT_EXCEEDED);
+            }
+
             List<Rewards> createdRewards = commandList.stream()
                     .map(request -> createReward(projectId, creatorId, request))
                     .toList();

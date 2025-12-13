@@ -1,12 +1,18 @@
 package com.nowayback.reward.small.application.reward;
 
+import com.nowayback.reward.application.idempotentkey.repository.IdempotentKeyRepository;
+import com.nowayback.reward.application.outbox.event.OutboxEventPublisher;
 import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.application.reward.command.RewardCreateCommand;
 import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
+import com.nowayback.reward.application.reward.dto.RewardCreationResult;
+import com.nowayback.reward.application.reward.repository.RewardRepository;
 import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
+import com.nowayback.reward.domain.outbox.vo.AggregateType;
+import com.nowayback.reward.domain.outbox.vo.EventDestination;
+import com.nowayback.reward.domain.outbox.vo.EventType;
 import com.nowayback.reward.domain.reward.entity.Rewards;
-import com.nowayback.reward.application.reward.repository.RewardRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,6 +29,7 @@ import static com.nowayback.reward.fixture.RewardFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +37,12 @@ class RewardServiceTest {
 
     @Mock
     private RewardRepository rewardRepository;
+
+    @Mock
+    private OutboxEventPublisher outboxEventPublisher;
+
+    @Mock
+    private IdempotentKeyRepository idempotentKeyRepository;
 
     @InjectMocks
     private RewardService rewardService;
@@ -46,26 +59,32 @@ class RewardServiceTest {
             @DisplayName("단일 리워드 생성 성공")
             void createSingleReward() {
                 // given
+                String eventId = "test-event-id";
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(createRequest());
 
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(false);
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                List<Rewards> result = rewardService.createRewardsForProject(projectId, creatorId, requests);
+                List<Rewards> result = rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                );
 
                 // then
                 assertThat(result).hasSize(1);
                 assertThat(result.get(0).getName()).isEqualTo("테스트 리워드");
                 verify(rewardRepository, times(1)).save(any(Rewards.class));
+                verify(outboxEventPublisher, times(1)).publish(any(), any(), any(), any(), any());
             }
 
             @Test
             @DisplayName("여러 리워드 생성 성공")
             void createMultipleRewards() {
                 // given
+                String eventId = "test-event-id";
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(
@@ -74,32 +93,40 @@ class RewardServiceTest {
                         createRequest("응원봉", 15000L, 150)
                 );
 
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(false);
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                List<Rewards> result = rewardService.createRewardsForProject(projectId, creatorId, requests);
+                List<Rewards> result = rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                );
 
                 // then
                 assertThat(result).hasSize(3);
                 assertThat(result).extracting("name")
                         .containsExactly("티셔츠", "입장권", "응원봉");
                 verify(rewardRepository, times(3)).save(any(Rewards.class));
+                verify(outboxEventPublisher, times(1)).publish(any(), any(), any(), any(), any());
             }
 
             @Test
             @DisplayName("옵션이 있는 리워드 생성 성공")
             void createRewardWithOptions() {
                 // given
+                String eventId = "test-event-id";
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(createRequestWithOptions());
 
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(false);
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                List<Rewards> result = rewardService.createRewardsForProject(projectId, creatorId, requests);
+                List<Rewards> result = rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                );
 
                 // then
                 assertThat(result).hasSize(1);
@@ -111,19 +138,45 @@ class RewardServiceTest {
             @DisplayName("최대 개수(10개) 리워드 생성 성공")
             void createMaxCountRewards() {
                 // given
+                String eventId = "test-event-id";
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = createRequests(10);
 
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(false);
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // when
-                List<Rewards> result = rewardService.createRewardsForProject(projectId, creatorId, requests);
+                List<Rewards> result = rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                );
 
                 // then
                 assertThat(result).hasSize(10);
                 verify(rewardRepository, times(10)).save(any(Rewards.class));
+            }
+
+            @Test
+            @DisplayName("이미 처리된 이벤트는 중복 처리하지 않음")
+            void duplicateEventIgnored() {
+                // given
+                String eventId = "duplicate-event-id";
+                UUID projectId = UUID.randomUUID();
+                UUID creatorId = UUID.randomUUID();
+                List<RewardCreateCommand> requests = List.of(createRequest());
+
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(true);
+
+                // when
+                List<Rewards> result = rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                );
+
+                // then
+                assertThat(result).isEmpty();
+                verifyNoInteractions(rewardRepository);
+                verifyNoInteractions(outboxEventPublisher);
             }
         }
 
@@ -135,44 +188,66 @@ class RewardServiceTest {
             @DisplayName("리워드 개수 초과 시 예외 발생")
             void rewardCountExceeded() {
                 // given
+                String eventId = "test-event-id";
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = createRequests(11);
 
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(false);
+
                 // when & then
-                assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))
+                assertThatThrownBy(() -> rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                ))
                         .isInstanceOf(RewardException.class)
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.REWARD_COUNT_EXCEEDED);
 
                 verify(rewardRepository, never()).save(any());
+                verify(outboxEventPublisher, times(1)).publish(
+                        eq(EventType.REWARD_CREATION_FAILED),
+                        eq(EventDestination.PROJECT_SERVICE),
+                        any(RewardCreationResult.class),
+                        eq(AggregateType.PROJECT),
+                        eq(projectId)
+                );
             }
 
             @Test
             @DisplayName("리워드 개수 초과 시 저장 안 함")
             void noSaveWhenCountExceeded() {
                 // given
+                String eventId = "test-event-id";
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = createRequests(15);
 
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(false);
+
                 // when & then
-                assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))
+                assertThatThrownBy(() -> rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                ))
                         .isInstanceOf(RewardException.class);
 
-                verifyNoInteractions(rewardRepository);
+                verify(rewardRepository, never()).save(any());
             }
 
             @Test
             @DisplayName("금액이 최소값 미만일 때 예외 발생")
             void priceBelowMinimum() {
                 // given
+                String eventId = "test-event-id";
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(createRequest("리워드", 500L, 100));
 
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(false);
+
                 // when & then
-                assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))
+                assertThatThrownBy(() -> rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                ))
                         .isInstanceOf(RewardException.class)
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.PRICE_BELOW_MINIMUM);
@@ -184,12 +259,17 @@ class RewardServiceTest {
             @DisplayName("재고가 최소값 미만일 때 예외 발생")
             void stockBelowMinimum() {
                 // given
+                String eventId = "test-event-id";
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(createRequest("리워드", 25000L, 0));
 
+                when(idempotentKeyRepository.existsByEventId(eventId)).thenReturn(false);
+
                 // when & then
-                assertThatThrownBy(() -> rewardService.createRewardsForProject(projectId, creatorId, requests))
+                assertThatThrownBy(() -> rewardService.createRewardsForProject(
+                        eventId, projectId, creatorId, requests
+                ))
                         .isInstanceOf(RewardException.class)
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.STOCK_BELOW_MINIMUM);

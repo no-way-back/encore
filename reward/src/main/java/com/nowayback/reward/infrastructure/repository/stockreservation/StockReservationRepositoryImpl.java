@@ -1,7 +1,7 @@
 package com.nowayback.reward.infrastructure.repository.stockreservation;
 
 import com.nowayback.reward.domain.stockreservation.entity.StockReservation;
-import com.nowayback.reward.domain.stockreservation.repository.StockReservationRepository;
+import com.nowayback.reward.application.stockreservation.repository.StockReservationRepository;
 import com.nowayback.reward.domain.vo.FundingId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

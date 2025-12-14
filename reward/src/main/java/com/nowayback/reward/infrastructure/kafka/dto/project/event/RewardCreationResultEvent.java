@@ -1,12 +1,11 @@
 package com.nowayback.reward.infrastructure.kafka.dto.project.event;
 
-import com.nowayback.reward.infrastructure.kafka.constant.EventType;
+import com.nowayback.reward.application.reward.dto.RewardCreationResult;
+import com.nowayback.reward.domain.outbox.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.RewardCreationResultPayload;
 
 import java.time.LocalDateTime;
-
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.REWARD_CREATION_FAILED;
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.REWARD_CREATION_SUCCESS;
+import java.util.UUID;
 
 public record RewardCreationResultEvent(
         String eventId,
@@ -14,32 +13,19 @@ public record RewardCreationResultEvent(
         LocalDateTime occurredAt,
         RewardCreationResultPayload payload
 ) {
+    public static RewardCreationResultEvent from(RewardCreationResult result) {
+        EventType eventType = result.success()
+                ? EventType.REWARD_CREATION_SUCCESS
+                : EventType.REWARD_CREATION_FAILED;
 
-    /**
-     * 리워드 생성 성공
-     * - event type = REWARD_CREATION_SUCCESS
-     * - success = true
-     */
-    public static RewardCreationResultEvent success(String projectId) {
         return new RewardCreationResultEvent(
-                java.util.UUID.randomUUID().toString(),
-                REWARD_CREATION_SUCCESS,
+                UUID.randomUUID().toString(),
+                eventType,
                 LocalDateTime.now(),
-                new RewardCreationResultPayload(projectId, true)
-        );
-    }
-
-    /**
-     * 리워드 생성 실패
-     * - event type = REWARD_CREATION_FAILED
-     * - success = false
-     */
-    public static RewardCreationResultEvent failure(String projectId) {
-        return new RewardCreationResultEvent(
-                java.util.UUID.randomUUID().toString(),
-                REWARD_CREATION_FAILED,
-                LocalDateTime.now(),
-                new RewardCreationResultPayload(projectId, false)
+                new RewardCreationResultPayload(
+                        result.projectId().toString(),
+                        result.success()
+                )
         );
     }
 }

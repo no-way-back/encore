@@ -1,4 +1,4 @@
-package com.nowayback.reward.domain.reward.repository;
+package com.nowayback.reward.application.reward.repository;
 
 import com.nowayback.reward.domain.reward.entity.Rewards;
 

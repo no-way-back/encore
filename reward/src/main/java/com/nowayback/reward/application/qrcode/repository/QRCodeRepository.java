@@ -1,4 +1,4 @@
-package com.nowayback.reward.domain.qrcode.repository;
+package com.nowayback.reward.application.qrcode.repository;
 
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
 

@@ -24,7 +24,7 @@ import static com.nowayback.reward.domain.qrcode.vo.QrCodeStatus.*;
 public class QRCodes {
 
     @Id
-    private UUID id;  // @GeneratedValue 제거
+    private UUID id;
 
     @Embedded
     private RewardId rewardId;

@@ -1,7 +1,7 @@
 package com.nowayback.reward.infrastructure.repository.qrcode;
 
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
-import com.nowayback.reward.domain.qrcode.repository.QRCodeRepository;
+import com.nowayback.reward.application.qrcode.repository.QRCodeRepository;
 import com.nowayback.reward.domain.vo.FundingId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

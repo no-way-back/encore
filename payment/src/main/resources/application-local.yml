@@ -1,0 +1,79 @@
+server:
+  port: 18084
+
+spring:
+  datasource:
+    url: ${PAYMENT_SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/encore_db}
+    username: ${PAYMENT_SPRING_DATASOURCE_USERNAME:user}
+    password: ${PAYMENT_SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: payment_service
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true
+    out-of-order: false
+    group: true
+    mixed: false
+    clean-disabled: false
+    baseline-on-migrate: true
+    fail-on-missing-locations: true
+    placeholder-replacement: false
+    sql-migration-suffixes: [ ".sql" ]
+
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: payment-service
+    topic:
+      funding-payment-process: funding-payment-process
+      project-funding-failed: project-funding-failed
+      payment-confirm-succeeded: payment-confirm-succeeded
+      payment-confirm-failed: payment-confirm-failed
+
+payment:
+  toss:
+    secret-key: ${PAYMENT_SECRET_KEY}
+    base-url: https://api.tosspayments.com/v1
+  open-banking:
+    base-url: https://openapi.openbanking.or.kr/v2.0
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    display-request-duration: true
+    groups-order: desc
+  show-actuator: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+
+feign:
+  client:
+    config:
+      project-service:
+        url: http://localhost:18085
+
+logging:
+  level:
+    com.nowayback.payment: DEBUG
+    org.hibernate.SQL: DEBUG

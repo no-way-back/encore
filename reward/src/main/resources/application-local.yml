@@ -1,0 +1,81 @@
+server:
+  port: 18083
+
+spring:
+  application:
+    name: reward-service
+  datasource:
+    url: ${REWARD_SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/encore_db}
+    username: ${REWARD_SPRING_DATASOURCE_USERNAME:user}
+    password: ${REWARD_SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: true
+        default_schema: reward_service
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true
+    out-of-order: false
+    group: true
+    mixed: false
+    clean-disabled: false
+    baseline-on-migrate: true
+    fail-on-missing-locations: true
+    placeholder-replacement: false
+    sql-migration-suffixes: [".sql"]
+    default-schema: reward_service
+    schemas: [reward_service]
+
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: reward-service-group-test
+    topic:
+      project-reward-creation: project-reward-creation
+      funding-failed: funding-failed
+      funding-refund: funding-refund
+      funding-completed: funding-completed
+      project-funding-success: project-funding-success
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 5000
+            loggerLevel: BASIC
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+
+service:
+  project:
+    url: http://localhost:18085
+
+qrcode:
+  width: 300
+  height: 300
+  base-url: http://localhost:8080
+
+logging:
+  level:
+    root: INFO
+    com.nowayback.reward: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

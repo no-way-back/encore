@@ -1,0 +1,92 @@
+server:
+  port: 18082
+  tomcat:
+    threads:
+      max: 250
+      min-spare: 50
+    accept-count: 1000
+    max-connections: 10000
+
+spring:
+  datasource:
+    url: ${FUNDING_DATASOURCE_URL}
+    username: ${FUNDING_DATASOURCE_USERNAME}
+    password: ${FUNDING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 40
+      minimum-idle: 20
+      connection-timeout: 3000
+      validation-timeout: 1000
+      leak-detection-threshold: 60000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true                    # Flyway 활성화
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true      # 마이그레이션 파일 변경 감지
+    out-of-order: false           # 순서대로 실행 강제
+    group: true                   # 트랜잭션 단위로 개별 실행
+    mixed: false                  # SQL과 Java 마이그레이션 혼용 방지
+    clean-disabled: true
+    baseline-on-migrate: true
+    fail-on-missing-locations: true # 마이그레이션 위치 누락시 실패
+    placeholder-replacement: false  # 플레이스홀더 비활성화 (보안)
+    sql-migration-suffixes: [ ".sql" ] # SQL 파일 확장자 명시
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: funding-service
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: AWS_MSK_IAM
+      sasl.jaas.config: software.amazon.msk.auth.iam.IAMLoginModule required;
+      sasl.client.callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
+
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      ssl:
+        enabled: true
+
+logging:
+  level:
+    com.nowayback.funding: DEBUG
+    org.hibernate.SQL: DEBUG
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+feign:
+  client:
+    config:
+      reward-service:
+        url: ${INTERNAL_SERVICE_BASE_URL}
+        connectTimeout: 3000
+        readTimeout: 5000
+
+      payment-service:
+        url: ${INTERNAL_SERVICE_BASE_URL}
+        connectTimeout: 3000
+        readTimeout: 10000

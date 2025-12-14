@@ -1,0 +1,89 @@
+package com.nowayback.project.application.projectdraft.event;
+
+import com.nowayback.project.application.event.EventHandler;
+import com.nowayback.project.application.outbox.event.OutboxEventPublisher;
+import com.nowayback.project.application.project.ProjectService;
+import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftResult;
+import com.nowayback.project.application.projectdraft.event.payload.FundingCreationEventPayload;
+import com.nowayback.project.application.projectdraft.event.payload.RewardCreatedEventPayload;
+import com.nowayback.project.domain.exception.ProjectErrorCode;
+import com.nowayback.project.domain.exception.ProjectException;
+import com.nowayback.project.domain.outbox.vo.AggregateType;
+import com.nowayback.project.domain.outbox.vo.EventDestination;
+import com.nowayback.project.domain.outbox.vo.EventType;
+import com.nowayback.project.domain.project.entity.Project;
+import com.nowayback.project.domain.project.repository.ProjectRepository;
+import com.nowayback.project.domain.projectDraft.entity.ProjectDraft;
+import com.nowayback.project.domain.projectDraft.repository.ProjectDraftRepository;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class RewardCreatedEventHandler implements EventHandler<RewardCreatedEventPayload> {
+
+    private final ProjectRepository projectRepository;
+    private final ProjectDraftRepository projectDraftRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
+    private final ProjectService projectService;
+
+    @Override
+    public boolean supports(EventType eventType) {
+        return eventType == EventType.REWARD_CREATED;
+    }
+
+    @Override
+    public Class<RewardCreatedEventPayload> getPayloadType() {
+        return RewardCreatedEventPayload.class;
+    }
+
+    @Override
+    @Transactional
+    public void handle(RewardCreatedEventPayload payload) {
+        log.info("[RewardCreatedEventHandler.handle] 이벤트 수신 - payload: {}", payload);
+        UUID projectId = payload.getProjectId();
+
+        Project project = readProject(projectId);
+        ProjectDraft projectDraft = readProjectDraft(project.getProjectDraftId());
+        validateFundingDraft(projectDraft);
+
+        projectService.markAsUpcoming(projectId);
+
+        publishFundingCreationEvent(projectId, projectDraft);
+        log.info("[RewardCreatedEventHandler.handle] 펀딩 생성 이벤트 발행 완료 - projectId: {}", projectId);
+    }
+
+    private Project readProject(UUID projectId) {
+        return projectRepository.findById(projectId)
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_NOT_FOUND));
+    }
+
+    private ProjectDraft readProjectDraft(UUID projectDraftId) {
+        return projectDraftRepository.findById(projectDraftId)
+            .orElseThrow(() -> new ProjectException(ProjectErrorCode.PROJECT_DRAFT_NOT_FOUND));
+    }
+
+    private void validateFundingDraft(ProjectDraft projectDraft) {
+        if (projectDraft.getFundingDraft() == null) {
+            throw new ProjectException(ProjectErrorCode.FUNDING_DRAFT_NOT_FOUND);
+        }
+    }
+
+    private void publishFundingCreationEvent(UUID projectId, ProjectDraft projectDraft) {
+        outboxEventPublisher.publish(
+            EventType.PROJECT_FUNDING_CREATION,
+            EventDestination.KAFKA,
+            FundingCreationEventPayload.from(
+                projectId,
+                projectDraft.getUserId(),
+                ProjectFundingDraftResult.of(projectDraft)
+            ),
+            AggregateType.PROJECT,
+            projectId
+        );
+    }
+}

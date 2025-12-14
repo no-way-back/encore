@@ -1,0 +1,65 @@
+server:
+  port: 18081
+
+spring:
+  datasource:
+    url: ${USER_SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/encore_db}
+    username: ${USER_SPRING_DATASOURCE_USERNAME:user}
+    password: ${USER_SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: user_service
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true
+    out-of-order: false
+    group: true
+    mixed: false
+    clean-disabled: false
+    baseline-on-migrate: true
+    fail-on-missing-locations: true
+    placeholder-replacement: false
+    sql-migration-suffixes: [ ".sql" ]
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+jwt:
+  secret: ${JWT_SECRET:yH2Nf5Q9bV4mE1uU2Z+8HsWlQq7R3pOjfL5xB0kDcZ8=}
+  access-expire-time-ms: 86400000
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    display-request-duration: true
+    groups-order: desc
+  show-actuator: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+
+logging:
+  level:
+    com.nowayback.user: DEBUG
+    org.hibernate.SQL: DEBUG

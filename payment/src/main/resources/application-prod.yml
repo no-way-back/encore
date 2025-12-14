@@ -1,0 +1,70 @@
+server:
+  port: 18084
+
+spring:
+  datasource:
+    url: ${PAYMENT_SPRING_DATASOURCE_URL}
+    username: ${PAYMENT_SPRING_DATASOURCE_USERNAME}
+    password: ${PAYMENT_SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: payment_service
+    show-sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true
+    out-of-order: false
+    group: true
+    mixed: false
+    clean-disabled: false
+    baseline-on-migrate: true
+    fail-on-missing-locations: true
+    placeholder-replacement: false
+    sql-migration-suffixes: [ ".sql" ]
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: payment-service
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: AWS_MSK_IAM
+      sasl.jaas.config: software.amazon.msk.auth.iam.IAMLoginModule required;
+      sasl.client.callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
+    topic:
+      funding-payment-process: funding-payment-process
+      project-funding-failed: project-funding-failed
+      payment-confirm-succeeded: payment-confirm-succeeded
+      payment-confirm-failed: payment-confirm-failed
+
+payment:
+  toss:
+    secret-key: ${PAYMENT_SECRET_KEY}
+    base-url: https://api.tosspayments.com/v1
+  open-banking:
+    base-url: https://openapi.openbanking.or.kr/v2.0
+
+eureka:
+  client:
+    enabled: false
+
+feign:
+  client:
+    config:
+      project-service:
+        url: ${INTERNAL_SERVICE_BASE_URL}
+
+logging:
+  level:
+    com.nowayback.payment: DEBUG
+    org.hibernate.SQL: DEBUG

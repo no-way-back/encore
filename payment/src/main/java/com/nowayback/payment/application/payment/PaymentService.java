@@ -1,0 +1,170 @@
+package com.nowayback.payment.application.payment;
+
+import com.nowayback.payment.application.payment.dto.command.ConfirmPaymentCommand;
+import com.nowayback.payment.application.payment.dto.command.CreatePaymentCommand;
+import com.nowayback.payment.application.payment.dto.command.RefundPaymentCommand;
+import com.nowayback.payment.application.payment.dto.result.PaymentResult;
+import com.nowayback.payment.application.payment.service.pg.PaymentGatewayClient;
+import com.nowayback.payment.application.payment.service.pg.dto.PgConfirmResult;
+import com.nowayback.payment.application.payment.service.pg.dto.PgRefundResult;
+import com.nowayback.payment.domain.exception.PaymentErrorCode;
+import com.nowayback.payment.domain.exception.PaymentException;
+import com.nowayback.payment.domain.payment.entity.Payment;
+import com.nowayback.payment.domain.payment.repository.PaymentRepository;
+import com.nowayback.payment.domain.payment.vo.FundingId;
+import com.nowayback.payment.domain.payment.vo.PaymentStatus;
+import com.nowayback.payment.domain.payment.vo.Money;
+import com.nowayback.payment.domain.payment.vo.ProjectId;
+import com.nowayback.payment.infrastructure.payment.kafka.funding.dto.PaymentConfirmFailedEvent;
+import com.nowayback.payment.infrastructure.payment.kafka.funding.dto.PaymentConfirmSucceededEvent;
+import com.nowayback.payment.infrastructure.payment.kafka.funding.producer.PaymentConfirmEventProducer;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    private final PaymentRepository paymentRepository;
+    private final PaymentGatewayClient paymentGatewayClient;
+    private final PaymentStatusLogService paymentStatusLogService;
+    private final PaymentConfirmEventProducer paymentConfirmEventProducer;
+
+    private static final int MAX_PAGE_SIZE = 50;
+
+    @Transactional
+    public PaymentResult createPayment(CreatePaymentCommand command) {
+        validateExistingPendingPayment(command.fundingId());
+
+        Payment payment = Payment.create(
+                command.userId(),
+                command.fundingId(),
+                command.projectId(),
+                command.amount()
+        );
+
+        Payment savedPayment = paymentRepository.save(payment);
+
+        return PaymentResult.from(savedPayment);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PaymentResult> getPayments(UUID userId, UUID projectId, int page, int size, UUID requesterId, String role) {
+        Pageable pageable = getPageable(page, size);
+
+        if (role.equals("USER")) {
+            if (userId == null) userId = requesterId;
+            else validateSelf(userId, requesterId);
+        }
+
+        return paymentRepository.searchPayments(userId, projectId, pageable)
+                .map(PaymentResult::from);
+    }
+
+    @Transactional
+    public PaymentResult confirmPayment(ConfirmPaymentCommand command, UUID requesterId) {
+        Payment payment = getPendingPaymentByFundingId(command.fundingId());
+        validateSelf(payment.getUserId().getId(), requesterId);
+
+        PgConfirmResult pgResult = paymentGatewayClient.confirmPayment(
+                command.pgInfo(),
+                payment.getAmount()
+        );
+
+        publishConfirmEvent(payment, pgResult);
+
+        PaymentStatus previous = payment.getStatus();
+        payment.confirm(command.pgInfo(), pgResult.approvedAt());
+
+        paymentRepository.save(payment);
+        savePaymentStatusLog(payment, previous, null, Money.of(pgResult.totalAmount()));
+
+        return PaymentResult.from(payment);
+    }
+
+    @Transactional
+    public PaymentResult refundPayment(RefundPaymentCommand command) {
+        Payment payment = getPaymentById(command.paymentId());
+
+        if (payment.getStatus() == PaymentStatus.REFUNDED) {
+            throw new PaymentException(PaymentErrorCode.PAYMENT_ALREADY_REFUNDED);
+        }
+
+        PgRefundResult pgResult = paymentGatewayClient.refundPayment(
+                payment.getPgInfo().getPgPaymentKey(),
+                command.cancelReason(),
+                command.refundAccountInfo()
+        );
+
+        PaymentStatus previous = payment.getStatus();
+        payment.refund(command.refundAccountInfo(), command.cancelReason(), pgResult.canceledAt());
+
+        savePaymentStatusLog(payment, previous, null, Money.of(pgResult.cancelAmount()));
+
+        return PaymentResult.from(payment);
+    }
+
+    public Long getTotalAmountByProjectId(UUID projectId) {
+        return paymentRepository.sumAmountByProjectId(ProjectId.of(projectId));
+    }
+
+    private Payment getPaymentById(UUID paymentId) {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_NOT_FOUND));
+    }
+
+    private Payment getPendingPaymentByFundingId(FundingId fundingId) {
+        return paymentRepository.findByFundingIdAndStatus(fundingId, PaymentStatus.PENDING)
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.PENDING_PAYMENT_NOT_FOUND));
+    }
+
+    private void savePaymentStatusLog(Payment payment, PaymentStatus prevStatus, String reason, Money amount) {
+        paymentStatusLogService.savePaymentStatusLog(
+                payment.getId(),
+                prevStatus,
+                payment.getStatus(),
+                reason,
+                amount
+        );
+    }
+
+    private void publishConfirmEvent(Payment payment, PgConfirmResult pgResult) {
+        if (pgResult.status().equals("DONE")) {
+            paymentConfirmEventProducer.publishPaymentConfirmSucceededEvent(
+                    new PaymentConfirmSucceededEvent(
+                            payment.getFundingId().getId(),
+                            payment.getId()
+                    )
+            );
+        } else if (pgResult.status().equals("ABORTED") || pgResult.status().equals("EXPIRED")) {
+            paymentConfirmEventProducer.publishPaymentConfirmFailedEvent(
+                    new PaymentConfirmFailedEvent(
+                            payment.getFundingId().getId()
+                    )
+            );
+        }
+    }
+
+    private void validateSelf(UUID userId, UUID requesterId) {
+        if (!userId.equals(requesterId)) {
+            throw new PaymentException(PaymentErrorCode.FORBIDDEN_PAYMENT_SELF_ACCESS);
+        }
+    }
+
+    private void validateExistingPendingPayment(FundingId fundingId) {
+        if (paymentRepository.existsByFundingIdAndStatus(fundingId, PaymentStatus.PENDING)) {
+            throw new PaymentException(PaymentErrorCode.PAYMENT_ALREADY_PENDING);
+        }
+    }
+
+    private Pageable getPageable(int page, int size) {
+        int safeSize = Math.min(size, MAX_PAGE_SIZE);
+        return PageRequest.of(page, safeSize);
+    }
+}

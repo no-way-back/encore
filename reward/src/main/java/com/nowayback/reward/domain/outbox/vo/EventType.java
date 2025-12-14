@@ -1,0 +1,12 @@
+package com.nowayback.reward.domain.outbox.vo;
+
+public enum EventType {
+    PROJECT_CREATED,
+    REWARD_CREATION_SUCCESS,
+    REWARD_CREATION_FAILED,
+    FUNDING_FAILED,
+    FUNDING_REFUND,
+    FUNDING_COMPLETED,
+    PROJECT_FUNDING_SUCCESS,
+    UNSUPPORTED_TYPE;
+}

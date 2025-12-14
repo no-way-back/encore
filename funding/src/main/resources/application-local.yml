@@ -1,0 +1,80 @@
+server:
+  port: 18082
+  tomcat:
+    threads:
+      max: 1000
+      min-spare: 100
+    accept-count: 200
+    max-connections: 2000
+
+spring:
+  datasource:
+    url: ${USER_SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/encore_db}
+    username: ${USER_SPRING_DATASOURCE_USERNAME:user}
+    password: ${USER_SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 80
+      minimum-idle: 40
+      connection-timeout: 5000
+      validation-timeout: 1000
+      leak-detection-threshold: 60000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: funding_service
+    show-sql: true
+
+  flyway:
+    enabled: true                    # Flyway 활성화
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true      # 마이그레이션 파일 변경 감지
+    out-of-order: false           # 순서대로 실행 강제
+    group: true                   # 트랜잭션 단위로 개별 실행
+    mixed: false                  # SQL과 Java 마이그레이션 혼용 방지
+    clean-disabled: false
+    baseline-on-migrate: true
+    fail-on-missing-locations: true # 마이그레이션 위치 누락시 실패
+    placeholder-replacement: false  # 플레이스홀더 비활성화 (보안)
+    sql-migration-suffixes: [ ".sql" ] # SQL 파일 확장자 명시
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:funding-service}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+
+logging:
+  level:
+    com.nowayback.funding: DEBUG
+    org.hibernate.SQL: DEBUG
+
+feign:
+  client:
+    config:
+      reward-service:
+        url: http://localhost:18083
+        connectTimeout: 3000
+        readTimeout: 5000
+
+      payment-service:
+        url: http://localhost:18084
+        connectTimeout: 3000
+        readTimeout: 10000

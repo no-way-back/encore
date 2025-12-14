@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: reward-service
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+    open-in-view: false
+
+  flyway:
+    enabled: false
+
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers:localhost:9092}
+    consumer:
+      auto-offset-reset: earliest
+      group-id: test-reward-service-group
+    producer:
+      retries: 0
+    topic:
+      project-reward-creation: test-project-reward-creation
+      funding-failed: test-funding-failed
+      funding-refund: test-funding-refund
+      funding-completed: test-funding-completed
+      project-funding-success: test-project-funding-success
+
+  cloud:
+    aws:
+      credentials:
+        access-key: test-access-key
+        secret-key: test-secret-key
+      region:
+        static: ap-northeast-2
+      s3:
+        enabled: false
+        bucket: test-bucket
+        base-url: https://test-s3.example.com
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 3000
+            readTimeout: 5000
+            loggerLevel: BASIC
+
+  mail:
+    host: localhost
+    port: 3025
+    username: test-user
+    password: test-pass
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+service:
+  project:
+    url: http://localhost:8080
+
+qrcode:
+  bucket:
+    name: test-qrcode-bucket
+  width: 300
+  height: 300
+  base-url: https://test-qrcode.example.com
+
+eureka:
+  client:
+    enabled: false
+
+logging:
+  level:
+    root: INFO
+    com.nowayback.reward: DEBUG
+    org.hibernate.SQL: DEBUG

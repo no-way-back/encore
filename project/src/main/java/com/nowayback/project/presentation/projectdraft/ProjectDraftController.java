@@ -1,0 +1,140 @@
+package com.nowayback.project.presentation.projectdraft;
+
+import com.nowayback.project.application.projectdraft.ProjectDraftService;
+import com.nowayback.project.application.projectdraft.command.SaveFundingDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveRewardDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveSettlementDraftCommand;
+import com.nowayback.project.application.projectdraft.command.SaveStoryDraftCommand;
+import com.nowayback.project.application.projectdraft.dto.ProjectDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectFundingDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectRewardDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectSettlementDraftResult;
+import com.nowayback.project.application.projectdraft.dto.ProjectStoryDraftResult;
+import com.nowayback.project.domain.projectDraft.vo.ProjectDraftStatus;
+import com.nowayback.project.presentation.projectdraft.dto.request.SaveProjectFundingDraftRequest;
+import com.nowayback.project.presentation.projectdraft.dto.request.SaveProjectSettlementDraft;
+import com.nowayback.project.presentation.projectdraft.dto.request.SaveProjectStoryDraftRequest;
+import com.nowayback.project.presentation.projectdraft.dto.request.SaveRewardDraftRequest;
+import com.nowayback.project.presentation.projectdraft.dto.response.PageResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectDraftCreateResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectDraftResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectFundingDraftResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectRewardDraftResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectSettlementDraftResponse;
+import com.nowayback.project.presentation.projectdraft.dto.response.ProjectStoryDraftResponse;
+
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+public class ProjectDraftController implements ProjectDraftControllerDoc{
+
+    private final ProjectDraftService projectDraftService;
+
+    @PostMapping("/project-drafts")
+    public ResponseEntity<ProjectDraftCreateResponse> createProjectDraft(
+        @RequestHeader("X-User-Id") UUID userId
+    ) {
+        UUID projectDraftId = projectDraftService.createProjectDraft(userId);
+        return ResponseEntity.ok(ProjectDraftCreateResponse.of(projectDraftId));
+    }
+
+    @PatchMapping("/project-drafts/{draftId}/stories")
+    public ResponseEntity<ProjectStoryDraftResponse> saveProjectStoryDraft(
+        @RequestHeader("X-User-Id") UUID userId,
+        @PathVariable("draftId") UUID draftId,
+        @RequestBody SaveProjectStoryDraftRequest request
+    ) {
+        SaveStoryDraftCommand command = request.toCommand(draftId, userId);
+        ProjectStoryDraftResult result = projectDraftService.saveStoryDraft(command);
+        return ResponseEntity.ok(ProjectStoryDraftResponse.from(result));
+    }
+
+    @PatchMapping("/project-drafts/{draftId}/fundings")
+    public ResponseEntity<ProjectFundingDraftResponse> saveProjectFundingDraft(
+        @RequestHeader("X-User-Id") UUID userId,
+        @PathVariable("draftId") UUID draftId,
+        @RequestBody SaveProjectFundingDraftRequest request
+    ) {
+        SaveFundingDraftCommand command = request.toCommand(draftId, userId);
+        ProjectFundingDraftResult result = projectDraftService.saveFundingDraft(command);
+        return ResponseEntity.ok(ProjectFundingDraftResponse.from(result));
+    }
+
+    @PatchMapping("/project-drafts/{draftId}/settlements")
+    public ResponseEntity<ProjectSettlementDraftResponse> saveProjectSettlementDraft(
+        @RequestHeader("X-User-Id") UUID userId,
+        @PathVariable("draftId") UUID draftId,
+        @RequestBody SaveProjectSettlementDraft request
+    ) {
+        SaveSettlementDraftCommand command = request.toCommand(draftId, userId);
+        ProjectSettlementDraftResult result = projectDraftService.saveSettlementDraft(command);
+        return ResponseEntity.ok(ProjectSettlementDraftResponse.from(result));
+    }
+
+    @PatchMapping("/project-drafts/{projectDraftId}/rewards")
+    public ResponseEntity<ProjectRewardDraftResponse> saveRewardDraft(
+        @RequestHeader("X-User-Id") UUID userId,
+        @PathVariable UUID projectDraftId,
+        @RequestBody SaveRewardDraftRequest request
+    ) {
+        SaveRewardDraftCommand command = request.toCommand(projectDraftId, userId);
+        ProjectRewardDraftResult result = projectDraftService.saveRewardDraft(command);
+        return ResponseEntity.ok(ProjectRewardDraftResponse.from(result));
+    }
+
+    @GetMapping("/project-drafts/{projectDraftId}/fundings")
+    public ResponseEntity<ProjectFundingDraftResponse> getFundingDraft(
+        @PathVariable UUID projectDraftId
+    ) {
+        ProjectFundingDraftResult result = projectDraftService.getFundingDraft(projectDraftId);
+        return ResponseEntity.ok(ProjectFundingDraftResponse.from(result));
+    }
+
+    @GetMapping("/project-drafts/{projectDraftId}/rewards")
+    public ResponseEntity<ProjectRewardDraftResponse> getRewardDraft(
+        @PathVariable UUID projectDraftId
+    ) {
+        ProjectRewardDraftResult result = projectDraftService.getRewardDraft(projectDraftId);
+        return ResponseEntity.ok(ProjectRewardDraftResponse.from(result));
+    }
+
+    @GetMapping("/project-drafts/{projectDraftId}/stories")
+    public ResponseEntity<ProjectStoryDraftResponse> getStoryDraft(
+        @PathVariable UUID projectDraftId
+    ) {
+        ProjectStoryDraftResult result = projectDraftService.getStoryDraft(projectDraftId);
+        return ResponseEntity.ok(ProjectStoryDraftResponse.from(result));
+    }
+
+    @GetMapping("/project-drafts/{projectDraftId}/settlements")
+    public ResponseEntity<ProjectSettlementDraftResponse> getSettlementDraft(
+        @PathVariable UUID projectDraftId
+    ) {
+        ProjectSettlementDraftResult result = projectDraftService.getSettlementDraft(projectDraftId);
+        return ResponseEntity.ok(ProjectSettlementDraftResponse.from(result));
+    }
+
+    @GetMapping("/project-drafts/me")
+    public ResponseEntity<PageResponse<ProjectDraftResponse>> getDrafts(
+        @RequestHeader("X-User-Id") UUID userId,
+        @RequestParam(required = false) ProjectDraftStatus status,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<ProjectDraftResult> result = projectDraftService.searchDrafts(userId, status, page, size);
+        return ResponseEntity.ok(PageResponse.fromPage(result.map(ProjectDraftResponse::of)));
+    }
+
+    @PostMapping("/project-drafts/{projectDraftId}/submit")
+    public ResponseEntity<Void> submitDraft(
+        @PathVariable UUID projectDraftId
+    ) {
+        projectDraftService.submit(projectDraftId);
+        return ResponseEntity.noContent().build();
+    }
+}

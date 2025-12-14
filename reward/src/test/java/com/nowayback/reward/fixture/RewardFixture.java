@@ -1,0 +1,198 @@
+package com.nowayback.reward.fixture;
+
+import com.nowayback.reward.application.reward.command.RewardCreateCommand;
+import com.nowayback.reward.application.reward.command.RewardOptionCreateCommand;
+import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
+import com.nowayback.reward.application.reward.command.UpdateRewardOptionCommand;
+import com.nowayback.reward.domain.reward.command.CreateRewardCommand;
+import com.nowayback.reward.domain.reward.command.CreateRewardOptionCommand;
+import com.nowayback.reward.domain.reward.vo.RewardType;
+
+import java.util.List;
+import java.util.UUID;
+
+public class RewardFixture {
+
+    public static CreateRewardCommand createCommand() {
+        return createCommand("테스트 리워드", 25000L, 100);
+    }
+
+    public static CreateRewardCommand createCommand(String name, Long price, Integer stock) {
+        return new CreateRewardCommand(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                name,
+                "테스트 설명",
+                price,
+                stock,
+                3000,
+                50000,
+                5,
+                RewardType.GENERAL,
+                null
+        );
+    }
+
+    public static CreateRewardCommand createCommandWithOptions() {
+        List<CreateRewardOptionCommand> options = List.of(
+                createOptionCommand("S", 0L, 20, 1),
+                createOptionCommand("M", 0L, 30, 2),
+                createOptionCommand("L", 2000L, 25, 3)
+        );
+
+        return new CreateRewardCommand(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "옵션 있는 리워드",
+                "설명",
+                25000L,
+                100,
+                3000,
+                50000,
+                5,
+                RewardType.GENERAL,
+                options
+        );
+    }
+
+    public static CreateRewardOptionCommand createOptionCommand(
+            String name, Long additionalPrice, Integer stock, Integer displayOrder) {
+        return new CreateRewardOptionCommand(
+                name,
+                additionalPrice,
+                stock,
+                true,
+                displayOrder
+        );
+    }
+
+    public static RewardCreateCommand createRequest() {
+        return createRequest("테스트 리워드", 25000L, 100);
+    }
+
+    public static RewardCreateCommand createRequest(String name, Long price, Integer stock) {
+        return new RewardCreateCommand(
+                name,
+                "테스트 설명",
+                price,
+                stock,
+                3000,
+                50000,
+                5,
+                RewardType.GENERAL,
+                null
+        );
+    }
+
+    public static RewardCreateCommand createRequestWithOptions() {
+        List<RewardOptionCreateCommand> options = List.of(
+                createOptionRequest("S", 0L, 20, 1),
+                createOptionRequest("M", 0L, 30, 2),
+                createOptionRequest("L", 2000L, 25, 3)
+        );
+
+        return new RewardCreateCommand(
+                "옵션 있는 리워드",
+                "설명",
+                25000L,
+                100,
+                3000,
+                50000,
+                5,
+                RewardType.GENERAL,
+                options
+        );
+    }
+
+    public static CreateRewardCommand createCommandWithShippingPolicy(
+            Integer shippingFee, Integer freeShippingAmount) {
+        return new CreateRewardCommand(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                "배송 정책 테스트 리워드",
+                "테스트 설명",
+                25000L,
+                100,
+                shippingFee,
+                freeShippingAmount,
+                5,
+                RewardType.GENERAL,
+                null
+        );
+    }
+
+    public static RewardOptionCreateCommand createOptionRequest(
+            String name, Long additionalPrice, Integer stock, Integer displayOrder) {
+        return new RewardOptionCreateCommand(
+                name,
+                additionalPrice,
+                stock,
+                true,
+                displayOrder
+        );
+    }
+
+    public static List<CreateRewardOptionCommand> createOptionCommands(int count) {
+        return java.util.stream.IntStream.range(0, count)
+                .mapToObj(i -> createOptionCommand("Option" + i, 0L, 10, i))
+                .toList();
+    }
+
+    public static List<RewardCreateCommand> createRequests(int count) {
+        return java.util.stream.IntStream.range(0, count)
+                .mapToObj(i -> createRequest("리워드" + i, 25000L, 100))
+                .toList();
+    }
+
+    public static UpdateRewardCommand createUpdateCommand(UUID rewardId) {
+        return new UpdateRewardCommand(
+                rewardId,
+                "수정된 리워드",
+                "수정된 설명",
+                30000L,
+                10,
+                4000,
+                60000,
+                10,
+                RewardType.GENERAL,
+                null
+        );
+    }
+
+    public static UpdateRewardCommand createUpdateCommand(UUID rewardId, String name, Long price, Integer stock) {
+        return new UpdateRewardCommand(
+                rewardId,
+                name,
+                null,
+                price,
+                stock,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    public static UpdateRewardOptionCommand createUpdateOptionCommand(UUID optionId) {
+        return new UpdateRewardOptionCommand(
+                optionId,
+                "수정된 옵션",
+                1000L,
+                10,
+                true,
+                1
+        );
+    }
+
+    public static UpdateRewardOptionCommand createUpdateOptionCommand(UUID optionId, String name, Long price, Integer stock) {
+        return new UpdateRewardOptionCommand(
+                optionId,
+                name,
+                price,
+                stock,
+                null,
+                null
+        );
+    }
+}

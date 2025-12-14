@@ -38,4 +38,7 @@ out/
 
 ### ETC ###
 .env
+
 gradle.properties
+
+terraform.tfvars

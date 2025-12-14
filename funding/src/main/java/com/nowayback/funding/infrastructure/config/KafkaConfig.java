@@ -32,6 +32,9 @@ public class KafkaConfig {
 	@Value("${spring.kafka.consumer.group-id}")
 	private String groupId;
 
+	@Value("${spring.profiles.active}")
+	private String activeProfile;
+
 	@Bean
 	public KafkaTemplate<String, Object> kafkaTemplate() {
 		return new KafkaTemplate<>(producerFactory());
@@ -53,6 +56,8 @@ public class KafkaConfig {
 		configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
 		configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
 
+		applyIamAuthIfProd(configProps);
+
 		return new DefaultKafkaProducerFactory<>(configProps);
 	}
 
@@ -72,7 +77,28 @@ public class KafkaConfig {
 		configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 		configProps.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, true);
 
+		applyIamAuthIfProd(configProps);
+
 		return new DefaultKafkaConsumerFactory<>(configProps);
+	}
+
+	private void applyIamAuthIfProd(Map<String, Object> configProps) {
+		if (!"prod".equals(activeProfile)) {
+			return;
+		}
+
+		log.info("Applying MSK IAM authentication (profile=prod)");
+
+		configProps.put("security.protocol", "SASL_SSL");
+		configProps.put("sasl.mechanism", "AWS_MSK_IAM");
+		configProps.put(
+			"sasl.jaas.config",
+			"software.amazon.msk.auth.iam.IAMLoginModule required;"
+		);
+		configProps.put(
+			"sasl.client.callback.handler.class",
+			"software.amazon.msk.auth.iam.IAMClientCallbackHandler"
+		);
 	}
 
 	/**

@@ -31,24 +31,18 @@ spring:
     show-sql: true
 
   flyway:
-    enabled: true                       # Flyway 활성화
-    url: ${USER_SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/encore_db}
-    user: ${USER_SPRING_DATASOURCE_USERNAME:user}
-    password: ${USER_SPRING_DATASOURCE_PASSWORD:1234}
+    enabled: true                    # Flyway 활성화
     locations: classpath:db/migration
-    schemas: funding_service
-    default-schema: funding_service
     encoding: UTF-8
-    baseline-on-migrate: true           # 기존 DB에 Flyway 처음 적용 시
-    baseline-version: "0"
-    validate-on-migrate: true           # 마이그레이션 파일 변경 감지
-    out-of-order: false                 # 순서대로 실행 강제
-    group: true                         # 트랜잭션 단위로 개별 실행
-    mixed: false                        # SQL과 Java 마이그레이션 혼용 방지
-    clean-disabled: false               # 로컬 환경에서는 clean 허용
-    fail-on-missing-locations: true     # 마이그레이션 위치 누락시 실패
-    placeholder-replacement: false      # 플레이스홀더 비활성화 (보안)
-    sql-migration-suffixes: [".sql"]    # SQL 파일 확장자 명시
+    validate-on-migrate: true      # 마이그레이션 파일 변경 감지
+    out-of-order: false           # 순서대로 실행 강제
+    group: true                   # 트랜잭션 단위로 개별 실행
+    mixed: false                  # SQL과 Java 마이그레이션 혼용 방지
+    clean-disabled: false
+    baseline-on-migrate: true
+    fail-on-missing-locations: true # 마이그레이션 위치 누락시 실패
+    placeholder-replacement: false  # 플레이스홀더 비활성화 (보안)
+    sql-migration-suffixes: [ ".sql" ] # SQL 파일 확장자 명시
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}

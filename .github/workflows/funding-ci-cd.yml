@@ -2,19 +2,18 @@ name: Funding Service - CI/CD
 
 on:
   push:
-    branches: [ "main" ]  # main 브랜치에 푸시할 때만 배포 실행
+    branches: [ "main" ]
     paths:
-      - 'funding/**'              # funding 디렉토리 변경 시에만
-      - '.github/workflows/funding-ci-cd.yml'  # 워크플로우 자체 변경 시
+      - 'funding/**'
+      - '.github/workflows/funding-ci-cd.yml'
 
-# 환경 변수 설정
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: encore-funding-service
-  ECS_SERVICE: funding-service
-  ECS_CLUSTER: encore-cluster
+  ECR_REPOSITORY: nowayback/encore/funding
+  ECS_SERVICE: encore-funding-service
+  ECS_CLUSTER: nowayback-encore-cluster
   ECS_TASK_DEFINITION: funding-task
-  CONTAINER_NAME: funding
+  CONTAINER_NAME: funding-service
   SERVICE_DIR: funding
 
 permissions:
@@ -43,10 +42,17 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-        working-directory: ./${{ env.SERVICE_DIR }}
 
       # ===========================================
-      # 2. AWS 인증 설정 (Bastion 접근을 위해 먼저 설정)
+      # 2. Spring Boot 애플리케이션 빌드
+      # ===========================================
+
+      - name: Build with Gradle
+        run: ./gradlew :funding:clean :funding:bootJar -x test --no-daemon
+        # Spring Boot JAR 파일 생성 (테스트는 제외하여 빌드 시간 단축)
+
+      # ===========================================
+      # 3. AWS 인증 설정
       # ===========================================
 
       - name: Configure AWS credentials
@@ -57,68 +63,9 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       # ===========================================
-      # 3. Bastion SSH 터널링 설정
+      # 4. ECR 로그인 및 Docker 이미지 빌드
       # ===========================================
 
-      - name: Setup SSH key for Bastion
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.BASTION_SSH_PRIVATE_KEY }}" > ~/.ssh/bastion_key
-          chmod 600 ~/.ssh/bastion_key
-          
-          # SSH 설정 파일 생성
-          cat >> ~/.ssh/config << EOF
-          Host bastion
-            HostName ${{ secrets.BASTION_HOST }}
-            User ${{ secrets.BASTION_USER }}
-            IdentityFile ~/.ssh/bastion_key
-            StrictHostKeyChecking no
-          EOF
-
-      - name: Setup SSH tunnel to Funding database
-        run: |
-          # SSH 터널 시작 (백그라운드) / PostgreSQL 기본 포트 5432 → 로컬 5433으로 포워딩
-          ssh -f -N -L 5433:${{ secrets.FUNDING_DB_PRIVATE_HOST }}:5432 bastion
-          
-          sleep 10
-          
-          # 터널 연결 확인
-          netstat -tulnp | grep 5433
-
-      # ===========================================
-      # 4. Flyway DB 마이그레이션 (SSH 터널 경유)
-      # ===========================================
-
-      - name: Run Flyway Migration via SSH tunnel
-        working-directory: ./${{ env.SERVICE_DIR }}
-        run: |
-          echo "🔄 Starting Flyway migration for Funding service..."
-          ./gradlew flywayMigrate \
-            -Dflyway.url=jdbc:postgresql://localhost:5433/encore_db?currentSchema=funding_service \
-            -Dflyway.user=${{ secrets.FUNDING_FLYWAY_USER }} \
-            -Dflyway.password=${{ secrets.FUNDING_FLYWAY_PASSWORD }}
-          echo "✅ Flyway migration completed!"
-
-      # SSH 터널 정리
-      - name: Cleanup SSH tunnel
-        if: always()
-        run: |
-          pkill -f "ssh.*5433" || true
-
-
-      # ===========================================
-      # 5. Spring Boot 애플리케이션 빌드
-      # ===========================================
-
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test
-        # Spring Boot JAR 파일 생성 (테스트는 제외하여 빌드 시간 단축)
-
-      # ===========================================
-      # 6. ECR 로그인 및 Docker 이미지 빌드
-      # ===========================================
-
-      # ECR(Elastic Container Registry)에 Docker 로그인
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -128,7 +75,6 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
-        working-directory: ./${{ env.SERVICE_DIR }}
         run: |
           echo "🐳 Building Docker image..."
           
@@ -136,6 +82,7 @@ jobs:
           docker build --platform linux/amd64 \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            -f funding/Dockerfile \
             .
           
           # ECR에 푸시
@@ -146,7 +93,7 @@ jobs:
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # ===========================================
-      # 7. ECS Task Definition 업데이트
+      # 5. ECS Task Definition 업데이트
       # ===========================================
 
       - name: Download current task definition
@@ -180,7 +127,7 @@ jobs:
             KAFKA_BOOTSTRAP_SERVERS=${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
 
       # ===========================================
-      # 8. ECS 서비스 배포 및 완료 확인
+      # 6. ECS 서비스 배포 및 완료 확인
       # ===========================================
 
       - name: Deploy Amazon ECS task definition
@@ -200,5 +147,5 @@ jobs:
           echo ""
           echo "배포된 애플리케이션 확인:"
           echo "- ECS 콘솔에서 서비스 상태 확인"
-          echo "- 로드 밸런서 DNS로 접속 테스트"
+          echo "- CloudWatch Logs에서 애플리케이션 로그 확인"
           echo "- /actuator/health 엔드포인트로 헬스체크"

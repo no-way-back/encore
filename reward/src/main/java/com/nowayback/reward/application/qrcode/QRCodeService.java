@@ -5,7 +5,7 @@ import com.nowayback.reward.application.qrcode.command.CreateQRCodeCommand;
 import com.nowayback.reward.application.qrcode.dto.QRCodeUseResult;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
-import com.nowayback.reward.domain.qrcode.repository.QRCodeRepository;
+import com.nowayback.reward.application.qrcode.repository.QRCodeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

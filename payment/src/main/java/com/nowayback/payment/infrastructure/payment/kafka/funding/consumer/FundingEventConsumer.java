@@ -1,5 +1,6 @@
 package com.nowayback.payment.infrastructure.payment.kafka.funding.consumer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.payment.application.payment.PaymentService;
 import com.nowayback.payment.application.payment.dto.command.CreatePaymentCommand;
 import com.nowayback.payment.domain.jobs.entity.RefundJob;
@@ -22,6 +23,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FundingEventConsumer {
 
+    private final ObjectMapper objectMapper;
+
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final RefundJobRepository refundJobRepository;
@@ -30,16 +33,18 @@ public class FundingEventConsumer {
 
     @KafkaListener(
             topics = "${spring.kafka.topic.funding-payment-process}",
-            groupId = "${spring.kafka.consumer.group-id}",
-            containerFactory = "fundingPaymentProcessEventKafkaListenerContainerFactory"
+            groupId = "${spring.kafka.consumer.group-id}"
     )
     public void consumeFundingPaymentProcessEvent(
-            FundingPaymentProcessEvent event,
+            String message,
             Acknowledgment ack
     ) {
-        log.info("[Kafka Event Listener] 이벤트 수신 - 펀딩 결제 생성 처리: {}", event.fundingId());
+        log.info("[Kafka Event Listener] 이벤트 수신 - 펀딩 결제 생성 처리: {}", message);
 
         try {
+            String json = objectMapper.readValue(message, String.class);
+            FundingPaymentProcessEvent event = objectMapper.readValue(json, FundingPaymentProcessEvent.class);
+
             paymentService.createPayment(
                     CreatePaymentCommand.of(
                             event.userId(),
@@ -52,23 +57,25 @@ public class FundingEventConsumer {
 
             log.info("[Kafka Event Listener] 펀딩 결제 생성 처리 완료: {}", event.fundingId());
         } catch (Exception e) {
-            log.error("[Kafka Event Listener] 펀딩 결제 생성 처리 중 오류 발생 - 펀딩 ID: {}, 오류: {}",
-                    event.fundingId(), e.getMessage());
+            log.error("[Kafka Event Listener] 펀딩 결제 생성 처리 중 오류 발생 - 메세지: {}, 오류: {}",
+                    message, e.getMessage());
         }
     }
 
     @KafkaListener(
             topics = "${spring.kafka.topic.project-funding-failed}",
-            groupId = "${spring.kafka.consumer.group-id}",
-            containerFactory = "projectFundingEventKafkaListenerContainerFactory"
+            groupId = "${spring.kafka.consumer.group-id}"
     )
     public void consumeProjectFundingFailedEvent(
-            ProjectFundingFailedEvent event,
+            String message,
             Acknowledgment ack
     ) {
-        log.info("[Kafka Event Listener] 이벤트 수신 - 프로젝트 펀딩 실패: {}", event.projectId());
+        log.info("[Kafka Event Listener] 이벤트 수신 - 프로젝트 펀딩 실패: {}", message);
 
         try {
+            String json = objectMapper.readValue(message, String.class);
+            ProjectFundingFailedEvent event = objectMapper.readValue(json, ProjectFundingFailedEvent.class);
+
             List<Payment> payments = paymentRepository.findAllCompletedByProjectId(ProjectId.of(event.projectId()));
 
             if (payments.isEmpty()) {
@@ -87,8 +94,8 @@ public class FundingEventConsumer {
 
             log.info("[Kafka Event Listener] 환불 요청 이벤트 발행 완료 - 프로젝트 ID: {}", event.projectId());
         } catch (Exception e) {
-            log.error("[Kafka Event Listener] 프로젝트 펀딩 실패 처리 중 오류 발생 - 프로젝트 ID: {}, 오류: {}",
-                    event.projectId(), e.getMessage());
+            log.error("[Kafka Event Listener] 프로젝트 펀딩 실패 처리 중 오류 발생 - 메세지: {}, 오류: {}",
+                    message, e.getMessage());
         }
     }
 }

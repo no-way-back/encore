@@ -24,110 +24,110 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class PaymentEventConsumer {
 
-	private final FundingService fundingService;
-	private final OutboxService outboxService;
-	private final ObjectMapper objectMapper;
+    private final FundingService fundingService;
+    private final OutboxService outboxService;
+    private final ObjectMapper objectMapper;
 
-	@KafkaListener(
-		topics = PAYMENT_CONFIRM_SUCCEEDED,
-		groupId = "${spring.kafka.consumer.group-id}"
-	)
-	public void onPaymentSuccess(String message, Acknowledgment ack) {
-		PaymentSuccessEvent event = null;
+    @KafkaListener(
+            topics = PAYMENT_CONFIRM_SUCCEEDED,
+            groupId = "${spring.kafka.consumer.group-id}"
+    )
+    public void onPaymentSuccess(String message, Acknowledgment ack) {
+        PaymentSuccessEvent event = null;
 
-		try {
-			log.info("결제 성공 이벤트 수신");
+        try {
+            log.info("결제 성공 이벤트 수신");
 
-			event = objectMapper.readValue(message, PaymentSuccessEvent.class);
+            event = objectMapper.readValue(message, PaymentSuccessEvent.class);
 
-			Funding funding = fundingService.completeFunding(event.fundingId(), event.paymentId());
+            Funding funding = fundingService.completeFunding(event.fundingId(), event.paymentId());
 
-			if (funding.hasReservation()) {
-				publishFundingCompletedEvent(event, funding);
-			}
+            if (funding.hasReservation()) {
+                publishFundingCompletedEvent(event, funding);
+            }
 
-			log.info("결제 성공 처리 완료 - fundingId: {}, paymentId: {}, hasReservation: {}",
-				event.fundingId(), event.paymentId(), funding.hasReservation());
+            log.info("결제 성공 처리 완료 - fundingId: {}, paymentId: {}, hasReservation: {}",
+                    event.fundingId(), event.paymentId(), funding.hasReservation());
 
-		} catch (Exception e) {
-			log.error("결제 성공 이벤트 처리 중 오류 발생 - fundingId: {}, error: {}",
-				event != null ? event.fundingId() : "unknown",
-				e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("결제 성공 이벤트 처리 중 오류 발생 - fundingId: {}, error: {}",
+                    event != null ? event.fundingId() : "unknown",
+                    e.getMessage(), e);
 
-		} finally {
-			ack.acknowledge();
-		}
-	}
+        } finally {
+            ack.acknowledge();
+        }
+    }
 
-	@KafkaListener(
-		topics = PAYMENT_CONFIRM_FAILED,
-		groupId = "${spring.kafka.consumer.group-id}"
-	)
-	public void onPaymentFailure(String message, Acknowledgment ack) {
-		PaymentFailureEvent event = null;
+    @KafkaListener(
+            topics = PAYMENT_CONFIRM_FAILED,
+            groupId = "${spring.kafka.consumer.group-id}"
+    )
+    public void onPaymentFailure(String message, Acknowledgment ack) {
+        PaymentFailureEvent event = null;
 
-		try {
-			log.info("결제 실패 이벤트 수신");
+        try {
+            log.info("결제 실패 이벤트 수신");
 
-			event = objectMapper.readValue(message, PaymentFailureEvent.class);
+            event = objectMapper.readValue(message, PaymentFailureEvent.class);
 
-			Funding funding = fundingService.failFunding(event.fundingId());
+            Funding funding = fundingService.failFunding(event.fundingId());
 
-			if (funding.hasReservation()) {
-				publishFundingFailedEvent(event, funding);
-				log.info("재고 복구 이벤트 발행 - fundingId: {}, reservationIds: {}",
-					event.fundingId(), funding.getReservationIds());
-			} else {
-				log.info("순수 후원 - 재고 복구 불필요 - fundingId: {}", event.fundingId());
-			}
+            if (funding.hasReservation()) {
+                publishFundingFailedEvent(event, funding);
+                log.info("재고 복구 이벤트 발행 - fundingId: {}, reservationIds: {}",
+                        event.fundingId(), funding.getReservationIds());
+            } else {
+                log.info("순수 후원 - 재고 복구 불필요 - fundingId: {}", event.fundingId());
+            }
 
-		} catch (Exception e) {
-			log.error("결제 실패 이벤트 처리 중 오류 발생 - fundingId: {}, error: {}",
-				event != null ? event.fundingId() : "unknown",
-				e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("결제 실패 이벤트 처리 중 오류 발생 - fundingId: {}, error: {}",
+                    event != null ? event.fundingId() : "unknown",
+                    e.getMessage(), e);
 
-		} finally {
-			ack.acknowledge();
-		}
-	}
+        } finally {
+            ack.acknowledge();
+        }
+    }
 
-	/**
-	 * 펀딩 완료 이벤트 발행 (Reward 서비스로 QR 생성 요청)
-	 */
-	private void publishFundingCompletedEvent(PaymentSuccessEvent event, Funding funding) {
-		outboxService.publishSuccessEvent(
-			"FUNDING",
-			funding.getId(),
-			FUNDING_COMPLETED,
-			Map.of(
-				"fundingId", funding.getId(),
-				"userId", funding.getUserId(),
-				"projectId", funding.getProjectId(),
-				"reservationId", funding.getReservationIds(),
-				"amount", funding.getAmount()
-			)
-		);
+    /**
+     * 펀딩 완료 이벤트 발행 (Reward 서비스로 QR 생성 요청)
+     */
+    private void publishFundingCompletedEvent(PaymentSuccessEvent event, Funding funding) {
+        outboxService.publishSuccessEvent(
+                "FUNDING",
+                funding.getId(),
+                FUNDING_COMPLETED,
+                Map.of(
+                        "fundingId", funding.getId(),
+                        "userId", funding.getUserId(),
+                        "projectId", funding.getProjectId(),
+                        "reservationId", funding.getReservationIds(),
+                        "amount", funding.getAmount()
+                )
+        );
 
-		log.info("펀딩 완료 이벤트 발행 완료 - fundingId: {}", event.fundingId());
-	}
+        log.info("펀딩 완료 이벤트 발행 완료 - fundingId: {}", event.fundingId());
+    }
 
-	/**
-	 * 펀딩 실패 이벤트 발행 (Reward 재고 복구)
-	 */
-	private void publishFundingFailedEvent(PaymentFailureEvent event, Funding funding) {
-		outboxService.publishCompensationEvent(
-			"FUNDING",
-			event.fundingId(),
-			FUNDING_FAILED,
-			Map.of(
-				"fundingId", event.fundingId(),
-				"projectId", funding.getProjectId(),
-				"userId", funding.getUserId(),
-				"reservationIds", funding.getReservationIds()
-			)
-		);
+    /**
+     * 펀딩 실패 이벤트 발행 (Reward 재고 복구)
+     */
+    private void publishFundingFailedEvent(PaymentFailureEvent event, Funding funding) {
+        outboxService.publishCompensationEvent(
+                "FUNDING",
+                event.fundingId(),
+                FUNDING_FAILED,
+                Map.of(
+                        "fundingId", event.fundingId(),
+                        "projectId", funding.getProjectId(),
+                        "userId", funding.getUserId(),
+                        "reservationIds", funding.getReservationIds()
+                )
+        );
 
-		log.info("펀딩 실패 보상 이벤트 발행 완료 - fundingId: {}, reservationIds: {}",
-			event.fundingId(), funding.getReservationIds());
-	}
+        log.info("펀딩 실패 보상 이벤트 발행 완료 - fundingId: {}, reservationIds: {}",
+                event.fundingId(), funding.getReservationIds());
+    }
 }

@@ -18,6 +18,20 @@ spring:
         default_schema: user_service
     show-sql: true
 
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true
+    out-of-order: false
+    group: true
+    mixed: false
+    clean-disabled: false
+    baseline-on-migrate: true
+    fail-on-missing-locations: true
+    placeholder-replacement: false
+    sql-migration-suffixes: [ ".sql" ]
+
   data:
     redis:
       host: ${REDIS_HOST:localhost}

@@ -24,5 +24,7 @@ public interface FundingRepository {
 
 	Page<Funding> findProjectSponsors(UUID projectId, FundingStatus status, Pageable pageable);
 
+    Optional<Funding> findByIdWithReservations(UUID id);
+
 	Long sumAmountByProjectIdAndStatus(UUID projectId, FundingStatus status);
 }

@@ -311,6 +311,20 @@ public class Rewards extends BaseEntity {
     }
 
     /**
+     * SKU 논리 적용한 재고 조회
+     * - 옵션이 있는 경우: 모든 옵션의 재고 총합
+     * - 옵션이 없는 경우: 리워드의 재고
+     */
+    public Integer getTotalAvailableStock() {
+        if (hasOptions()) {
+            return this.optionList.stream()
+                    .mapToInt(option -> option.getStock().getQuantity())
+                    .sum();
+        }
+        return this.stock.getQuantity();
+    }
+
+    /**
      * 모든 옵션이 품절되었는지 확인
      */
     private boolean areAllOptionsSoldOut() {

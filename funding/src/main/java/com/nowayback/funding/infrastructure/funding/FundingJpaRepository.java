@@ -47,4 +47,11 @@ public interface FundingJpaRepository extends JpaRepository<Funding, UUID> {
 		@Param("projectId") UUID projectId,
 		@Param("status") FundingStatus status
 	);
+
+    @Query("""
+    select f from Funding f
+    left join fetch f.reservations
+    where f.id = :idWithReservations
+""")
+    Optional<Funding> findByIdWithReservations(UUID idWithReservations);
 }

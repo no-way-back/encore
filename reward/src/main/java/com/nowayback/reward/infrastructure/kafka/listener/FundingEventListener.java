@@ -2,7 +2,7 @@ package com.nowayback.reward.infrastructure.kafka.listener;
 
 import com.nowayback.reward.application.qrcode.QRCodeService;
 import com.nowayback.reward.application.reward.RewardStockService;
-import com.nowayback.reward.infrastructure.kafka.constant.EventType;
+import com.nowayback.reward.domain.outbox.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.ProjectFundingSuccessEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent;
@@ -14,7 +14,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import static com.nowayback.reward.infrastructure.kafka.constant.EventType.*;
+import static com.nowayback.reward.domain.outbox.vo.EventType.*;
 
 @Slf4j
 @Component

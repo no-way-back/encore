@@ -35,6 +35,7 @@ class ProjectEventConsumerTest {
     @InjectMocks
     private ProjectEventListener projectEventConsumer;
 
+    private UUID eventId;
     private UUID projectId;
     private UUID creatorId;
     private ProjectCreatedPayload payload;
@@ -42,11 +43,12 @@ class ProjectEventConsumerTest {
 
     @BeforeEach
     void setUp() {
+        eventId = UUID.randomUUID();
         projectId = UUID.randomUUID();
         creatorId = UUID.randomUUID();
 
         payload = createProjectCreatedPayload(projectId, creatorId, 3);
-        validEvent = createProjectCreatedEvent(PROJECT_CREATED, payload);
+        validEvent = createProjectCreatedEvent(eventId, PROJECT_CREATED, payload);
     }
 
     @Nested
@@ -62,7 +64,7 @@ class ProjectEventConsumerTest {
 
             // then
             verify(rewardService, times(1)).createRewardsForProject(
-                    eq(validEvent.eventId()),
+                    eq(eventId),          // UUID로 변경
                     eq(projectId),
                     eq(creatorId),
                     anyList()
@@ -81,7 +83,7 @@ class ProjectEventConsumerTest {
         void consumeProjectEvent_unsupportedEventType() {
             // given
             ProjectCreatedEvent invalidEvent = createProjectCreatedEvent(
-                    EventType.UNSUPPORTED_TYPE, payload
+                    eventId, EventType.UNSUPPORTED_TYPE, payload
             );
 
             // when
@@ -99,7 +101,7 @@ class ProjectEventConsumerTest {
             // given
             doThrow(new RuntimeException("DB 저장 실패"))
                     .when(rewardService).createRewardsForProject(
-                            anyString(),
+                            any(UUID.class),
                             eq(projectId),
                             eq(creatorId),
                             anyList()
@@ -111,7 +113,7 @@ class ProjectEventConsumerTest {
 
             // then
             verify(rewardService, times(1)).createRewardsForProject(
-                    anyString(),
+                    any(UUID.class),
                     eq(projectId),
                     eq(creatorId),
                     anyList()

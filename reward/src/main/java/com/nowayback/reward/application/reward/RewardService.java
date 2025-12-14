@@ -7,7 +7,7 @@ import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.application.reward.dto.RewardCreationResult;
 import com.nowayback.reward.application.reward.dto.RewardListResult;
 import com.nowayback.reward.application.reward.repository.RewardRepository;
-import com.nowayback.reward.domain.event.IdempotentKeys;
+import com.nowayback.reward.domain.idempotentkey.IdempotentKeys;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
@@ -38,12 +38,12 @@ public class RewardService {
 
     @Transactional
     public List<Rewards> createRewardsForProject(
-            String eventId,
+            UUID eventId,
             UUID projectId,
             UUID creatorId,
             List<RewardCreateCommand> commandList
     ) {
-        if (idempotentKeyRepository.existsByEventId(eventId)) {
+        if (idempotentKeyRepository.existsById(eventId)) {
             log.info("이미 처리된 이벤트 - eventId: {}, projectId: {}",
                     eventId, projectId);
             return List.of();

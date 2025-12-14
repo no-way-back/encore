@@ -1,9 +1,11 @@
 package com.nowayback.reward.infrastructure.repository.event;
 
 import com.nowayback.reward.application.idempotentkey.repository.IdempotentKeyRepository;
-import com.nowayback.reward.domain.event.IdempotentKeys;
+import com.nowayback.reward.domain.idempotentkey.IdempotentKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,7 +19,7 @@ public class IdempotentKeyRepositoryImpl implements IdempotentKeyRepository {
     }
 
     @Override
-    public boolean existsByEventId(String eventId) {
-        return jpaRepository.existsByEventId(eventId);
+    public boolean existsById(UUID eventId) {
+        return jpaRepository.existsById(eventId);
     }
 }

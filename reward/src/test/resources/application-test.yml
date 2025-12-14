@@ -26,7 +26,6 @@ spring:
     producer:
       retries: 0
     topic:
-      reward-creation-result: test-reward-creation-result
       project-reward-creation: test-project-reward-creation
       funding-failed: test-funding-failed
       funding-refund: test-funding-refund

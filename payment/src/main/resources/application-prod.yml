@@ -56,10 +56,7 @@ payment:
 
 eureka:
   client:
-    service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
-    fetch-registry: true
-    register-with-eureka: true
+    enabled: false
 
 feign:
   client:

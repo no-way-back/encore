@@ -1,0 +1,129 @@
+name: User Service - CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "user/**"
+      - ".github/workflows/user-ci-cd.yml"
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: nowayback/encore/user
+  ECS_CLUSTER: nowayback-encore-cluster
+  ECS_SERVICE: encore-user-service
+  ECS_TASK_DEFINITION: user-task
+  CONTAINER_NAME: user-service
+  SERVICE_DIR: user
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy User Service
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      # 1. 소스 코드 체크아웃 및 Java 환경 설정
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: gradle
+
+      - name: Grand execute permissions for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew :user:clean :user:bootJar -x test --no-daemon
+
+      # 2. AWS 인증 설정
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 3. ECR 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 3. Docker 이미지 빌드 및 ECR 푸시
+      - name: Build Docker Image and push to ECR
+        id: build-image
+        env:
+          ECR_REPOSITORY: ${{ steps.login-ecr.outputs.repository }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "🐳 Building Docker image..."
+          
+          docker build --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            -f user/Dockerfile \
+            .
+          
+          echo "🛳 Pushing Docker image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          echo "✅ Image pushed successfully!"
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # 4. ECS Task Definition 업데이트
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
+            --query taskDefinition \
+            --output json > task-definition.json
+          
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .placementConstraints, .compatibilities, .registeredAt, .registeredBy, .enableFaultInjection)' \
+            task-definition.json > task-definition-clean.json
+          mv task-definition-clean.json task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+          environment-variables: |
+            SPRING_PROFILES_ACTIVE=prod
+            USER_DATASOURCE_URL=${{ secrets.USER_DATASOURCE_URL }}
+            USER_DATASOURCE_USERNAME=${{ secrets.USER_DATASOURCE_USERNAME }}
+            USER_DATASOURCE_PASSWORD=${{ secrets.USER_DATASOURCE_PASSWORD }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+
+      # 6. ECS 서비스 배포 및 완료 확인
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Verify deployment
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "Service: ${{ env.ECS_SERVICE }}"
+          echo "Cluster: ${{ env.ECS_CLUSTER }}"
+          echo "Image: ${{ steps.build-image.outputs.image }}"
+          echo ""
+          echo "배포된 애플리케이션 확인:"
+          echo "- ECS 콘솔에서 서비스 상태 확인"
+          echo "- CloudWatch Logs에서 애플리케이션 로그 확인"
+          echo "- /actuator/health 엔드포인트로 헬스체크"

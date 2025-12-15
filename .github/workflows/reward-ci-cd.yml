@@ -128,6 +128,9 @@ jobs:
             AWS_REGION=${{secrets.AWS_REGION}}
             AWS_S3_BASE_URL=${{secrets.AWS_S3_BASE_URL}}
             AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+            QRCODE_WIDTH=${{ secrets.QRCODE_WIDTH }}
+            QRCODE_HEIGHT=${{ secrets.QRCODE_HEIGHT }}
+            QRCODE_BASE_URL=${{ secrets.QRCODE_BASE_URL }}
             MAIL_HOST=${{ secrets.MAIL_HOST }}
             MAIL_PORT=${{ secrets.MAIL_PORT }}
             MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}

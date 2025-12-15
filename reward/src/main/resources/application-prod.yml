@@ -48,6 +48,11 @@ feign:
       project-service:
         url: ${INTERNAL_SERVICE_BASE_URL}
 
+qrcode:
+  width: ${QRCODE_WIDTH}
+  height: ${QRCODE_HEIGHT}
+  base-url: ${QRCODE_BASE_URL}
+
 logging:
   level:
     root: WARN

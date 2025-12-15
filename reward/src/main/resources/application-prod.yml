@@ -42,6 +42,12 @@ eureka:
   client:
     enabled: false
 
+feign:
+  client:
+    config:
+      project-service:
+        url: ${INTERNAL_SERVICE_BASE_URL}
+
 logging:
   level:
     root: WARN

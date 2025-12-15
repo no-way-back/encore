@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @FeignClient(
         name = "project-service",
-        url = "${service.project.url}"
+        url = "${feign.client.config.project-service.url}"
 )
 public interface ProjectApiClient {
     @GetMapping("/projects/{projectId}")

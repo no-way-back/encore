@@ -37,6 +37,12 @@ spring:
       group-id: reward-service-group
     producer:
       acks: all
+    topic:
+      project-reward-creation: project-reward-creation
+      funding-failed: funding-failed
+      funding-refund: funding-refund
+      funding-completed: funding-completed
+      project-funding-success: project-funding-success
 
 eureka:
   client:

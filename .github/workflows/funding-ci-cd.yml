@@ -6,7 +6,7 @@ on:
     paths:
       - 'funding/**'
       - '.github/workflows/funding-ci-cd.yml'
-
+  workflow_dispatch:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: nowayback/encore/funding

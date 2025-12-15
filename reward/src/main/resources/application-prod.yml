@@ -1,3 +1,6 @@
+server:
+  port: 18083
+
 spring:
   datasource:
     url: ${REWARD_DATASOURCE_URL}

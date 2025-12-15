@@ -2,6 +2,8 @@ server:
   port: 18083
 
 spring:
+  profiles:
+    include: aws
   application:
     name: reward-service
   datasource:

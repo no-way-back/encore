@@ -1,0 +1,33 @@
+server:
+  port: 18085
+
+spring:
+  datasource:
+    url: ${PROJECT_DATASOURCE_URL}
+    username: ${PROJECT_DATASOURCE_USERNAME}
+    password: ${PROJECT_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: project_service
+    show-sql: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: project-service
+
+logging:
+  level:
+    com.nowayback.project: DEBUG
+    org.hibernate.SQL: DEBUG
+
+eureka:
+  client:
+    enabled: false

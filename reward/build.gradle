@@ -1,19 +1,7 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.flywaydb:flyway-core:11.7.2"
-        classpath "org.flywaydb:flyway-database-postgresql:11.7.2"
-        classpath "org.postgresql:postgresql:42.7.7"
-    }
-}
-
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.flywaydb.flyway' version '11.7.2'
 }
 
 group = 'com.nowayback'
@@ -41,6 +29,12 @@ ext {
 }
 
 dependencies {
+    implementation platform('software.amazon.awssdk:bom:2.26.25')
+
+    implementation('software.amazon.msk:aws-msk-iam-auth:2.2.0') {
+        exclude group: 'software.amazon.awssdk'
+    }
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -56,11 +50,18 @@ dependencies {
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    /* MSK IAM Auth */
+    implementation 'software.amazon.msk:aws-msk-iam-auth'
+
     /* AWS S3 */
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.0'
 
     /* Swagger */
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
+
+    /* Flyway */
+//    implementation 'org.flywaydb:flyway-core'
+//    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -80,16 +81,6 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
-}
-
-flyway {
-    url = project.findProperty("flyway.url")
-    user = project.findProperty("flyway.user")
-    password = project.findProperty("flyway.password")
-    schemas = ['reward_service']
-    defaultSchema = 'reward_service'
-    locations = ["filesystem:src/main/resources/db/migration"]
-    cleanDisabled = false
 }
 
 tasks.named('test') {

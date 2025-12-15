@@ -18,7 +18,7 @@ spring:
         - id: project-service
           uri: http://internal-encore-discovery-alb-126399741.ap-northeast-2.elb.amazonaws.com
           predicates:
-            - Path=/projects/**
+            - Path=/projects/**,/project-drafts/**
 
         - id: funding-service
           uri: http://internal-encore-discovery-alb-126399741.ap-northeast-2.elb.amazonaws.com
@@ -28,12 +28,12 @@ spring:
         - id: reward-service
           uri: http://internal-encore-discovery-alb-126399741.ap-northeast-2.elb.amazonaws.com
           predicates:
-            - Path=/rewards/**
+            - Path=/rewards/**,/qrcodes/**
 
         - id: payment-service
           uri: http://internal-encore-discovery-alb-126399741.ap-northeast-2.elb.amazonaws.com
           predicates:
-            - Path=/payments/**
+            - Path=/payments/**,/settlements/**
 
       globalcors:
         cors-configurations:

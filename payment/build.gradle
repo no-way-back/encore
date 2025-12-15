@@ -59,6 +59,9 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     runtimeOnly 'org.flywaydb:flyway-database-postgresql'
 
+    /* MSK IAM Auth */
+    implementation 'software.amazon.msk:aws-msk-iam-auth:2.0.3'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 

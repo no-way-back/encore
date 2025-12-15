@@ -122,6 +122,7 @@ jobs:
             REWARD_DATASOURCE_USERNAME=${{ secrets.REWARD_DATASOURCE_USERNAME }}
             REWARD_DATASOURCE_PASSWORD=${{ secrets.REWARD_DATASOURCE_PASSWORD }}
             KAFKA_BOOTSTRAP_SERVERS=${{ secrets.KAFKA_BOOTSTRAP_SERVERS }}
+            INTERNAL_SERVICE_BASE_URL=${{ secrets.INTERNAL_SERVICE_BASE_URL }}
             MAIL_HOST=${{ secrets.MAIL_HOST }}
             MAIL_PORT=${{ secrets.MAIL_PORT }}
             MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}

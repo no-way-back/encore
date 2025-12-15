@@ -29,8 +29,6 @@ ext {
 }
 
 dependencies {
-    // AWS SDK 버전 정렬용 BOM
-    implementation platform('software.amazon.awssdk:bom:2.26.25')
 
     // MSK IAM Auth
     implementation 'software.amazon.msk:aws-msk-iam-auth:2.0.3'

@@ -29,12 +29,13 @@ ext {
 }
 
 dependencies {
+    // AWS SDK 버전 정렬용 BOM (S3, MSK IAM 둘 다 같은 SDK를 쓰게 맞춤)
     implementation platform('software.amazon.awssdk:bom:2.26.25')
 
-    implementation('software.amazon.msk:aws-msk-iam-auth:2.2.0') {
-        exclude group: 'software.amazon.awssdk'
-    }
+    // MSK IAM Auth: 하나만 사용 (exclude 금지)
+    implementation 'software.amazon.msk:aws-msk-iam-auth:2.2.0'
 
+    // Spring
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -42,33 +43,25 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-    /* QR Code */
+    // QR Code
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'com.google.zxing:javase:3.5.3'
 
-    /* Kafka & Feign */
+    // Kafka & Feign
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
-    /* MSK IAM Auth */
-    implementation 'software.amazon.msk:aws-msk-iam-auth'
-
-    /* AWS S3 */
+    // AWS S3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.0'
 
-    /* Swagger */
+    // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
-
-    /* Flyway */
-//    implementation 'org.flywaydb:flyway-core'
-//    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     runtimeOnly 'org.postgresql:postgresql:42.7.7'
 
-    /* Test */
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'

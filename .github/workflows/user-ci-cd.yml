@@ -6,6 +6,7 @@ on:
     paths:
       - 'user/**'
       - '.github/workflows/user-ci-cd.yml'
+  workflow_dispatch:
 
 env:
   AWS_REGION: ap-northeast-2

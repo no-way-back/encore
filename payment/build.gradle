@@ -1,7 +1,16 @@
+buildscript {
+    dependencies {
+        classpath "org.flywaydb:flyway-core:11.7.2"
+        classpath "org.flywaydb:flyway-database-postgresql:11.7.2"
+        classpath "org.postgresql:postgresql:42.7.7"
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.flywaydb.flyway' version '11.7.2'
 }
 
 group = 'com.nowayback'
@@ -62,6 +71,7 @@ dependencies {
     /* MSK IAM Auth */
     implementation 'software.amazon.msk:aws-msk-iam-auth:2.0.3'
 
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
@@ -79,6 +89,16 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
+}
+
+flyway {
+    url = project.findProperty("flyway.url")
+    user = project.findProperty("flyway.user")
+    password = project.findProperty("flyway.password")
+    schemas = ['payment_service']
+    defaultSchema = 'payment_service'
+    locations = ["filesystem:src/main/resources/db/migration"]
+    cleanDisabled = false
 }
 
 tasks.named('test') {

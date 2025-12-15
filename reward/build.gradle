@@ -1,19 +1,7 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.flywaydb:flyway-core:11.7.2"
-        classpath "org.flywaydb:flyway-database-postgresql:11.7.2"
-        classpath "org.postgresql:postgresql:42.7.7"
-    }
-}
-
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.flywaydb.flyway' version '11.7.2'
 }
 
 group = 'com.nowayback'
@@ -93,16 +81,6 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
-}
-
-flyway {
-    url = project.findProperty("flyway.url")
-    user = project.findProperty("flyway.user")
-    password = project.findProperty("flyway.password")
-    schemas = ['reward_service']
-    defaultSchema = 'reward_service'
-    locations = ["filesystem:src/main/resources/db/migration"]
-    cleanDisabled = false
 }
 
 tasks.named('test') {

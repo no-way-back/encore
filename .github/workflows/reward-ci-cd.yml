@@ -6,7 +6,7 @@ on:
     paths:
       - 'reward/**'
       - '.github/workflows/reward-ci-cd.yml'
-
+  workflow_dispatch:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: nowayback/encore/reward

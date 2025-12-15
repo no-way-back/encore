@@ -1,0 +1,144 @@
+name: Gateway Service - CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'gateway/**'
+      - '.github/workflows/gateway-ci-cd.yml'
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: nowayback/encore/gateway
+  ECS_SERVICE: encore-gateway-service
+  ECS_CLUSTER: nowayback-encore-cluster
+  ECS_TASK_DEFINITION: gateway-task
+  CONTAINER_NAME: gateway-service
+  SERVICE_DIR: gateway
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Gateway Service
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      # ===========================================
+      # 1. 코드 체크아웃 및 Java 환경 설정
+      # ===========================================
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # ===========================================
+      # 2. Spring Boot 애플리케이션 빌드
+      # ===========================================
+
+      - name: Build with Gradle
+        run: ./gradlew :gateway:clean :gateway:bootJar -x test --no-daemon
+        # Spring Boot JAR 파일 생성 (테스트는 제외하여 빌드 시간 단축)
+
+      # ===========================================
+      # 3. AWS 인증 설정
+      # ===========================================
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # ===========================================
+      # 4. ECR 로그인 및 Docker 이미지 빌드
+      # ===========================================
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "🐳 Building Docker image..."
+          
+          # Docker 이미지 빌드 (linux/amd64 플랫폼)
+          docker build --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+            -f gateway/Dockerfile \
+            .
+          
+          # ECR에 푸시
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          echo "✅ Image pushed successfully!"
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      # ===========================================
+      # 5. ECS Task Definition 업데이트
+      # ===========================================
+
+      - name: Download current task definition
+        run: |
+          # 현재 ECS에서 실행 중인 Task Definition을 JSON으로 다운로드
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
+            --query taskDefinition \
+            --output json > task-definition.json
+          
+          # ECS 등록 시 불필요한 필드들 제거 (오류 방지)
+          jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .placementConstraints, .compatibilities, .registeredAt, .registeredBy, .enableFaultInjection)' \
+            task-definition.json > task-definition-clean.json
+          mv task-definition-clean.json task-definition.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+          environment-variables: |
+            SPRING_PROFILES_ACTIVE=prod
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+      # ===========================================
+      # 6. ECS 서비스 배포 및 완료 확인
+      # ===========================================
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Verify deployment
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "Service: ${{ env.ECS_SERVICE }}"
+          echo "Cluster: ${{ env.ECS_CLUSTER }}"
+          echo "Image: ${{ steps.build-image.outputs.image }}"
+          echo ""
+          echo "배포된 애플리케이션 확인:"
+          echo "- ECS 콘솔에서 서비스 상태 확인"
+          echo "- CloudWatch Logs에서 애플리케이션 로그 확인"
+          echo "- /actuator/health 엔드포인트로 헬스체크"

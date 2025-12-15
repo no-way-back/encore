@@ -51,6 +51,14 @@ spring:
             exposed-headers: "*"
             allow-credentials: true
             max-age: 3600
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      ssl:
+        enabled: true
+
 eureka:
   client:
     enabled: false

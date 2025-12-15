@@ -32,6 +32,9 @@ public class KafkaConfig {
     @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
 
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
@@ -52,6 +55,8 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
         configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
 
+        applyIamAuthIfProd(configProps);
+
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
@@ -69,6 +74,8 @@ public class KafkaConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+
+        applyIamAuthIfProd(props);
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
@@ -101,6 +108,8 @@ public class KafkaConfig {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
+        applyIamAuthIfProd(props);
+
         return new DefaultKafkaConsumerFactory<>(
                 props,
                 new StringDeserializer(),
@@ -131,6 +140,8 @@ public class KafkaConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+
+        applyIamAuthIfProd(props);
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
@@ -163,6 +174,8 @@ public class KafkaConfig {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
+        applyIamAuthIfProd(props);
+
         return new DefaultKafkaConsumerFactory<>(
                 props,
                 new StringDeserializer(),
@@ -194,6 +207,8 @@ public class KafkaConfig {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
+        applyIamAuthIfProd(props);
+
         return new DefaultKafkaConsumerFactory<>(
                 props,
                 new StringDeserializer(),
@@ -210,4 +225,22 @@ public class KafkaConfig {
         return factory;
     }
 
+    private void applyIamAuthIfProd(Map<String, Object> configProps) {
+        if (!"prod".equals(activeProfile)) {
+            return;
+        }
+
+        log.info("Applying MSK IAM authentication (profile=prod)");
+
+        configProps.put("security.protocol", "SASL_SSL");
+        configProps.put("sasl.mechanism", "AWS_MSK_IAM");
+        configProps.put(
+                "sasl.jaas.config",
+                "software.amazon.msk.auth.iam.IAMLoginModule required;"
+        );
+        configProps.put(
+                "sasl.client.callback.handler.class",
+                "software.amazon.msk.auth.iam.IAMClientCallbackHandler"
+        );
+    }
 }

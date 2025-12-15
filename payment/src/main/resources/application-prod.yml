@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: ${PAYMENT_SPRING_DATASOURCE_URL}
-    username: ${PAYMENT_SPRING_DATASOURCE_USERNAME}
-    password: ${PAYMENT_SPRING_DATASOURCE_PASSWORD}
+    url: ${PAYMENT_DATASOURCE_URL}
+    username: ${PAYMENT_DATASOURCE_USERNAME}
+    password: ${PAYMENT_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:

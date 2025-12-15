@@ -1,11 +1,8 @@
-server:
-  port: 18083
-
 spring:
-  profiles:
-    include: aws
-  application:
-    name: reward-service
+  config:
+    activate:
+      on-profile: local
+
   datasource:
     url: ${REWARD_SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/encore_db}
     username: ${REWARD_SPRING_DATASOURCE_USERNAME:user}
@@ -15,27 +12,20 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+    open-in-view: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         show_sql: true
         default_schema: reward_service
-    open-in-view: false
 
   flyway:
     enabled: true
     locations: classpath:db/migration
     encoding: UTF-8
     validate-on-migrate: true
-    out-of-order: false
-    group: true
-    mixed: false
-    clean-disabled: false
     baseline-on-migrate: true
-    fail-on-missing-locations: true
-    placeholder-replacement: false
-    sql-migration-suffixes: [".sql"]
     default-schema: reward_service
     schemas: [reward_service]
 
@@ -51,13 +41,14 @@ spring:
       project-funding-success: project-funding-success
 
   cloud:
-    openfeign:
-      client:
-        config:
-          default:
-            connectTimeout: 3000
-            readTimeout: 5000
-            loggerLevel: BASIC
+    aws:
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
+      s3:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+        bucket: ${AWS_S3_BUCKET}
+        base-url: ${AWS_S3_BASE_URL}
 
 eureka:
   client:
@@ -70,9 +61,10 @@ service:
   project:
     url: http://localhost:18085
 
+server:
+  port: 18083
+
 qrcode:
-  width: 300
-  height: 300
   base-url: http://localhost:8080
 
 logging:

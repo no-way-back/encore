@@ -1,7 +1,8 @@
-server:
-  port: 18083
-
 spring:
+  config:
+    activate:
+      on-profile: prod
+
   datasource:
     url: ${REWARD_DATASOURCE_URL}
     username: ${REWARD_DATASOURCE_USERNAME}
@@ -23,14 +24,7 @@ spring:
     locations: classpath:db/migration
     encoding: UTF-8
     validate-on-migrate: true
-    out-of-order: false
-    group: true
-    mixed: false
-    clean-disabled: false
     baseline-on-migrate: true
-    fail-on-missing-locations: true
-    placeholder-replacement: false
-    sql-migration-suffixes: [".sql"]
     default-schema: reward_service
     schemas: [reward_service]
 
@@ -52,6 +46,14 @@ spring:
       funding-completed: funding-completed
       project-funding-success: project-funding-success
 
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
+      s3:
+        bucket: ${AWS_S3_BUCKET}
+        base-url: ${AWS_S3_BASE_URL}
+
 eureka:
   client:
     enabled: false
@@ -62,9 +64,12 @@ feign:
       project-service:
         url: ${INTERNAL_SERVICE_BASE_URL}
 
+server:
+  port: ${SERVER_PORT:18083}
+
 qrcode:
-  width: ${QRCODE_WIDTH}
-  height: ${QRCODE_HEIGHT}
+  width: ${QRCODE_WIDTH:300}
+  height: ${QRCODE_HEIGHT:300}
   base-url: ${QRCODE_BASE_URL}
 
 logging:

@@ -1,6 +1,10 @@
 spring:
+  config:
+    activate:
+      on-profile: smtp
+
   mail:
-    port: ${MAIL_PORT}
     host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}

@@ -1,6 +1,16 @@
 spring:
   application:
     name: reward-service
+
   profiles:
-    active: local
-    include: smtp
+    group:
+      local: [local, smtp]
+      prod:  [prod, smtp]
+
+qrcode:
+  width: 300
+  height: 300
+
+logging:
+  level:
+    root: INFO

@@ -3,4 +3,4 @@ spring:
     name: reward-service
   profiles:
     active: local
-    include: smtp, aws
+    include: smtp

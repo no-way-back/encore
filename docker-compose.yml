@@ -1,4 +1,7 @@
+version: '3.8'
+
 services:
+  # ========== PostgreSQL ==========
   encore-postgres:
     image: postgres:17-alpine
     container_name: encore-postgres
@@ -12,12 +15,15 @@ services:
       - "5432:5432"
     volumes:
       - encore-postgres-data:/var/lib/postgresql/data
+    networks:
+      - encore-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d encore_db"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # ========== Redis ==========
   redis:
     image: redis:7-alpine
     container_name: encore-redis
@@ -25,6 +31,8 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - encore-network
     command: redis-server --appendonly yes
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
@@ -32,6 +40,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ========== Kafka ==========
   kafka:
     container_name: msa-kafka
     image: confluentinc/cp-kafka:7.8.5
@@ -50,20 +59,62 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    networks:
+      - encore-network
     volumes:
       - kafka-data:/var/lib/kafka/data
+
+  # ========== kafdrop (카프카 UI) ==========
   kafdrop:
     image: obsidiandynamics/kafdrop
+    container_name: kafdrop
     ports:
       - "9000:9000"
     environment:
       KAFKA_BROKERCONNECT: "msa-kafka:9092"
+    networks:
+      - encore-network
     depends_on:
       - kafka
+
+  # ========== Loki (로그 저장소) ==========
+  loki:
+    image: grafana/loki:latest
+    container_name: encore-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yml
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yml
+      - loki-data:/loki
+    networks:
+      - encore-network
+
+  # ========== OTel Collector ==========
+  otel-collector-project:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector-project
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ./project/otel-collector-config.yml:/etc/otelcol/config.yml
+    ports:
+      - "4358:4318"  # HTTP
+      - "4357:4317"  # gRPC
+    networks:
+      - encore-network
+    depends_on:
+      - loki
+
+networks:
+  encore-network:
+    driver: bridge
+
 volumes:
   encore-postgres-data:
     driver: local
   redis-data:
     driver: local
   kafka-data:
+    driver: local
+  loki-data:
     driver: local

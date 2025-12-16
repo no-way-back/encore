@@ -1,0 +1,44 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+      grpc:
+
+processors:
+  batch:
+
+exporters:
+  # 로컬 디버깅용(유지)
+  logging:
+    verbosity: normal
+
+  # traces -> Jaeger (Jaeger Collector gRPC)
+  jaeger:
+    endpoint: jaeger-collector:14250
+    tls:
+      insecure: true
+
+  # logs -> Loki
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+
+  # metrics -> Prometheus (Prometheus가 이 endpoint를 scrape)
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, jaeger]
+
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
+
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki]

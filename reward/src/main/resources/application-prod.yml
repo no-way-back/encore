@@ -64,6 +64,10 @@ feign:
       project-service:
         url: ${INTERNAL_SERVICE_BASE_URL}
 
+otel:
+  service:
+    name: reward-service
+
 server:
   port: ${SERVER_PORT:18083}
 

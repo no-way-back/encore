@@ -98,6 +98,15 @@ services:
       - jaeger-collector
       - jaeger-query
 
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring-network
+
   otel-collector-funding:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector-funding

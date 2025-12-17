@@ -31,6 +31,7 @@ exporters:
   # metrics -> Prometheus
   prometheus:
     endpoint: "0.0.0.0:8889"
+    namespace: default
 
 service:
   pipelines:
@@ -42,7 +43,7 @@ service:
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [prometheus]
+      exporters: [prometheus, debug]
 
     logs:
       receivers: [otlp]

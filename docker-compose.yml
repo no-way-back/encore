@@ -77,6 +77,45 @@ services:
     depends_on:
       - kafka
 
+  # ========== Loki (로그 저장소) ==========
+  loki:
+    image: grafana/loki:latest
+    container_name: encore-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yml
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yml
+      - loki-data:/loki
+    networks:
+      - encore-network
+
+  # ========== OTel Collector ==========
+  otel-collector-project:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector-project
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ./project/otel-collector-config.yml:/etc/otelcol/config.yml
+    ports:
+      - "4358:4318"  # HTTP
+      - "4357:4317"  # gRPC
+      - "8889:8889"
+    networks:
+      - encore-network
+    depends_on:
+      - loki
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - encore-network
+    depends_on:
+      - otel-collector-project
 networks:
   encore-network:
     driver: bridge

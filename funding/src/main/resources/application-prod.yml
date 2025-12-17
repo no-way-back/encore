@@ -62,6 +62,10 @@ logging:
     com.nowayback.funding: DEBUG
     org.hibernate.SQL: DEBUG
 
+otel:
+  service:
+    name: -service
+
 eureka:
   client:
     enabled: false

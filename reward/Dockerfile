@@ -29,11 +29,6 @@ ENV OTEL_TRACES_EXPORTER=otlp
 ENV OTEL_METRICS_EXPORTER=otlp
 ENV OTEL_INSTRUMENTATION_RUNTIME_METRICS_ENABLED=true
 
-ENTRYPOINT [
-  "java",
-  "-javaagent:/otel/opentelemetry-javaagent.jar",
-  "-jar",
-  "app.jar"
-]
+ENTRYPOINT ["java","-javaagent:/otel/opentelemetry-javaagent.jar","-jar","app.jar"]
 
 EXPOSE 18083

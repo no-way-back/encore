@@ -2,19 +2,21 @@ receivers:
   otlp:
     protocols:
       http:
+        endpoint: 0.0.0.0:4318
       grpc:
+        endpoint: 0.0.0.0:4317
 
 processors:
   batch:
 
 exporters:
   # 로컬 디버깅용(유지)
-  logging:
+  debug:
     verbosity: normal
 
   # traces -> Jaeger (Jaeger Collector gRPC)
-  jaeger:
-    endpoint: jaeger-collector:14250
+  otlp/jaeger:
+    endpoint: jaeger-collector:4317
     tls:
       insecure: true
 
@@ -31,7 +33,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, jaeger]
+      exporters: [debug, otlp/jaeger]
 
     metrics:
       receivers: [otlp]

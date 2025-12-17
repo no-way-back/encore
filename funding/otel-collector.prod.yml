@@ -1,0 +1,73 @@
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: prod
+        action: upsert
+      - key: service.namespace
+        value: nowayback-encore
+        action: upsert
+
+  probabilistic_sampler:
+    sampling_percentage: 5
+
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+
+exporters:
+  # traces -> Jaeger (OTLP gRPC)
+  otlp/jaeger:
+    endpoint: ${JAEGER_COLLECTOR_ENDPOINT:jaeger-collector:4317}
+    tls:
+      insecure: true
+
+  # logs -> Loki (OTLP HTTP)
+  otlphttp/loki:
+    endpoint: ${LOKI_OTLP_ENDPOINT:http://loki:3100/otlp}
+    tls:
+      insecure: true
+
+  # metrics -> Prometheus scrape endpoint
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
+service:
+  telemetry:
+    logs:
+      level: info
+
+  extensions: [health_check]
+
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, probabilistic_sampler, batch]
+      exporters: [otlp/jaeger]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [prometheus]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/loki]

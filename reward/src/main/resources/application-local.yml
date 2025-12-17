@@ -56,10 +56,14 @@ eureka:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
     fetch-registry: true
     register-with-eureka: true
+feign:
+  client:
+    config:
+      project-service:
+        url: http://localhost:18085
 
-service:
-  project:
-    url: http://localhost:18085
+server:
+  port: 18083
 
 server:
   port: 18083

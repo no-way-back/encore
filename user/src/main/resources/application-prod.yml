@@ -43,6 +43,10 @@ jwt:
   secret: ${JWT_SECRET}
   access-expire-time-ms: 86400000
 
+otel:
+  service:
+    name: user-service
+
 eureka:
   client:
     enabled: false

@@ -28,6 +28,10 @@ logging:
     com.nowayback.project: DEBUG
     org.hibernate.SQL: DEBUG
 
+otel:
+  service:
+    name: project-service
+
 eureka:
   client:
     enabled: false

@@ -26,9 +26,12 @@ repositories {
 
 ext {
     set('springCloudVersion', "2025.0.0")
+    set('awsSdkVersion', "2.29.41")
 }
 
 dependencies {
+    // AWS SDK BOM - 모든 AWS SDK 버전 통일
+    implementation platform("software.amazon.awssdk:bom:${awsSdkVersion}")
 
     // MSK IAM Auth
     implementation 'software.amazon.msk:aws-msk-iam-auth:2.0.3'

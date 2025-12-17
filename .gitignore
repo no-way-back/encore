@@ -42,3 +42,4 @@ out/
 gradle.properties
 
 terraform.tfvars
+opentelemetry-javaagent.jar

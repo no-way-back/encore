@@ -9,3 +9,9 @@
       editable: true
       jsonData:
         maxLines: 1000
+
+    - name: Jaeger
+      type: jaeger
+      access: proxy
+      url: http://jaeger-query:16686
+      editable: true

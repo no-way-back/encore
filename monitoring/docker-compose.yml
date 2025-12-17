@@ -1,0 +1,175 @@
+services:
+  # ========== Grafana ==========
+  grafana:
+    image: grafana/grafana:latest
+    container_name: encore-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    networks:
+      - monitoring-network
+    depends_on:
+      - loki
+      - jaeger-query
+
+  # ========== Loki ==========
+  loki:
+    image: grafana/loki:latest
+    container_name: encore-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yml
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yml
+      - loki-data:/loki
+    networks:
+      - monitoring-network
+
+  # ========== Elasticsearch ==========
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: encore-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - monitoring-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ========== Jaeger Collector ==========
+  jaeger-collector:
+    image: jaegertracing/jaeger-collector:1.52
+    container_name: jaeger-collector
+    environment:
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=http://elasticsearch:9200
+    ports:
+      - "14250:14250"  # gRPC
+    networks:
+      - monitoring-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  # ========== Jaeger Query ==========
+  jaeger-query:
+    image: jaegertracing/jaeger-query:latest
+    container_name: jaeger-query
+    environment:
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=http://elasticsearch:9200
+    ports:
+      - "16686:16686"
+    networks:
+      - monitoring-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  # ========== OTel Collector (43X8, 43X8 port) =========
+  otel-collector-user:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector-user
+    command: [ "--config=/etc/otelcol/config.yml" ]
+    volumes:
+      - ../user/otel-collector.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "4318:4318"  # HTTP
+      - "4317:4317"  # gRPC
+    networks:
+      - monitoring-network
+    depends_on:
+      - loki
+      - jaeger-collector
+      - jaeger-query
+
+  otel-collector-funding:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector-funding
+    command: [ "--config=/etc/otelcol/config.yml" ]
+    volumes:
+      - ../funding/otel-collector.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "4328:4318"  # HTTP
+      - "4327:4317"  # gRPC
+    networks:
+      - monitoring-network
+    depends_on:
+      - loki
+      - jaeger-collector
+      - jaeger-query
+
+  otel-collector-reward:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector-reward
+    command: [ "--config=/etc/otelcol/config.yml" ]
+    volumes:
+      - ../reward/otel-collector.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "4338:4318"  # HTTP
+      - "4337:4317"  # gRPC
+    networks:
+      - monitoring-network
+    depends_on:
+      - loki
+      - jaeger-collector
+      - jaeger-query
+
+  otel-collector-payment:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector-payment
+    command: [ "--config=/etc/otelcol/config.yml" ]
+    volumes:
+      - ../payment/otel-collector.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "4348:4318"  # HTTP
+      - "4347:4317"  # gRPC
+    networks:
+      - monitoring-network
+    depends_on:
+      - loki
+      - jaeger-collector
+      - jaeger-query
+
+  otel-collector-project:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector-project
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ../project/otel-collector.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "4358:4318"  # HTTP
+      - "4357:4317"  # gRPC
+    networks:
+      - monitoring-network
+    depends_on:
+      - loki
+      - jaeger-collector
+      - jaeger-query
+
+networks:
+  monitoring-network:
+    driver: bridge
+
+volumes:
+  grafana-data:
+    driver: local
+  loki-data:
+    driver: local
+  es-data:
+    driver: local

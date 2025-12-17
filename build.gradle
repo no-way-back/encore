@@ -1,29 +1,26 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.7'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.7' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
 }
-
 group = 'com.nowayback'
 version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
-
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
-
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
-
+configurations {
+    agent
+}
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.10.0'
 }
-
-tasks.named('test') {
-	useJUnitPlatform()
+tasks.register('downloadAgent', Copy) {
+    from configurations.agent.singleFile
+    into projectDir
+    rename 'opentelemetry-javaagent-.*\\.jar', 'opentelemetry-javaagent.jar'
 }

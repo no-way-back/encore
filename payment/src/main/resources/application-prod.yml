@@ -54,6 +54,10 @@ payment:
   open-banking:
     base-url: https://openapi.openbanking.or.kr/v2.0
 
+otel:
+  service:
+    name: payment-service
+
 eureka:
   client:
     enabled: false

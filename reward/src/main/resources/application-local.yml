@@ -65,6 +65,9 @@ feign:
 server:
   port: 18083
 
+server:
+  port: 18083
+
 qrcode:
   base-url: http://localhost:8080
 

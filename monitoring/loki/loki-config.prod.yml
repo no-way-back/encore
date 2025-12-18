@@ -7,6 +7,10 @@ common:
   path_prefix: /loki
   replication_factor: 1
 
+  ring:
+    kvstore:
+      store: inmemory
+
 schema_config:
   configs:
     - from: 2024-01-01
@@ -39,3 +43,8 @@ limits_config:
 
 querier:
   max_concurrent: 10
+
+query_scheduler:
+  ring:
+    kvstore:
+      store: inmemory

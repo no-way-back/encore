@@ -84,3 +84,9 @@ logging:
     org.springframework.kafka: ERROR
     org.hibernate.SQL: ERROR
     org.hibernate.type: ERROR
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

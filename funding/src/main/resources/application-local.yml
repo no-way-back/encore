@@ -78,3 +78,9 @@ feign:
         url: http://localhost:18084
         connectTimeout: 3000
         readTimeout: 10000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

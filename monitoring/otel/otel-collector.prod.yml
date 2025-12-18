@@ -24,35 +24,38 @@ processors:
       - key: service.namespace
         value: nowayback-encore
         action: upsert
+      - key: cloud.provider
+        value: aws
+        action: upsert
+      - key: cloud.region
+        value: ap-northeast-2
+        action: upsert
 
   probabilistic_sampler:
-    sampling_percentage: 5
+    sampling_percentage: 10
 
   batch:
     timeout: 5s
     send_batch_size: 512
 
 exporters:
-  # traces -> Jaeger (OTLP gRPC)
   otlp/jaeger:
     endpoint: ${JAEGER_COLLECTOR_ENDPOINT:jaeger-collector:4317}
-    tls:
-      insecure: true
-
-  # logs -> Loki (OTLP HTTP)
-  otlphttp/loki:
-    endpoint: ${LOKI_OTLP_ENDPOINT:http://loki:3100/otlp}
     tls:
       insecure: true
 
   # metrics -> Prometheus scrape endpoint
   prometheus:
     endpoint: 0.0.0.0:8889
+    const_labels:
+      environment: prod
 
 service:
   telemetry:
     logs:
       level: info
+    metrics:
+      address: 0.0.0.0:8888
 
   extensions: [health_check]
 
@@ -66,8 +69,3 @@ service:
       receivers: [otlp]
       processors: [memory_limiter, resource, batch]
       exporters: [prometheus]
-
-    logs:
-      receivers: [otlp]
-      processors: [memory_limiter, resource, batch]
-      exporters: [otlphttp/loki]

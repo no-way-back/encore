@@ -5,7 +5,7 @@ server:
   grpc_listen_port: 9096
 
 common:
-  instance_addr: 127.0.0.1
+  instance_addr: ${HOSTNAME}
   path_prefix: /loki
 
   # 단일 인스턴스라서 복제 X 테스트 하면서 변경할게요,,
@@ -13,7 +13,7 @@ common:
 
   storage:
     s3:
-      bucketnames: ${S3_BUCKET_NAME}
+      bucketnames: nowayback-encore
       region: ap-northeast-2
       sse_encryption: true
       insecure: false
@@ -29,11 +29,6 @@ schema_config:
         period: 24h
 
 storage_config:
-  aws:
-    s3: s3://ap-northeast-2/${S3_BUCKET_NAME}
-    region: ap-northeast-2
-    sse_encryption: true
-
   boltdb_shipper:
     active_index_directory: /loki/index
     cache_location: /loki/boltdb-cache

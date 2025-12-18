@@ -4,13 +4,13 @@
     - name: Prometheus
       type: prometheus
       access: proxy
-      url: http://prometheus:9090
+      url: http://prometheus.monitoring.local:9090
       editable: true
 
     - name: Loki
       type: loki
       access: proxy
-      url: http://loki:3100
+      url: http://loki.monitoring.local:3100
       isDefault: true
       editable: true
       jsonData:
@@ -19,5 +19,5 @@
     - name: Jaeger
       type: jaeger
       access: proxy
-      url: http://jaeger-query:16686
+      url: http://jaeger-query.monitoring.local:16686
       editable: true

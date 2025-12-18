@@ -11,7 +11,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./grafana/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
     networks:
       - monitoring-network
     depends_on:
@@ -26,7 +26,7 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yml
     volumes:
-      - ./loki-config.yml:/etc/loki/local-config.yml
+      - ./loki/loki-config.yml:/etc/loki/local-config.yml
       - loki-data:/loki
     networks:
       - monitoring-network

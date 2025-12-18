@@ -5,7 +5,7 @@ server:
   grpc_listen_port: 9096
 
 common:
-  instance_addr: ${INSTANCE_ADDR}   # ECS Task Private IP
+  instance_addr: 127.0.0.1
   path_prefix: /loki
 
   # 단일 인스턴스라서 복제 X 테스트 하면서 변경할게요,,

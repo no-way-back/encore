@@ -40,7 +40,7 @@ processors:
 
 exporters:
   otlp/jaeger:
-    endpoint: ${JAEGER_COLLECTOR_ENDPOINT:jaeger-collector:4317}
+    endpoint: jaeger-collector.monitoring.local:4317
     tls:
       insecure: true
 

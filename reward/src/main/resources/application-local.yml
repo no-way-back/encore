@@ -65,9 +65,6 @@ feign:
 server:
   port: 18083
 
-server:
-  port: 18083
-
 qrcode:
   base-url: http://localhost:8080
 
@@ -77,3 +74,9 @@ logging:
     com.nowayback.reward: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

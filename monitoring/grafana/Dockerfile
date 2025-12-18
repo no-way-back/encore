@@ -10,7 +10,7 @@ COPY grafana-datasources.yml /etc/grafana/provisioning/datasources/datasources.y
 
 # ===== 권한 보정 (공식 이미지 권장 방식) =====
 USER root
-RUN chown -R grafana:grafana /etc/grafana/provisioning
+RUN chown -R grafana /etc/grafana/provisioning
 USER grafana
 
 EXPOSE 3000

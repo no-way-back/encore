@@ -13,5 +13,20 @@ scrape_configs:
 
   - job_name: "project-service"
     static_configs:
-      - targets: [ "host.docker.internal:18085" ]
+      - targets: [ "project.monitoring.local:18085" ]
+    metrics_path: '/actuator/prometheus'
+
+  - job_name: "funding-service"
+    static_configs:
+      - targets: [ "funding.monitoring.local:18082" ]
+    metrics_path: '/actuator/prometheus'
+
+  - job_name: "payment-service"
+    static_configs:
+      - targets: [ "payment.monitoring.local:18084" ]
+    metrics_path: '/actuator/prometheus'
+
+  - job_name: "user-service"
+    static_configs:
+      - targets: [ "user.monitoring.local:18081" ]
     metrics_path: '/actuator/prometheus'

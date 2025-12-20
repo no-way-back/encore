@@ -3,25 +3,27 @@ apiVersion: 1
 datasources:
   - name: Prometheus
     type: prometheus
+    uid: prometheus-uid
     access: proxy
-    url: http://encore-prometheus:9090
+    url: http://prometheus.monitoring.local:9090
     isDefault: false
-    editable: false
+    editable: true
     jsonData:
       timeInterval: 15s
-      queryTimeout: 120s
+      queryTimeout: 60s
       httpMethod: POST
     version: 1
 
   - name: Loki
     type: loki
+    uid: loki-uid
     access: proxy
-    url: http://encore-loki:3100
+    url: http://loki.monitoring.local:3100
     isDefault: true
-    editable: false
+    editable: true
     jsonData:
       maxLines: 5000
-      timeout: 120
+      timeout: 60s
       derivedFields:
         - datasourceUid: jaeger-uid
           matcherRegex: "trace_id=([a-f0-9]{16,32})"
@@ -31,16 +33,25 @@ datasources:
 
   - name: Jaeger
     type: jaeger
-    access: proxy
-    url: http://encore-jaeger-query:16686
     uid: jaeger-uid
+    access: proxy
+    url: http://jaeger-query.monitoring.local:16686
     isDefault: false
-    editable: false
+    editable: true
     jsonData:
       tracesToLogs:
         datasourceUid: loki-uid
         tags: ['service.name', 'trace_id']
         filterByTraceID: true
+        filterBySpanID: false
+        spanStartTimeShift: '-30m'
+        spanEndTimeShift: '30m'
+      tracesToMetrics:
+        datasourceUid: prometheus-uid
         spanStartTimeShift: '-1h'
         spanEndTimeShift: '1h'
+        tags: [{key: 'service.name', value: 'service'}]
+        queries:
+          - name: 'Request Rate'
+            query: 'sum(rate(http_request_duration_seconds_count{service="$__tags"}[5m]))'
     version: 1

@@ -16,15 +16,15 @@ exporters:
   debug:
     verbosity: detailed
 
-  # traces -> Jaeger
+  # traces -> Jaeger (Collector 주소 수정)
   otlp/jaeger:
-    endpoint: jaeger-collector:4317
+    endpoint: encore-jaeger-collector:4317
     tls:
       insecure: true
 
-  # logs -> Loki
+  # logs -> Loki (Loki 주소 수정)
   otlphttp/loki:
-    endpoint: http://loki:3100/otlp
+    endpoint: http://encore-loki:3100/otlp
     tls:
       insecure: true
 

@@ -23,7 +23,7 @@ public enum RewardErrorCode {
     // Value Object - Stock
     INVALID_STOCK_QUANTITY("RW-110", "재고 수량을 입력해주세요", HttpStatus.BAD_REQUEST),
     NEGATIVE_STOCK_QUANTITY("RW-111", "재고 수량은 0 이상이어야 합니다", HttpStatus.BAD_REQUEST),
-    INSUFFICIENT_STOCK("RW-112", "재고가 부족합니다", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_STOCK("RW-112", "재고가 부족합니다", HttpStatus.CONFLICT),
 
     // Value Object - ShippingPolicy
     INVALID_SHIPPING_FEE("RW-120", "배송비를 입력해주세요", HttpStatus.BAD_REQUEST),

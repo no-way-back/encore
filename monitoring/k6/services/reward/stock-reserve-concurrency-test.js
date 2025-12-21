@@ -1,5 +1,5 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
+import { check} from 'k6';
 import { concurrencyThresholds } from '../../config/thresholds.js';
 import { generateUUID } from '../../utils/uuid-generator.js';
 

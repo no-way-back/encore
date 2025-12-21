@@ -1,5 +1,7 @@
 package com.nowayback.reward.application.outbox.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.reward.application.reward.dto.RewardCreationResult;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.Outbox;
@@ -21,21 +23,26 @@ import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 public class OutboxEventPublisher {
 
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ObjectMapper objectMapper;
 
     public void publish(
-            EventType eventType,
+            EventType eventType,u
             EventDestination destination,
             RewardCreationResult result,
             AggregateType aggregateType,
             UUID aggregateId
     ) {
         try {
+            String payloadJson = serializePayload(result);
+            String payloadType = result.getClass().getName();
+
             Outbox outbox = Outbox.create(
                     aggregateType,
                     aggregateId,
                     eventType,
                     destination,
-                    result
+                    payloadJson,
+                    payloadType
             );
 
             applicationEventPublisher.publishEvent(OutboxEvent.of(outbox));
@@ -47,6 +54,15 @@ public class OutboxEventPublisher {
             log.error("Outbox 이벤트 발행 실패 - type: {}, aggregateId: {}",
                     eventType, aggregateId, e);
             throw new RewardException(OUTBOX_EVENT_PUBLISH_FAILED);
+        }
+    }
+
+    private String serializePayload(Object payload) {
+        try {
+            return objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException e) {
+            log.error("Payload 직렬화 실패: {}", payload.getClass().getName(), e);
+            throw new RewardException(OUTBOX_PAYLOAD_SERIALIZATION_FAILED);
         }
     }
 }

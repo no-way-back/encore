@@ -1,8 +1,5 @@
 package com.nowayback.reward.domain.outbox;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
 import com.nowayback.reward.domain.outbox.vo.EventType;
@@ -14,8 +11,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 
 @Entity
 @Table(name = "p_reward_outbox")
@@ -90,18 +85,17 @@ public class Outbox {
      * @param aggregateId 주체 ID (프로젝트 ID 등)
      * @param eventType 이벤트 타입
      * @param destination 발행 목적지 (Kafka Topic)
-     * @param payloadObject 이벤트 페이로드 객체 (자동으로 JSON 직렬화)
+     * @param payloadJson 이미 JSON으로 직렬화된 문자열
+     * @param payloadType 페이로드 클래스 타입 이름
      */
     public static Outbox create(
             AggregateType aggregateType,
             UUID aggregateId,
             EventType eventType,
             EventDestination destination,
-            Object payloadObject
+            String payloadJson,
+            String payloadType
     ) {
-        String payloadJson = toJson(payloadObject);
-        String payloadType = payloadObject.getClass().getName();
-
         return new Outbox(
                 aggregateType,
                 aggregateId != null ? aggregateId : UUID.randomUUID(),
@@ -133,23 +127,5 @@ public class Outbox {
      */
     public void incrementRetryCount() {
         this.retryCount += 1;
-    }
-
-    /**
-     * 재시도 가능 여부 확인
-     */
-    public boolean canRetry(int maxRetries) {
-        return this.retryCount < maxRetries && this.status == OutboxStatus.PENDING;
-    }
-
-    /**
-     * 객체를 JSON 문자열로 직렬화
-     */
-    private static String toJson(Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            throw new RewardException(OUTBOX_PAYLOAD_SERIALIZATION_FAILED);
-        }
     }
 }

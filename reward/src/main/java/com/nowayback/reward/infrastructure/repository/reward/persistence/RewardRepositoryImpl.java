@@ -22,11 +22,6 @@ public class RewardRepositoryImpl implements RewardRepository {
     }
 
     @Override
-    public List<Rewards> saveAll(List<Rewards> rewards) {
-        return jpaRepository.saveAll(rewards);
-    }
-
-    @Override
     public Optional<Rewards> findById(UUID rewardId) {
         return jpaRepository.findById(rewardId);
     }
@@ -35,4 +30,10 @@ public class RewardRepositoryImpl implements RewardRepository {
     public List<Rewards> findAvailableReward(UUID projectId) {
         return jpaRepository.findAvailableReward(ProjectId.of(projectId));
     }
+
+    @Override
+    public Optional<Rewards> findByIdWithLock(UUID rewardId) {
+        return jpaRepository.findByIdWithLock(rewardId);
+    }
+
 }

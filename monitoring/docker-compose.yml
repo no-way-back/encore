@@ -1,4 +1,6 @@
 services:
+
+
   # ========== Grafana ==========
   grafana:
     image: grafana/grafana:latest
@@ -17,6 +19,8 @@ services:
     depends_on:
       - loki
       - jaeger-query
+      - prometheus
+
 
   # ========== Loki ==========
   loki:
@@ -30,6 +34,7 @@ services:
       - loki-data:/loki
     networks:
       - monitoring-network
+
 
   # ========== Elasticsearch ==========
   elasticsearch:
@@ -51,10 +56,11 @@ services:
       timeout: 5s
       retries: 10
 
+
   # ========== Jaeger Collector ==========
   jaeger-collector:
     image: jaegertracing/jaeger-collector:1.52
-    container_name: jaeger-collector
+    container_name: encore-jaeger-collector
     environment:
       - SPAN_STORAGE_TYPE=elasticsearch
       - ES_SERVER_URLS=http://elasticsearch:9200
@@ -66,10 +72,11 @@ services:
       elasticsearch:
         condition: service_healthy
 
+
   # ========== Jaeger Query ==========
   jaeger-query:
     image: jaegertracing/jaeger-query:latest
-    container_name: jaeger-query
+    container_name: encore-jaeger-query
     environment:
       - SPAN_STORAGE_TYPE=elasticsearch
       - ES_SERVER_URLS=http://elasticsearch:9200
@@ -81,10 +88,39 @@ services:
       elasticsearch:
         condition: service_healthy
 
+
+  # ========== Prometheus =========
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: encore-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-remote-write-receiver'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring-network
+
+
+  # ========== K6 =========
+  k6:
+    image: grafana/k6:latest
+    container_name: encore-k6
+    networks:
+      - monitoring-network
+    volumes:
+      - ./k6:/scripts
+    environment:
+      - K6_OUT=experimental-prometheus-rw
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+
+
   # ========== OTel Collector (43X8, 43X8 port) =========
   otel-collector-user:
     image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector-user
+    container_name: encore-otel-collector-user
     command: [ "--config=/etc/otelcol/config.yml" ]
     volumes:
       - ./otel/otel-collector.yml:/etc/otelcol/config.yml:ro
@@ -98,18 +134,10 @@ services:
       - jaeger-collector
       - jaeger-query
 
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports:
-      - "9090:9090"
-    networks:
-      - monitoring-network
 
   otel-collector-funding:
     image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector-funding
+    container_name: encore-otel-collector-funding
     command: [ "--config=/etc/otelcol/config.yml" ]
     volumes:
       - ./otel/otel-collector.yml:/etc/otelcol/config.yml:ro
@@ -123,9 +151,10 @@ services:
       - jaeger-collector
       - jaeger-query
 
+
   otel-collector-reward:
     image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector-reward
+    container_name: encore-otel-collector-reward
     command: [ "--config=/etc/otelcol/config.yml" ]
     volumes:
       - ./otel/otel-collector.yml:/etc/otelcol/config.yml:ro
@@ -139,9 +168,10 @@ services:
       - jaeger-collector
       - jaeger-query
 
+
   otel-collector-payment:
     image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector-payment
+    container_name: encore-otel-collector-payment
     command: [ "--config=/etc/otelcol/config.yml" ]
     volumes:
       - ./otel/otel-collector.yml:/etc/otelcol/config.yml:ro
@@ -155,9 +185,10 @@ services:
       - jaeger-collector
       - jaeger-query
 
+
   otel-collector-project:
     image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector-project
+    container_name: encore-otel-collector-project
     command: ["--config=/etc/otelcol/config.yml"]
     volumes:
       - ./otel/otel-collector.yml:/etc/otelcol/config.yml:ro
@@ -171,9 +202,11 @@ services:
       - jaeger-collector
       - jaeger-query
 
+
 networks:
   monitoring-network:
     driver: bridge
+
 
 volumes:
   grafana-data:

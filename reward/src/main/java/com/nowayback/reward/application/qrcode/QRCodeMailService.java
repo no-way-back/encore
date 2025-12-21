@@ -1,5 +1,6 @@
 package com.nowayback.reward.application.qrcode;
 
+import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -10,6 +11,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 
 @Slf4j
 @Service
@@ -38,7 +41,7 @@ public class QRCodeMailService {
 
         } catch (MessagingException e) {
             log.error("QR 코드 이메일 발송 실패 - 수신자: {}", email, e);
-            throw new RuntimeException("이메일 발송에 실패했습니다", e);
+            throw new RewardException(QRCODE_IMAGE_GENERATION_FAILED);
         }
     }
 }

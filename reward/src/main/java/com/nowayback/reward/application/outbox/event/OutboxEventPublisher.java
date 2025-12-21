@@ -1,6 +1,7 @@
 package com.nowayback.reward.application.outbox.event;
 
 import com.nowayback.reward.application.reward.dto.RewardCreationResult;
+import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.Outbox;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
@@ -11,6 +12,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 
 @Slf4j
 @Component
@@ -43,7 +46,7 @@ public class OutboxEventPublisher {
         } catch (Exception e) {
             log.error("Outbox 이벤트 발행 실패 - type: {}, aggregateId: {}",
                     eventType, aggregateId, e);
-            throw new RuntimeException("Outbox 저장 중 오류", e);
+            throw new RewardException(OUTBOX_EVENT_PUBLISH_FAILED);
         }
     }
 }

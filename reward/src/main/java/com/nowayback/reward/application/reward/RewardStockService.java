@@ -95,7 +95,7 @@ public class RewardStockService {
             UUID fundingId,
             StockReserveCommand.StockReserveItemCommand item
     ) {
-        Rewards reward = getById(item.rewardId());
+        Rewards reward = getByIdWithLock(item.rewardId());
 
         if (item.optionId() != null) {
             return reserveWithOption(userId, fundingId, reward, item);
@@ -175,7 +175,7 @@ public class RewardStockService {
             return;
         }
 
-        Rewards reward = getById(reservation.getRewardId().getId());
+        Rewards reward = getByIdWithLock(reservation.getRewardId().getId());
 
         if (reservation.getOptionId() != null) {
             restoreWithOption(reward, reservation);
@@ -231,8 +231,8 @@ public class RewardStockService {
         return stockReservationRepository.save(reservation);
     }
 
-    private Rewards getById(UUID rewardId) {
-        return rewardRepository.findById(rewardId).orElseThrow(
+    private Rewards getByIdWithLock(UUID rewardId) {
+        return rewardRepository.findByIdWithLock(rewardId).orElseThrow(
                 () -> new RewardException(REWARD_NOT_FOUND)
         );
     }

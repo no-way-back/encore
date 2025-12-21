@@ -23,7 +23,7 @@ public enum RewardErrorCode {
     // Value Object - Stock
     INVALID_STOCK_QUANTITY("RW-110", "재고 수량을 입력해주세요", HttpStatus.BAD_REQUEST),
     NEGATIVE_STOCK_QUANTITY("RW-111", "재고 수량은 0 이상이어야 합니다", HttpStatus.BAD_REQUEST),
-    INSUFFICIENT_STOCK("RW-112", "재고가 부족합니다", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_STOCK("RW-112", "재고가 부족합니다", HttpStatus.CONFLICT),
 
     // Value Object - ShippingPolicy
     INVALID_SHIPPING_FEE("RW-120", "배송비를 입력해주세요", HttpStatus.BAD_REQUEST),
@@ -44,6 +44,17 @@ public enum RewardErrorCode {
     QRCODE_NOT_FOUND("RW-400", "존재하지 않는 QR 코드입니다", HttpStatus.NOT_FOUND),
     QRCODE_ALREADY_USED("RW-401", "이미 사용된 QR 코드입니다", HttpStatus.CONFLICT),
     QRCODE_CANCELLED("RW-402", "취소된 QR 코드입니다", HttpStatus.BAD_REQUEST),
+
+    // Mail
+    MAIL_SEND_FAILED("RW-600", "이메일 발송에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // QR Code Infra
+    QRCODE_IMAGE_GENERATION_FAILED("RW-610", "QR 코드 이미지 생성에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+    QRCODE_IMAGE_UPLOAD_FAILED("RW-611", "QR 코드 이미지 업로드에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // Outbox / Event
+    OUTBOX_EVENT_PUBLISH_FAILED("RW-620", "Outbox 이벤트 발행에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+    OUTBOX_PAYLOAD_SERIALIZATION_FAILED("RW-621", "Outbox 이벤트 직렬화에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // OpenFeign Project Service
     PROJECT_SERVICE_UNAVAILABLE("RW-501", "프로젝트 서비스 연결 실패", HttpStatus.SERVICE_UNAVAILABLE),

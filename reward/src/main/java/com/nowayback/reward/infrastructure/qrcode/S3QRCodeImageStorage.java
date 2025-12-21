@@ -1,6 +1,7 @@
 package com.nowayback.reward.infrastructure.qrcode;
 
 import com.nowayback.reward.application.port.QRCodeImageStorage;
+import com.nowayback.reward.domain.exception.RewardException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.util.UUID;
+
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 
 @Slf4j
 @Component
@@ -45,7 +48,7 @@ public class S3QRCodeImageStorage implements QRCodeImageStorage {
 
         } catch (SdkException e) {
             log.error("S3 업로드 실패 - QR Code ID: {}", qrCodeId, e);
-            throw new RuntimeException("QR 코드 이미지 S3 업로드 실패", e);
+            throw new RewardException(QRCODE_IMAGE_UPLOAD_FAILED);
         }
     }
 }

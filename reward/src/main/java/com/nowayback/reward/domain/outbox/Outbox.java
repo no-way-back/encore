@@ -2,6 +2,7 @@ package com.nowayback.reward.domain.outbox;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
 import com.nowayback.reward.domain.outbox.vo.EventType;
@@ -13,6 +14,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import static com.nowayback.reward.domain.exception.RewardErrorCode.*;
 
 @Entity
 @Table(name = "p_reward_outbox")
@@ -146,7 +149,7 @@ public class Outbox {
         try {
             return new ObjectMapper().writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Outbox 이벤트 직렬화 실패", e);
+            throw new RewardException(OUTBOX_PAYLOAD_SERIALIZATION_FAILED);
         }
     }
 }

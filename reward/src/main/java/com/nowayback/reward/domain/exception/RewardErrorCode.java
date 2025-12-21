@@ -45,6 +45,17 @@ public enum RewardErrorCode {
     QRCODE_ALREADY_USED("RW-401", "이미 사용된 QR 코드입니다", HttpStatus.CONFLICT),
     QRCODE_CANCELLED("RW-402", "취소된 QR 코드입니다", HttpStatus.BAD_REQUEST),
 
+    // Mail
+    MAIL_SEND_FAILED("RW-600", "이메일 발송에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // QR Code Infra
+    QRCODE_IMAGE_GENERATION_FAILED("RW-610", "QR 코드 이미지 생성에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+    QRCODE_IMAGE_UPLOAD_FAILED("RW-611", "QR 코드 이미지 업로드에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // Outbox / Event
+    OUTBOX_EVENT_PUBLISH_FAILED("RW-620", "Outbox 이벤트 발행에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+    OUTBOX_PAYLOAD_SERIALIZATION_FAILED("RW-621", "Outbox 이벤트 직렬화에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
+
     // OpenFeign Project Service
     PROJECT_SERVICE_UNAVAILABLE("RW-501", "프로젝트 서비스 연결 실패", HttpStatus.SERVICE_UNAVAILABLE),
     PROJECT_BAD_REQUEST("RW-502", "잘못된 프로젝트 요청", HttpStatus.BAD_REQUEST),

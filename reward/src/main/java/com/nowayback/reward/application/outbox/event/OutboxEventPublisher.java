@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.reward.application.reward.dto.RewardCreationResult;
 import com.nowayback.reward.domain.exception.RewardException;
-import com.nowayback.reward.domain.outbox.Outbox;
+import com.nowayback.reward.domain.outbox.entity.Outbox;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
 import com.nowayback.reward.domain.outbox.vo.EventType;

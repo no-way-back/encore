@@ -1,6 +1,6 @@
 package com.nowayback.reward.infrastructure.repository.outbox;
 
-import com.nowayback.reward.domain.outbox.Outbox;
+import com.nowayback.reward.domain.outbox.entity.Outbox;
 import com.nowayback.reward.domain.outbox.vo.OutboxStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

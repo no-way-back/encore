@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.reward.application.outbox.event.OutboxPublisher;
 import com.nowayback.reward.application.outbox.repository.OutboxRepository;
 import com.nowayback.reward.application.reward.dto.RewardCreationResult;
-import com.nowayback.reward.domain.outbox.Outbox;
+import com.nowayback.reward.domain.outbox.entity.Outbox;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.RewardCreationResultEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

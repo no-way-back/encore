@@ -1,4 +1,4 @@
-package com.nowayback.reward.domain.outbox;
+package com.nowayback.reward.domain.outbox.entity;
 
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;

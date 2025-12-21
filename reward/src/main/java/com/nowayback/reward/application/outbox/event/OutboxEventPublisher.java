@@ -26,7 +26,7 @@ public class OutboxEventPublisher {
     private final ObjectMapper objectMapper;
 
     public void publish(
-            EventType eventType,u
+            EventType eventType,
             EventDestination destination,
             RewardCreationResult result,
             AggregateType aggregateType,

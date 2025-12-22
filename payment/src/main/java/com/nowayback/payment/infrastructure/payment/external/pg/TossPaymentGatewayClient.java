@@ -43,25 +43,25 @@ public class TossPaymentGatewayClient implements PaymentGatewayClient {
                 amount.getAmount()
         );
 
-        PgConfirmResponse response = tossFeignClient.confirmPayment(request);
-
-        log.info("[External PG Toss] 결제 승인 성공 - status: {}", response.status());
+//        PgConfirmResponse response = tossFeignClient.confirmPayment(request);
+//
+//        log.info("[External PG Toss] 결제 승인 성공 - status: {}", response.status());
+//
+//        return new PgConfirmResult(
+//                response.paymentKey(),
+//                response.orderId(),
+//                response.totalAmount(),
+//                response.approvedAt().toLocalDateTime(),
+//                response.status()
+//        );
 
         return new PgConfirmResult(
-                response.paymentKey(),
-                response.orderId(),
-                response.totalAmount(),
-                response.approvedAt().toLocalDateTime(),
-                response.status()
+                pgInfo.getPgPaymentKey(),
+                pgInfo.getPgOrderId(),
+                amount.getAmount(),
+                LocalDateTime.now(),
+                "DONE"
         );
-
-//        return new PgConfirmResult(
-//                pgInfo.getPgPaymentKey(),
-//                pgInfo.getPgOrderId(),
-//                amount.getAmount(),
-//                LocalDateTime.now(),
-//                "DONE"
-//        );
     }
 
     @Override
@@ -82,29 +82,29 @@ public class TossPaymentGatewayClient implements PaymentGatewayClient {
                 PgRefundRequest.RefundAccount.from(refundAccountInfo)
         );
 
-        PgRefundResponse response = tossFeignClient.cancelPayment(paymentKey, request);
-
-        log.info("[External PG Toss] 환불 처리 성공 - status: {}", response.status());
-
-        PgRefundResponse.CancelInfo lastCancel = response.cancels().getLast();
+//        PgRefundResponse response = tossFeignClient.cancelPayment(paymentKey, request);
+//
+//        log.info("[External PG Toss] 환불 처리 성공 - status: {}", response.status());
+//
+//        PgRefundResponse.CancelInfo lastCancel = response.cancels().getLast();
+//
+//        return new PgRefundResult(
+//                response.paymentKey(),
+//                response.orderId(),
+//                lastCancel.cancelReason(),
+//                lastCancel.canceledAt().toLocalDateTime(),
+//                lastCancel.cancelAmount(),
+//                lastCancel.cancelStatus()
+//        );
 
         return new PgRefundResult(
-                response.paymentKey(),
-                response.orderId(),
-                lastCancel.cancelReason(),
-                lastCancel.canceledAt().toLocalDateTime(),
-                lastCancel.cancelAmount(),
-                lastCancel.cancelStatus()
+                paymentKey,
+                "orderId-placeholder",
+                cancelReason,
+                LocalDateTime.now(),
+                0L,
+                "CANCELED"
         );
-
-//        return new PgRefundResult(
-//                paymentKey,
-//                "orderId-placeholder",
-//                cancelReason,
-//                LocalDateTime.now(),
-//                0L,
-//                "CANCELED"
-//        );
     }
 
     private PgConfirmResult confirmPaymentFallback(PgInfo pgInfo, Money amount, Throwable ex) {

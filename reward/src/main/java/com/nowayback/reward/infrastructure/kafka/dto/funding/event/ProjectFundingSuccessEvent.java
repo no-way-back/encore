@@ -1,6 +1,6 @@
 package com.nowayback.reward.infrastructure.kafka.dto.funding.event;
 
-import com.nowayback.reward.domain.outbox.vo.EventType;
+import com.nowayback.reward.domain.vo.EventType;
 
 import java.util.UUID;
 

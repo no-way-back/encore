@@ -2,7 +2,7 @@ package com.nowayback.reward.domain.outbox.entity;
 
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
-import com.nowayback.reward.domain.outbox.vo.EventType;
+import com.nowayback.reward.domain.vo.EventType;
 import com.nowayback.reward.domain.outbox.vo.OutboxStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

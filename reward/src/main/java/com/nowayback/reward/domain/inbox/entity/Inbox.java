@@ -1,7 +1,7 @@
 package com.nowayback.reward.domain.inbox.entity;
 
 import com.nowayback.reward.domain.inbox.vo.InboxStatus;
-import com.nowayback.reward.domain.outbox.vo.EventType;
+import com.nowayback.reward.domain.vo.EventType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

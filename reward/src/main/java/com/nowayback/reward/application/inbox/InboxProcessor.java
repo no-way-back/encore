@@ -3,7 +3,7 @@ package com.nowayback.reward.application.inbox;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.reward.application.inbox.repository.InboxRepository;
 import com.nowayback.reward.domain.inbox.entity.Inbox;
-import com.nowayback.reward.domain.outbox.vo.EventType;
+import com.nowayback.reward.domain.vo.EventType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;

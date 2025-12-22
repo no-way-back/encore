@@ -1,6 +1,6 @@
 package com.nowayback.reward.application.outbox.event;
 
-import com.nowayback.reward.domain.outbox.Outbox;
+import com.nowayback.reward.domain.outbox.entity.Outbox;
 
 /**
  * Outbox 발행 인터페이스

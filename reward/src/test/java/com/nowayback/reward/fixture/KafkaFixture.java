@@ -1,7 +1,7 @@
 package com.nowayback.reward.fixture;
 
 import com.nowayback.reward.domain.reward.vo.RewardType;
-import com.nowayback.reward.domain.outbox.vo.EventType;
+import com.nowayback.reward.domain.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.data.RewardCreateData;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.ProjectCreatedPayload;

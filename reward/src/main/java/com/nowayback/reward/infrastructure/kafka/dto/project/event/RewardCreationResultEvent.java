@@ -1,7 +1,7 @@
 package com.nowayback.reward.infrastructure.kafka.dto.project.event;
 
 import com.nowayback.reward.application.reward.dto.RewardCreationResult;
-import com.nowayback.reward.domain.outbox.vo.EventType;
+import com.nowayback.reward.domain.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.payload.RewardCreationResultPayload;
 
 import java.time.LocalDateTime;

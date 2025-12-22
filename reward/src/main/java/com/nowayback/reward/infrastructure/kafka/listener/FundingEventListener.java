@@ -1,8 +1,9 @@
 package com.nowayback.reward.infrastructure.kafka.listener;
 
+import com.nowayback.reward.application.inbox.InboxProcessor;
 import com.nowayback.reward.application.qrcode.QRCodeService;
 import com.nowayback.reward.application.reward.RewardStockService;
-import com.nowayback.reward.domain.outbox.vo.EventType;
+import com.nowayback.reward.domain.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.ProjectFundingSuccessEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent;
@@ -14,7 +15,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import static com.nowayback.reward.domain.outbox.vo.EventType.*;
+import static com.nowayback.reward.domain.vo.EventType.*;
 
 @Slf4j
 @Component
@@ -23,6 +24,7 @@ public class FundingEventListener {
 
     private final RewardStockService rewardStockService;
     private final QRCodeService qrCodeService;
+    private final InboxProcessor inboxProcessor;
 
     /**
      * 펀딩 결제 실패 이벤트 처리
@@ -43,23 +45,27 @@ public class FundingEventListener {
                 event.payload().fundingId()
         );
 
-        if (validateEventType(
-                FUNDING_FAILED,
-                event.eventType(),
-                acknowledgment)) {
+        if (validateEventType(FUNDING_FAILED, event.eventType(), acknowledgment)) {
             return;
         }
 
         try {
-            rewardStockService.restoreStock(event.payload().fundingId());
+            inboxProcessor.processEvent(
+                    event.eventId(),
+                    event.eventType(),
+                    event.payload().fundingId(),
+                    event.payload(),
+                    payload -> rewardStockService.restoreStock(payload.fundingId())
+            );
+
+            acknowledgment.acknowledge();
 
             log.info("결제 실패 재고 복원 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("결제 실패 이벤트 처리 실패 - 펀딩: {}",
+            log.error("결제 실패 이벤트 처리 실패 - 펀딩: {}, 에러 핸들러가 재시도 처리",
                     event.payload().fundingId(), e);
-        } finally {
-            acknowledgment.acknowledge();
+            throw e;
         }
     }
 
@@ -82,26 +88,29 @@ public class FundingEventListener {
                 event.payload().fundingId()
         );
 
-        if (validateEventType(
-                FUNDING_REFUND,
-                event.eventType(),
-                acknowledgment)) {
+        if (validateEventType(FUNDING_REFUND, event.eventType(), acknowledgment)) {
             return;
         }
 
         try {
-            rewardStockService.restoreStock(event.payload().fundingId());
+            inboxProcessor.processEvent(
+                    event.eventId(),
+                    event.eventType(),
+                    event.payload().fundingId(),
+                    event.payload(),
+                    payload -> rewardStockService.restoreStock(payload.fundingId())
+            );
+
+            acknowledgment.acknowledge();
 
             log.info("펀딩 환불 재고 복원 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("펀딩 환불 이벤트 처리 실패 - 펀딩: {}",
+            log.error("펀딩 환불 이벤트 처리 실패 - 펀딩: {}, 에러 핸들러가 재시도 처리",
                     event.payload().fundingId(), e);
-        } finally {
-            acknowledgment.acknowledge();
+            throw e;
         }
     }
-
 
     /**
      * 펀딩 완료 이벤트 처리
@@ -127,15 +136,22 @@ public class FundingEventListener {
         }
 
         try {
-            qrCodeService.createQRCode(event.payload().toCommand());
+            inboxProcessor.processEvent(
+                    event.eventId(),
+                    event.eventType(),
+                    event.payload().fundingId(),
+                    event.payload(),
+                    payload -> qrCodeService.createQRCode(payload.toCommand())
+            );
+
+            acknowledgment.acknowledge();
 
             log.info("QR 코드 생성 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("펀딩 완료 이벤트 처리 실패 - 펀딩: {}",
+            log.error("펀딩 완료 이벤트 처리 실패 - 펀딩: {}, 에러 핸들러가 재시도 처리",
                     event.payload().fundingId(), e);
-        } finally {
-            acknowledgment.acknowledge();
+            throw e;
         }
     }
 
@@ -163,15 +179,22 @@ public class FundingEventListener {
         }
 
         try {
-            qrCodeService.sendQRCodesByFunding(event.payload().fundingId());
+            inboxProcessor.processEvent(
+                    event.eventId(),
+                    event.eventType(),
+                    event.payload().fundingId(),
+                    event.payload(),
+                    payload -> qrCodeService.sendQRCodesByFunding(payload.fundingId())
+            );
+
+            acknowledgment.acknowledge();
 
             log.info("QR 코드 이메일 발송 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("프로젝트 펀딩 성공 이벤트 처리 실패 - 펀딩: {}",
+            log.error("프로젝트 펀딩 성공 이벤트 처리 실패 - 펀딩: {}, 에러 핸들러가 재시도 처리",
                     event.payload().fundingId(), e);
-        } finally {
-            acknowledgment.acknowledge();
+            throw e;
         }
     }
 

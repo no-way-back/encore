@@ -8,6 +8,7 @@ import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreate
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +17,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +64,38 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
+    /**
+     * DLQ로 전송하는 Recoverer
+     */
+    @Bean
+    public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer(
+            KafkaTemplate<String, Object> kafkaTemplate
+    ) {
+        return new DeadLetterPublishingRecoverer(
+                kafkaTemplate,
+                (record, ex) -> {
+                    String dlqTopic = record.topic() + ".DLQ";
+                    log.error("메시지를 DLQ로 전송 - topic: {}, DLQ: {}, offset: {}, error: {}",
+                            record.topic(), dlqTopic, record.offset(), ex.getMessage());
+                    return new TopicPartition(dlqTopic, record.partition());
+                }
+        );
+    }
+
+    /**
+     * 에러 핸들러 (재시도 정책 + DLQ)
+     * - 1초 간격으로 5회 재시도
+     * - 최종 실패 시 DLQ로 전송
+     */
+    @Bean
+    public DefaultErrorHandler defaultErrorHandler(
+            DeadLetterPublishingRecoverer recoverer
+    ) {
+        FixedBackOff fixedBackOff = new FixedBackOff(1000L, 5L);
+        return new DefaultErrorHandler(recoverer, fixedBackOff);
+    }
+
+
     // ========== ProjectCreatedEvent 전용 설정 ==========
 
     @Bean
@@ -86,10 +122,11 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ProjectCreatedEvent>
-    projectCreatedListenerFactory() {
+    projectCreatedListenerFactory(DefaultErrorHandler errorHandler) {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, ProjectCreatedEvent>();
         factory.setConsumerFactory(projectCreatedConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 
@@ -119,10 +156,11 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FundingCompletedEvent>
-    fundingCompletedListenerFactory() {
+    fundingCompletedListenerFactory(DefaultErrorHandler errorHandler) {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingCompletedEvent>();
         factory.setConsumerFactory(fundingCompletedConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 
@@ -152,10 +190,11 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FundingFailedEvent>
-    fundingFailedListenerFactory() {
+    fundingFailedListenerFactory(DefaultErrorHandler errorHandler) {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingFailedEvent>();
         factory.setConsumerFactory(fundingFailedConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 
@@ -185,10 +224,11 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, FundingRefundEvent>
-    fundingRefundListenerFactory() {
+    fundingRefundListenerFactory(DefaultErrorHandler errorHandler) {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingRefundEvent>();
         factory.setConsumerFactory(fundingRefundConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 
@@ -218,10 +258,11 @@ public class KafkaConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ProjectFundingSuccessEvent>
-    projectFundingSuccessListenerFactory() {
+    projectFundingSuccessListenerFactory(DefaultErrorHandler errorHandler) {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, ProjectFundingSuccessEvent>();
         factory.setConsumerFactory(projectFundingSuccessConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 

@@ -1,7 +1,7 @@
 package com.nowayback.reward.infrastructure.repository.outbox;
 
 import com.nowayback.reward.application.outbox.repository.OutboxRepository;
-import com.nowayback.reward.domain.outbox.Outbox;
+import com.nowayback.reward.domain.outbox.entity.Outbox;
 import com.nowayback.reward.domain.outbox.vo.OutboxStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

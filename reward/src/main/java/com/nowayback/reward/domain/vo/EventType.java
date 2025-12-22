@@ -1,4 +1,4 @@
-package com.nowayback.reward.domain.outbox.vo;
+package com.nowayback.reward.domain.vo;
 
 public enum EventType {
     PROJECT_CREATED,

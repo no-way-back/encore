@@ -1,6 +1,6 @@
 package com.nowayback.reward.application.outbox.repository;
 
-import com.nowayback.reward.domain.outbox.Outbox;
+import com.nowayback.reward.domain.outbox.entity.Outbox;
 import com.nowayback.reward.domain.outbox.vo.OutboxStatus;
 
 import java.time.LocalDateTime;

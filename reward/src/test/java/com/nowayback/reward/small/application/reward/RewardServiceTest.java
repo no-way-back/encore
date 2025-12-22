@@ -11,7 +11,7 @@ import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
-import com.nowayback.reward.domain.outbox.vo.EventType;
+import com.nowayback.reward.domain.vo.EventType;
 import com.nowayback.reward.domain.reward.entity.Rewards;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

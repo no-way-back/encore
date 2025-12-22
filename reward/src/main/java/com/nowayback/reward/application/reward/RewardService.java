@@ -32,7 +32,6 @@ public class RewardService {
 
     private final RewardRepository rewardRepository;
     private final OutboxEventPublisher outboxEventPublisher;
-    private final IdempotentKeyRepository idempotentKeyRepository;
 
     private static final int MAX_REWARD_COUNT = 10;
 
@@ -43,11 +42,6 @@ public class RewardService {
             UUID creatorId,
             List<RewardCreateCommand> commandList
     ) {
-        if (idempotentKeyRepository.existsById(eventId)) {
-            log.info("이미 처리된 이벤트 - eventId: {}, projectId: {}",
-                    eventId, projectId);
-            return List.of();
-        }
 
         log.info("프로젝트 {} 리워드 생성 시작 - {}개, eventId: {}",
                 projectId, commandList.size(), eventId);
@@ -64,10 +58,6 @@ public class RewardService {
             log.info("프로젝트 {} 총 {}개 리워드 생성 완료", projectId, createdRewards.size());
 
             saveSuccessOutbox(projectId);
-
-            idempotentKeyRepository.save(
-                    IdempotentKeys.create(eventId, projectId.toString())
-            );
 
             return createdRewards;
         } catch (Exception e) {

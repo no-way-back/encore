@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "p_reward_outbox")
+@Table(name = "p_outbox")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Outbox {

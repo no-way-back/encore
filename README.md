@@ -20,49 +20,14 @@
 ---
 
 ## 👥 팀원 소개
+
 <div align="center">
 
-<div style="display:inline-block; text-align:center; margin:0 16px;">
-  <img src="https://github.com/rnignon.png" width="120" style="border-radius:50%;"><br>
-  <b>김민형 (팀장)</b><br>
-  <a href="https://github.com/rnignon">
-    <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white">
-  </a><br>
-  <sub>유저, 결제 도메인</sub>
-</div>
-
-<div style="display:inline-block; text-align:center; margin:0 16px;">
-  <img src="https://github.com/ReadAlien.png" width="120" style="border-radius:50%;"><br>
-  <b>권재원 (팀원)</b><br>
-  <a href="https://github.com/ReadAlien">
-    <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white">
-  </a>
-  <a href="https://juno0112.tistory.com/category">
-    <img src="https://img.shields.io/badge/Blog-FF5722?style=flat-square&logo=tistory&logoColor=white">
-  </a><br>
-  <sub>리워드 도메인</sub>
-</div>
-
-<div style="display:inline-block; text-align:center; margin:0 16px;">
-  <img src="https://github.com/sejunO.png" width="120" style="border-radius:50%;"><br>
-  <b>오세준 (팀원)</b><br>
-  <a href="https://github.com/sejunO">
-    <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white">
-  </a><br>
-  <sub>프로젝트 도메인</sub>
-</div>
-
-<div style="display:inline-block; text-align:center; margin:0 16px;">
-  <img src="https://github.com/Mybread2.png" width="120" style="border-radius:50%;"><br>
-  <b>차준호 (팀원)</b><br>
-  <a href="https://github.com/Mybread2">
-    <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white">
-  </a>
-  <a href="https://juno0112.tistory.com/category">
-    <img src="https://img.shields.io/badge/Blog-FF5722?style=flat-square&logo=tistory&logoColor=white">
-  </a><br>
-  <sub>펀딩 도메인</sub>
-</div>
+| <img src="https://github.com/rnignon.png" width="120"/> | <img src="https://github.com/ReadAlien.png" width="120"/> | <img src="https://github.com/sejunO.png" width="120"/> | <img src="https://github.com/Mybread2.png" width="120"/> |
+|:--:|:--:|:--:|:--:|
+| **김민형 (팀장)** | **권재원 (팀원)** | **오세준 (팀원)** | **차준호 (팀원)** |
+| 유저 · 결제 | 리워드 | 프로젝트 | 펀딩 |
+| <a href="https://github.com/rnignon"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></a> | <a href="https://github.com/ReadAlien"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></a><br><a href="https://willgetjob.tistory.com/"><img src="https://img.shields.io/badge/Blog-FF5722?style=flat-square&logo=tistory&logoColor=white"/></a> | <a href="https://github.com/sejunO"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></a> | <a href="https://github.com/Mybread2"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></a><br><a href="https://juno0112.tistory.com/category"><img src="https://img.shields.io/badge/Blog-FF5722?style=flat-square&logo=tistory&logoColor=white"/></a> |
 
 </div>
 
@@ -71,7 +36,7 @@
 
 ## 📌 프로젝트 소개
 
-## 개요
+### 개요
 
 **Encore**는 음악가와 팬을 연결하는 크라우드펀딩 플랫폼입니다.
 
@@ -79,7 +44,7 @@
 
 ---
 
-## 핵심 기능
+### 핵심 기능
 
 ### 1. All or Nothing 펀딩
 

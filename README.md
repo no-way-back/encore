@@ -262,7 +262,7 @@ public @interface DistributedLock {
 	useTransaction = false
 )
 public void retryPendingEvents() {
-	...
+	// ...
 }
 ```
 

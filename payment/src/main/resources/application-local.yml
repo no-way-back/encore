@@ -73,6 +73,32 @@ feign:
       project-service:
         url: http://localhost:18085
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      tossPayment:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 80
+        slow-call-duration-threshold: 2s
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+  retry:
+    instances:
+      tossRefundRetry:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - feign.FeignException
+        ignore-exceptions:
+          - com.nowayback.payment.domain.exception.PaymentException
+
 logging:
   level:
     com.nowayback.payment: DEBUG
@@ -82,4 +108,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,prometheus,circuitbreakers,circuitbreakerevents

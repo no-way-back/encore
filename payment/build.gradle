@@ -59,6 +59,9 @@ dependencies {
     /* MSK IAM Auth */
     implementation 'software.amazon.msk:aws-msk-iam-auth:2.0.3'
 
+    /* Circuit Breaker */
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+    implementation 'io.github.resilience4j:resilience4j-feign'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

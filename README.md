@@ -27,7 +27,7 @@
 |                                            <img src="https://github.com/rnignon.png" width="120"/>                                             |                                                                                                                       <img src="https://github.com/ReadAlien.png" width="120"/>                                                                                                                        |                                            <img src="https://github.com/sejunO.png" width="120"/>                                             |                                                                                                                          <img src="https://github.com/Mybread2.png" width="120"/>                                                                                                                           |
 |:----------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |                                                                  **김민형 (팀장)**                                                                  |                                                                                                                                              **권재원 (팀원)**                                                                                                                                              |                                                                 **오세준 (팀원)**                                                                  |                                                                                                                                                **차준호 (팀원)**                                                                                                                                                 |
-|                                                  유저/인증 도메인 <br/> 결제 도메인 <br/> Jaeger <br/> 베포                                                  |                                                                                                                        리워드 도메인 <br/> firelens & loki기반 <br/> 로그 시스템 구축 <br/> 베포                                                                                                                        |                                                                프로젝트 도메인 <br/>                                                                 |                                                                                                                            펀딩 도메인 <br/> 후원하기 API 성능개선 <br/> 스케쥴러 분산락 적용 <br/> 베포                                                                                                                            |
+|                                                유저/인증 도메인 <br/> 결제 도메인 <br/> 분산 추적 모니터링 <br/> 배포                                                |                                                                                                                        리워드 도메인 <br/> firelens & loki기반 <br/> 로그 시스템 구축 <br/> 배포                                                                                                                        |                                                               프로젝트 도메인 <br/> 배포                                                               |                                                                                                                            펀딩 도메인 <br/> 후원하기 API 성능개선 <br/> 스케쥴러 분산락 적용 <br/> 배포                                                                                                                            |
 | <a href="https://github.com/rnignon"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></a> | <a href="https://github.com/ReadAlien"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></a><br><a href="https://willgetjob.tistory.com/"><img src="https://img.shields.io/badge/Blog-FF5722?style=flat-square&logo=tistory&logoColor=white"/></a> | <a href="https://github.com/sejunO"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></a> | <a href="https://github.com/Mybread2"><img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/></a><br><a href="https://juno0112.tistory.com/category"><img src="https://img.shields.io/badge/Blog-FF5722?style=flat-square&logo=tistory&logoColor=white"/></a> |
 
 </div>
@@ -105,8 +105,11 @@
 ---
 
 ## 🏗️ 인프라 설계도
+> ### 인프라 아키텍처
 
-![CI/CD Architecture](.github/image/architecture/infra.png)
+![Infra Architecture](.github/image/architecture/infra.png)
+
+> ### CI / CD 아키텍처
 ![CI/CD Architecture](.github/image/architecture/cicd.png)
 
 ---
@@ -183,7 +186,7 @@
 
 [![모니터링 툴 선택](https://img.shields.io/badge/모니터링_툴_선택-000000?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/teamsparta/2d02dc3ef5148045a5ddde107108a784)
 
-[![보상 트랜잭션](https://img.shields.io/badge/보상_트랜잭션-4285F4?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/teamsparta/2d02dc3ef51480ce91edc2658d02bc9d)
+[![보상 트랜잭션](https://img.shields.io/badge/보상_트랜잭션_(Saga_Pattern)-4285F4?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/teamsparta/2d02dc3ef51480ce91edc2658d02bc9d)
 
 [![Kafka + MSK vs SQS](https://img.shields.io/badge/Kafka_+_MSK_vs_SQS-10B981?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/teamsparta/Kafka-MSK-vs-SQS-2d02dc3ef514803882cae1a3a8947e3a)
 
@@ -199,7 +202,7 @@
 
 > #### **문제 상황**
 - 초기 응답 시간: 3,850ms (61.6 TPS)
-- 목표: 2,000 TPS 이상 처리
+- 목표: 애플리케이션 코드 레벨에서의 성능 개선
 
 > #### **해결 과정**
 1. 비동기 결제 처리 적용 및 비관락 부분 별도 트랜잭션 분리

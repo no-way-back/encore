@@ -63,9 +63,11 @@ spring:
           starttls:
             enable: false
 
-service:
-  project:
-    url: http://localhost:8080
+feign:
+  client:
+    config:
+      project-service:
+        url: http://localhost:8080
 
 qrcode:
   bucket:

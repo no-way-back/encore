@@ -2,7 +2,7 @@ package com.nowayback.reward.infrastructure.repository.qrcode;
 
 import com.nowayback.reward.domain.qrcode.entity.QRCodes;
 import com.nowayback.reward.application.qrcode.repository.QRCodeRepository;
-import com.nowayback.reward.domain.vo.FundingId;
+import com.nowayback.reward.domain.vo.ProjectId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -31,7 +31,7 @@ public class QRCodeRepositoryImpl implements QRCodeRepository {
     }
 
     @Override
-    public List<QRCodes> findByFundingId(UUID fundingId) {
-        return jpaRepository.findByFundingId(FundingId.of(fundingId));
+    public List<QRCodes> findByProjectId(UUID fundingId) {
+        return jpaRepository.findByProjectId(ProjectId.of(fundingId));
     }
 }

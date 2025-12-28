@@ -1,13 +1,11 @@
 package com.nowayback.reward.application.reward;
 
-import com.nowayback.reward.application.idempotentkey.repository.IdempotentKeyRepository;
 import com.nowayback.reward.application.outbox.event.OutboxEventPublisher;
 import com.nowayback.reward.application.reward.command.RewardCreateCommand;
 import com.nowayback.reward.application.reward.command.UpdateRewardCommand;
 import com.nowayback.reward.application.reward.dto.RewardCreationResult;
 import com.nowayback.reward.application.reward.dto.RewardListResult;
 import com.nowayback.reward.application.reward.repository.RewardRepository;
-import com.nowayback.reward.domain.idempotentkey.IdempotentKeys;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;

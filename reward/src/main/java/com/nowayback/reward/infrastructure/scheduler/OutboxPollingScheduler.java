@@ -24,7 +24,7 @@ public class OutboxPollingScheduler {
     private static final int MAX_RETRY_COUNT = 5;
     private static final int CLEANUP_DAYS = 7;
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 3000)
     public void pollAndPublish() {
         List<Outbox> retryableEvents = outboxRepository.findRetryableEvents(MAX_RETRY_COUNT);
 

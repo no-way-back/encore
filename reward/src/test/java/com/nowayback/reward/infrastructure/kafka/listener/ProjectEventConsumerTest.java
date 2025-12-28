@@ -1,5 +1,6 @@
 package com.nowayback.reward.infrastructure.kafka.listener;
 
+import com.nowayback.reward.application.inbox.InboxProcessor;
 import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.domain.vo.EventType;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
@@ -15,11 +16,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static com.nowayback.reward.fixture.KafkaFixture.createProjectCreatedEvent;
 import static com.nowayback.reward.fixture.KafkaFixture.createProjectCreatedPayload;
 import static com.nowayback.reward.domain.vo.EventType.PROJECT_CREATED;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -28,6 +31,9 @@ class ProjectEventConsumerTest {
 
     @Mock
     private RewardService rewardService;
+
+    @Mock
+    private InboxProcessor inboxProcessor;
 
     @Mock
     private Acknowledgment acknowledgment;
@@ -58,13 +64,34 @@ class ProjectEventConsumerTest {
         @Test
         @DisplayName("PROJECT_CREATED 이벤트 수신 및 처리 성공")
         void consumeProjectCreatedEvent_success() {
+            // given
+            doAnswer(invocation -> {
+                Consumer<Object> handler = invocation.getArgument(4);
+                handler.accept(invocation.getArgument(3));
+                return null;
+            }).when(inboxProcessor).processEvent(
+                    any(UUID.class),
+                    any(EventType.class),
+                    any(UUID.class),
+                    any(),
+                    any(Consumer.class)
+            );
+
             // when
             assertThatCode(() -> projectEventConsumer.consumeProjectEvent(validEvent, acknowledgment))
                     .doesNotThrowAnyException();
 
             // then
+            verify(inboxProcessor, times(1)).processEvent(
+                    eq(eventId),
+                    eq(PROJECT_CREATED),
+                    eq(projectId),
+                    any(ProjectCreatedPayload.class),
+                    any(Consumer.class)
+            );
+
             verify(rewardService, times(1)).createRewardsForProject(
-                    eq(eventId),          // UUID로 변경
+                    eq(eventId),
                     eq(projectId),
                     eq(creatorId),
                     anyList()
@@ -91,14 +118,27 @@ class ProjectEventConsumerTest {
                     .doesNotThrowAnyException();
 
             // then
+            verifyNoInteractions(inboxProcessor);
             verifyNoInteractions(rewardService);
             verify(acknowledgment, times(1)).acknowledge();
         }
 
         @Test
-        @DisplayName("EventHandler 처리 중 예외 발생 시 Acknowledge 처리")
+        @DisplayName("EventHandler 처리 중 예외 발생 시 예외 전파")
         void consumeProjectEvent_handlerThrowsException() {
             // given
+            doAnswer(invocation -> {
+                Consumer<Object> handler = invocation.getArgument(4);
+                handler.accept(invocation.getArgument(3));
+                return null;
+            }).when(inboxProcessor).processEvent(
+                    any(UUID.class),
+                    any(EventType.class),
+                    any(UUID.class),
+                    any(),
+                    any(Consumer.class)
+            );
+
             doThrow(new RuntimeException("DB 저장 실패"))
                     .when(rewardService).createRewardsForProject(
                             any(UUID.class),
@@ -107,11 +147,20 @@ class ProjectEventConsumerTest {
                             anyList()
                     );
 
-            // when
-            assertThatCode(() -> projectEventConsumer.consumeProjectEvent(validEvent, acknowledgment))
-                    .doesNotThrowAnyException();
+            // when & then
+            assertThatThrownBy(() -> projectEventConsumer.consumeProjectEvent(validEvent, acknowledgment))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("DB 저장 실패");
 
             // then
+            verify(inboxProcessor, times(1)).processEvent(
+                    any(UUID.class),
+                    any(EventType.class),
+                    any(UUID.class),
+                    any(),
+                    any(Consumer.class)
+            );
+
             verify(rewardService, times(1)).createRewardsForProject(
                     any(UUID.class),
                     eq(projectId),
@@ -119,7 +168,7 @@ class ProjectEventConsumerTest {
                     anyList()
             );
 
-            verify(acknowledgment, times(1)).acknowledge();
+            verify(acknowledgment, never()).acknowledge();
         }
     }
 }

@@ -133,12 +133,7 @@ public class KafkaConfig {
     // ========== FundingCompletedEvent 전용 설정 ==========
 
     @Bean
-    public ConsumerFactory<String, FundingCompletedEvent> fundingCompletedConsumerFactory() {
-        JsonDeserializer<FundingCompletedEvent> valueDeserializer =
-                new JsonDeserializer<>(FundingCompletedEvent.class);
-        valueDeserializer.addTrustedPackages("*");
-        valueDeserializer.setUseTypeMapperForKey(false);
-
+    public ConsumerFactory<String, String> fundingCompletedConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -150,14 +145,14 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(
                 props,
                 new StringDeserializer(),
-                valueDeserializer
+                new StringDeserializer()
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, FundingCompletedEvent>
+    public ConcurrentKafkaListenerContainerFactory<String, String>
     fundingCompletedListenerFactory(DefaultErrorHandler errorHandler) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingCompletedEvent>();
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
         factory.setConsumerFactory(fundingCompletedConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setCommonErrorHandler(errorHandler);
@@ -167,12 +162,7 @@ public class KafkaConfig {
     // ========== FundingFailedEvent 전용 설정 ==========
 
     @Bean
-    public ConsumerFactory<String, FundingFailedEvent> fundingFailedConsumerFactory() {
-        JsonDeserializer<FundingFailedEvent> valueDeserializer =
-                new JsonDeserializer<>(FundingFailedEvent.class);
-        valueDeserializer.addTrustedPackages("*");
-        valueDeserializer.setUseTypeMapperForKey(false);
-
+    public ConsumerFactory<String, String> fundingFailedConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -184,14 +174,14 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(
                 props,
                 new StringDeserializer(),
-                valueDeserializer
+                new StringDeserializer()
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, FundingFailedEvent>
+    public ConcurrentKafkaListenerContainerFactory<String, String>
     fundingFailedListenerFactory(DefaultErrorHandler errorHandler) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingFailedEvent>();
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
         factory.setConsumerFactory(fundingFailedConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setCommonErrorHandler(errorHandler);
@@ -201,12 +191,7 @@ public class KafkaConfig {
     // ========== FundingRefundEvent 전용 설정 ==========
 
     @Bean
-    public ConsumerFactory<String, FundingRefundEvent> fundingRefundConsumerFactory() {
-        JsonDeserializer<FundingRefundEvent> valueDeserializer =
-                new JsonDeserializer<>(FundingRefundEvent.class);
-        valueDeserializer.addTrustedPackages("*");
-        valueDeserializer.setUseTypeMapperForKey(false);
-
+    public ConsumerFactory<String, String> fundingRefundConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -218,14 +203,14 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(
                 props,
                 new StringDeserializer(),
-                valueDeserializer
+                new StringDeserializer()
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, FundingRefundEvent>
+    public ConcurrentKafkaListenerContainerFactory<String, String>
     fundingRefundListenerFactory(DefaultErrorHandler errorHandler) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, FundingRefundEvent>();
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
         factory.setConsumerFactory(fundingRefundConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setCommonErrorHandler(errorHandler);

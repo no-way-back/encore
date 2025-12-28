@@ -55,7 +55,7 @@ class RewardServiceStockReserveTest {
                 Rewards reward = createRewardWithoutOption(100);
                 StockReserveCommand command = createCommandWithoutOption(fundingId, reward.getId(), 2);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
                 when(stockReservationRepository.save(any(StockReservation.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -72,7 +72,7 @@ class RewardServiceStockReserveTest {
                 assertThat(reward.getStock().getQuantity()).isEqualTo(98);
                 assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
             }
 
@@ -84,7 +84,7 @@ class RewardServiceStockReserveTest {
                 Rewards reward = createRewardWithoutOption(5);
                 StockReserveCommand command = createCommandWithoutOption(fundingId, reward.getId(), 5);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
                 when(stockReservationRepository.save(any(StockReservation.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -96,7 +96,7 @@ class RewardServiceStockReserveTest {
                 assertThat(reward.getStock().getQuantity()).isEqualTo(0);
                 assertThat(reward.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
             }
 
@@ -109,7 +109,7 @@ class RewardServiceStockReserveTest {
                 RewardOptions option = reward.getOptionList().get(0);
                 StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), option.getId(), 2);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
                 when(stockReservationRepository.save(any(StockReservation.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -127,7 +127,7 @@ class RewardServiceStockReserveTest {
                 assertThat(option.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
                 assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
             }
 
@@ -140,7 +140,7 @@ class RewardServiceStockReserveTest {
                 RewardOptions option = reward.getOptionList().get(2);
                 StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), option.getId(), 20);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
                 when(stockReservationRepository.save(any(StockReservation.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -152,7 +152,7 @@ class RewardServiceStockReserveTest {
                 assertThat(option.getStatus()).isEqualTo(SaleStatus.SOLD_OUT);
                 assertThat(reward.getStatus()).isEqualTo(SaleStatus.AVAILABLE);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
             }
 
@@ -167,7 +167,7 @@ class RewardServiceStockReserveTest {
                 RewardOptions option2 = reward.getOptionList().get(1);
                 RewardOptions option3 = reward.getOptionList().get(2);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
                 when(stockReservationRepository.save(any(StockReservation.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -203,7 +203,7 @@ class RewardServiceStockReserveTest {
                 RewardOptions option = reward.getOptionList().get(2);
                 StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), option.getId(), 3);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
                 when(stockReservationRepository.save(any(StockReservation.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -218,7 +218,7 @@ class RewardServiceStockReserveTest {
                 assertThat(result.totalAmount()).isEqualTo(162000);
                 assertThat(option.getStock().getQuantity()).isEqualTo(17);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, times(1)).save(any(StockReservation.class));
             }
 
@@ -237,8 +237,8 @@ class RewardServiceStockReserveTest {
                         reward2.getId(), option.getId(), 2
                 );
 
-                when(rewardRepository.findById(reward1.getId())).thenReturn(Optional.of(reward1));
-                when(rewardRepository.findById(reward2.getId())).thenReturn(Optional.of(reward2));
+                when(rewardRepository.findByIdWithLock(reward1.getId())).thenReturn(Optional.of(reward1));
+                when(rewardRepository.findByIdWithLock(reward2.getId())).thenReturn(Optional.of(reward2));
                 when(stockReservationRepository.save(any(StockReservation.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -252,7 +252,7 @@ class RewardServiceStockReserveTest {
                 assertThat(result.reservedItems().get(0).itemAmount()).isEqualTo(30000);
                 assertThat(result.reservedItems().get(1).itemAmount()).isEqualTo(104000);
 
-                verify(rewardRepository, times(2)).findById(any(UUID.class));
+                verify(rewardRepository, times(2)).findByIdWithLock(any(UUID.class));
                 verify(stockReservationRepository, times(2)).save(any(StockReservation.class));
             }
         }
@@ -269,7 +269,7 @@ class RewardServiceStockReserveTest {
                 UUID rewardId = UUID.randomUUID();
                 StockReserveCommand command = createCommandWithoutOption(fundingId, rewardId, 1);
 
-                when(rewardRepository.findById(rewardId)).thenReturn(Optional.empty());
+                when(rewardRepository.findByIdWithLock(rewardId)).thenReturn(Optional.empty());
 
                 // when & then
                 assertThatThrownBy(() -> rewardStockService.reserveStock(command))
@@ -277,7 +277,7 @@ class RewardServiceStockReserveTest {
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.REWARD_NOT_FOUND);
 
-                verify(rewardRepository, times(1)).findById(rewardId);
+                verify(rewardRepository, times(1)).findByIdWithLock(rewardId);
                 verify(stockReservationRepository, never()).save(any());
             }
 
@@ -290,7 +290,7 @@ class RewardServiceStockReserveTest {
                 UUID invalidOptionId = UUID.randomUUID();
                 StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), invalidOptionId, 1);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
 
                 // when & then
                 assertThatThrownBy(() -> rewardStockService.reserveStock(command))
@@ -298,7 +298,7 @@ class RewardServiceStockReserveTest {
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.OPTION_NOT_FOUND);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, never()).save(any());
             }
 
@@ -310,7 +310,7 @@ class RewardServiceStockReserveTest {
                 Rewards reward = createRewardWithRequiredOption();
                 StockReserveCommand command = createCommandWithoutOption(fundingId, reward.getId(), 1);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
 
                 // when & then
                 assertThatThrownBy(() -> rewardStockService.reserveStock(command))
@@ -318,7 +318,7 @@ class RewardServiceStockReserveTest {
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.REQUIRED_OPTION_NOT_SELECTED);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, never()).save(any());
             }
 
@@ -330,7 +330,7 @@ class RewardServiceStockReserveTest {
                 Rewards reward = createRewardWithoutOption(10);
                 StockReserveCommand command = createCommandWithoutOption(fundingId, reward.getId(), 20);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
 
                 // when & then
                 assertThatThrownBy(() -> rewardStockService.reserveStock(command))
@@ -338,7 +338,7 @@ class RewardServiceStockReserveTest {
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.INSUFFICIENT_STOCK);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, never()).save(any());
             }
 
@@ -351,7 +351,7 @@ class RewardServiceStockReserveTest {
                 RewardOptions option = reward.getOptionList().get(2);
                 StockReserveCommand command = createCommandWithOption(fundingId, reward.getId(), option.getId(), 30);
 
-                when(rewardRepository.findById(reward.getId())).thenReturn(Optional.of(reward));
+                when(rewardRepository.findByIdWithLock(reward.getId())).thenReturn(Optional.of(reward));
 
                 // when & then
                 assertThatThrownBy(() -> rewardStockService.reserveStock(command))
@@ -359,7 +359,7 @@ class RewardServiceStockReserveTest {
                         .extracting("errorCode")
                         .isEqualTo(RewardErrorCode.INSUFFICIENT_STOCK);
 
-                verify(rewardRepository, times(1)).findById(reward.getId());
+                verify(rewardRepository, times(1)).findByIdWithLock(reward.getId());
                 verify(stockReservationRepository, never()).save(any());
             }
         }

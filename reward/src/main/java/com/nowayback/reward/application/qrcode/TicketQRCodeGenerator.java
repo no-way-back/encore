@@ -29,6 +29,7 @@ public class TicketQRCodeGenerator {
                             qrCodeCreator.createCode(
                                     pr.rewardId(),
                                     command.fundingId(),
+                                    command.projectId(),
                                     command.email(),
                                     projectTitle
                             )

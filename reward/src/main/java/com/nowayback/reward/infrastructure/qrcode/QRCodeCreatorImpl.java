@@ -18,7 +18,7 @@ public class QRCodeCreatorImpl implements QRCodeCreator {
     private final QRCodeImageStorage imageStorage;
 
     @Override
-    public QRCodes createCode(UUID rewardId, UUID fundingId, String email, String title) {
+    public QRCodes createCode(UUID rewardId, UUID fundingId, UUID projectId, String email, String title) {
         UUID id = UUID.randomUUID();
 
         byte[] image = qrCodeGenerator.generateQRCodeImage(id);
@@ -26,6 +26,6 @@ public class QRCodeCreatorImpl implements QRCodeCreator {
 
         log.debug("QR 코드 생성 완료 - ID: {}", id);
 
-        return QRCodes.createWithId(id, rewardId, fundingId, email, title, imageUrl);
+        return QRCodes.createWithId(id, rewardId, fundingId, projectId, email, title, imageUrl);
     }
 }

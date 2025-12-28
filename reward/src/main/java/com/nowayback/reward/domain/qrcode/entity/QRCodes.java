@@ -3,6 +3,7 @@ package com.nowayback.reward.domain.qrcode.entity;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.qrcode.vo.QrCodeStatus;
 import com.nowayback.reward.domain.vo.FundingId;
+import com.nowayback.reward.domain.vo.ProjectId;
 import com.nowayback.reward.domain.vo.RewardId;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,6 +34,9 @@ public class QRCodes {
     private FundingId fundingId;
 
     @Column(nullable = false)
+    private ProjectId projectId;
+
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -49,21 +53,23 @@ public class QRCodes {
 
     @Builder
     private QRCodes(UUID id, RewardId rewardId, FundingId fundingId,
-                    String email, String title, String qrCodeImageUrl) {
+                    ProjectId projectId, String email, String title, String qrCodeImageUrl) {
         this.id = id;
         this.rewardId = rewardId;
         this.fundingId = fundingId;
+        this.projectId = projectId;
         this.email = email;
         this.title = title;
         this.qrCodeImageUrl = qrCodeImageUrl;
     }
 
     public static QRCodes createWithId(UUID id, UUID rewardId, UUID fundingId,
-                                        String email, String title, String qrCodeImageUrl) {
+                                        UUID projectId, String email, String title, String qrCodeImageUrl) {
         return QRCodes.builder()
                 .id(id)
                 .rewardId(RewardId.of(rewardId))
                 .fundingId(FundingId.of(fundingId))
+                .projectId(ProjectId.of(projectId))
                 .email(email)
                 .title(title)
                 .qrCodeImageUrl(qrCodeImageUrl)

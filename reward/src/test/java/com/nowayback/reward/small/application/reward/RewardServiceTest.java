@@ -1,6 +1,5 @@
 package com.nowayback.reward.small.application.reward;
 
-import com.nowayback.reward.application.idempotentkey.repository.IdempotentKeyRepository;
 import com.nowayback.reward.application.outbox.event.OutboxEventPublisher;
 import com.nowayback.reward.application.reward.RewardService;
 import com.nowayback.reward.application.reward.command.RewardCreateCommand;
@@ -11,8 +10,8 @@ import com.nowayback.reward.domain.exception.RewardErrorCode;
 import com.nowayback.reward.domain.exception.RewardException;
 import com.nowayback.reward.domain.outbox.vo.AggregateType;
 import com.nowayback.reward.domain.outbox.vo.EventDestination;
-import com.nowayback.reward.domain.vo.EventType;
 import com.nowayback.reward.domain.reward.entity.Rewards;
+import com.nowayback.reward.domain.vo.EventType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,9 +39,6 @@ class RewardServiceTest {
     @Mock
     private OutboxEventPublisher outboxEventPublisher;
 
-    @Mock
-    private IdempotentKeyRepository idempotentKeyRepository;
-
     @InjectMocks
     private RewardService rewardService;
 
@@ -63,7 +59,6 @@ class RewardServiceTest {
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(createRequest());
 
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(false);
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -92,7 +87,6 @@ class RewardServiceTest {
                         createRequest("응원봉", 15000L, 150)
                 );
 
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(false);
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -118,7 +112,6 @@ class RewardServiceTest {
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(createRequestWithOptions());
 
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(false);
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -142,7 +135,6 @@ class RewardServiceTest {
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = createRequests(10);
 
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(false);
                 when(rewardRepository.save(any(Rewards.class)))
                         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -154,28 +146,6 @@ class RewardServiceTest {
                 // then
                 assertThat(result).hasSize(10);
                 verify(rewardRepository, times(10)).save(any(Rewards.class));
-            }
-
-            @Test
-            @DisplayName("이미 처리된 이벤트는 중복 처리하지 않음")
-            void duplicateEventIgnored() {
-                // given
-                UUID eventId = UUID.randomUUID();
-                UUID projectId = UUID.randomUUID();
-                UUID creatorId = UUID.randomUUID();
-                List<RewardCreateCommand> requests = List.of(createRequest());
-
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(true);
-
-                // when
-                List<Rewards> result = rewardService.createRewardsForProject(
-                        eventId, projectId, creatorId, requests
-                );
-
-                // then
-                assertThat(result).isEmpty();
-                verifyNoInteractions(rewardRepository);
-                verifyNoInteractions(outboxEventPublisher);
             }
         }
 
@@ -191,8 +161,6 @@ class RewardServiceTest {
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = createRequests(11);
-
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(false);
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(
@@ -221,8 +189,6 @@ class RewardServiceTest {
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = createRequests(15);
 
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(false);
-
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(
                         eventId, projectId, creatorId, requests
@@ -240,8 +206,6 @@ class RewardServiceTest {
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(createRequest("리워드", 500L, 100));
-
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(false);
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(
@@ -262,8 +226,6 @@ class RewardServiceTest {
                 UUID projectId = UUID.randomUUID();
                 UUID creatorId = UUID.randomUUID();
                 List<RewardCreateCommand> requests = List.of(createRequest("리워드", 25000L, 0));
-
-                when(idempotentKeyRepository.existsById(eventId)).thenReturn(false);
 
                 // when & then
                 assertThatThrownBy(() -> rewardService.createRewardsForProject(

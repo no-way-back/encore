@@ -1,5 +1,6 @@
 package com.nowayback.reward.infrastructure.kafka.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.reward.application.inbox.InboxProcessor;
 import com.nowayback.reward.application.qrcode.QRCodeService;
 import com.nowayback.reward.application.reward.RewardStockService;
@@ -25,6 +26,7 @@ public class FundingEventListener {
     private final RewardStockService rewardStockService;
     private final QRCodeService qrCodeService;
     private final InboxProcessor inboxProcessor;
+    private final ObjectMapper objectMapper;
 
     /**
      * 펀딩 결제 실패 이벤트 처리
@@ -36,20 +38,23 @@ public class FundingEventListener {
             containerFactory = "fundingFailedListenerFactory"
     )
     public void consumeFundingFailedEvent(
-            @Payload FundingFailedEvent event,
+            @Payload String message,
             Acknowledgment acknowledgment
     ) {
-        log.info("결제 실패 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
-                event.eventId(),
-                event.eventType(),
-                event.payload().fundingId()
-        );
-
-        if (validateEventType(FUNDING_FAILED, event.eventType(), acknowledgment)) {
-            return;
-        }
-
         try {
+            String json = objectMapper.readValue(message, String.class);
+            FundingFailedEvent event = objectMapper.readValue(json, FundingFailedEvent.class);
+
+            log.info("결제 실패 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
+                    event.eventId(),
+                    event.eventType(),
+                    event.payload().fundingId()
+            );
+
+            if (validateEventType(FUNDING_FAILED, event.eventType(), acknowledgment)) {
+                return;
+            }
+
             inboxProcessor.processEvent(
                     event.eventId(),
                     event.eventType(),
@@ -63,9 +68,8 @@ public class FundingEventListener {
             log.info("결제 실패 재고 복원 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("결제 실패 이벤트 처리 실패 - 펀딩: {}, 에러 핸들러가 재시도 처리",
-                    event.payload().fundingId(), e);
-            throw e;
+            log.error("결제 실패 이벤트 처리 실패 - 에러 핸들러가 재시도 처리", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -79,20 +83,23 @@ public class FundingEventListener {
             containerFactory = "fundingRefundListenerFactory"
     )
     public void consumeFundingRefundEvent(
-            @Payload FundingRefundEvent event,
+            @Payload String message,
             Acknowledgment acknowledgment
     ) {
-        log.info("펀딩 환불 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
-                event.eventId(),
-                event.eventType(),
-                event.payload().fundingId()
-        );
-
-        if (validateEventType(FUNDING_REFUND, event.eventType(), acknowledgment)) {
-            return;
-        }
-
         try {
+            String json = objectMapper.readValue(message, String.class);
+            FundingRefundEvent event = objectMapper.readValue(json, FundingRefundEvent.class);
+
+            log.info("펀딩 환불 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
+                    event.eventId(),
+                    event.eventType(),
+                    event.payload().fundingId()
+            );
+
+            if (validateEventType(FUNDING_REFUND, event.eventType(), acknowledgment)) {
+                return;
+            }
+
             inboxProcessor.processEvent(
                     event.eventId(),
                     event.eventType(),
@@ -106,9 +113,8 @@ public class FundingEventListener {
             log.info("펀딩 환불 재고 복원 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("펀딩 환불 이벤트 처리 실패 - 펀딩: {}, 에러 핸들러가 재시도 처리",
-                    event.payload().fundingId(), e);
-            throw e;
+            log.error("펀딩 환불 이벤트 처리 실패 - 에러 핸들러가 재시도 처리", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -122,20 +128,23 @@ public class FundingEventListener {
             containerFactory = "fundingCompletedListenerFactory"
     )
     public void consumeFundingCompletedEvent(
-            @Payload FundingCompletedEvent event,
+            @Payload String message,
             Acknowledgment acknowledgment
     ) {
-        log.info("펀딩 완료 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
-                event.eventId(),
-                event.eventType(),
-                event.payload().fundingId()
-        );
-
-        if (validateEventType(FUNDING_COMPLETED, event.eventType(), acknowledgment)) {
-            return;
-        }
-
         try {
+            String json = objectMapper.readValue(message, String.class);
+            FundingCompletedEvent event = objectMapper.readValue(json, FundingCompletedEvent.class);
+
+            log.info("펀딩 완료 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
+                    event.eventId(),
+                    event.eventType(),
+                    event.payload().fundingId()
+            );
+
+            if (validateEventType(FUNDING_COMPLETED, event.eventType(), acknowledgment)) {
+                return;
+            }
+
             inboxProcessor.processEvent(
                     event.eventId(),
                     event.eventType(),
@@ -149,9 +158,8 @@ public class FundingEventListener {
             log.info("QR 코드 생성 완료 - 펀딩: {}", event.payload().fundingId());
 
         } catch (Exception e) {
-            log.error("펀딩 완료 이벤트 처리 실패 - 펀딩: {}, 에러 핸들러가 재시도 처리",
-                    event.payload().fundingId(), e);
-            throw e;
+            log.error("펀딩 완료 이벤트 처리 실패 - 에러 핸들러가 재시도 처리", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -165,36 +173,38 @@ public class FundingEventListener {
             containerFactory = "projectFundingSuccessListenerFactory"
     )
     public void consumeProjectFundingSuccessEvent(
-            @Payload ProjectFundingSuccessEvent event,
+            @Payload String message,
             Acknowledgment acknowledgment
     ) {
-        log.info("프로젝트 펀딩 성공 이벤트 수신 - ID: {}, 타입: {}, 펀딩: {}",
-                event.eventId(),
-                event.eventType(),
-                event.payload().fundingId()
-        );
-
-        if (validateEventType(PROJECT_FUNDING_SUCCESS, event.eventType(), acknowledgment)) {
-            return;
-        }
-
         try {
+            String json = objectMapper.readValue(message, String.class);
+            ProjectFundingSuccessEvent event = objectMapper.readValue(json, ProjectFundingSuccessEvent.class);
+
+            log.info("프로젝트 펀딩 성공 이벤트 수신 - ID: {}, 타입: {}, 프로젝트: {}",
+                    event.eventId(),
+                    event.eventType(),
+                    event.payload().projectId()
+            );
+
+            if (validateEventType(PROJECT_FUNDING_SUCCESS, event.eventType(), acknowledgment)) {
+                return;
+            }
+
             inboxProcessor.processEvent(
                     event.eventId(),
                     event.eventType(),
-                    event.payload().fundingId(),
+                    event.payload().projectId(),
                     event.payload(),
-                    payload -> qrCodeService.sendQRCodesByFunding(payload.fundingId())
+                    payload -> qrCodeService.sendQRCodesByProject(payload.projectId())
             );
 
             acknowledgment.acknowledge();
 
-            log.info("QR 코드 이메일 발송 완료 - 펀딩: {}", event.payload().fundingId());
+            log.info("QR 코드 이메일 발송 완료 - 프로젝트: {}", event.payload().projectId());
 
         } catch (Exception e) {
-            log.error("프로젝트 펀딩 성공 이벤트 처리 실패 - 펀딩: {}, 에러 핸들러가 재시도 처리",
-                    event.payload().fundingId(), e);
-            throw e;
+            log.error("프로젝트 펀딩 성공 이벤트 처리 실패 - 에러 핸들러가 재시도 처리", e);
+            throw new RuntimeException(e);
         }
     }
 

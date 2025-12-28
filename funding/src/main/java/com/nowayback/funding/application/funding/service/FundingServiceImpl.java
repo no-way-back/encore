@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.nowayback.funding.application.funding.dto.event.FundingRefundEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -135,7 +136,6 @@ public class FundingServiceImpl implements FundingService {
 	}
 
 	private void publishPaymentProcessEvent(Funding funding, CreateFundingCommand command) {
-
 		outboxService.publishSuccessEvent(
 			"FUNDING",
 			funding.getId(),
@@ -194,17 +194,11 @@ public class FundingServiceImpl implements FundingService {
 			return;
 		}
 
-		outboxService.publishSuccessEvent(
-			"FUNDING",
-			funding.getId(),
-			FUNDING_REFUND,
-			Map.of(
-				"fundingId", funding.getId(),
-				"projectId", funding.getProjectId(),
-				"userId", funding.getUserId(),
-				"reservationId", funding.getReservationIds()
-			)
+		outboxService.publishFundingRefundEvent(
+				FundingRefundEvent.from(funding.getId())
 		);
+
+		log.info("펀딩 환불 이벤트 발행 완료 - fundingId: {}", funding.getId());
 	}
 
 	@Override

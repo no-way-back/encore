@@ -1,15 +1,14 @@
 package com.nowayback.funding.infrastructure.messaging.kafka;
 
-import static com.nowayback.funding.domain.event.FundingProducerTopics.*;
 import static com.nowayback.funding.infrastructure.config.KafkaConsumerTopics.*;
-
-import java.util.Map;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nowayback.funding.application.funding.dto.event.FundingCompletedEvent;
+import com.nowayback.funding.application.funding.dto.event.FundingFailedEvent;
 import com.nowayback.funding.application.funding.service.FundingService;
 import com.nowayback.funding.application.outbox.service.OutboxService;
 import com.nowayback.funding.domain.funding.entity.Funding;
@@ -18,6 +17,8 @@ import com.nowayback.funding.infrastructure.messaging.kafka.dto.PaymentSuccessEv
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -43,7 +44,7 @@ public class PaymentEventConsumer {
             Funding funding = fundingService.completeFunding(event.fundingId(), event.paymentId());
 
             if (funding.hasReservation()) {
-                publishFundingCompletedEvent(event, funding);
+                publishFundingCompletedEvent(funding);
             }
 
             log.info("결제 성공 처리 완료 - fundingId: {}, paymentId: {}, hasReservation: {}",
@@ -74,11 +75,10 @@ public class PaymentEventConsumer {
             Funding funding = fundingService.failFunding(event.fundingId());
 
             if (funding.hasReservation()) {
-                publishFundingFailedEvent(event, funding);
-                log.info("재고 복구 이벤트 발행 - fundingId: {}, reservationIds: {}",
-                        event.fundingId(), funding.getReservationIds());
+                publishFundingFailedEvent(funding.getId());
+                log.info("재고 복구 이벤트 발행 - fundingId: {}", funding.getId());
             } else {
-                log.info("순수 후원 - 재고 복구 불필요 - fundingId: {}", event.fundingId());
+                log.info("순수 후원 - 재고 복구 불필요 - fundingId: {}", funding.getId());
             }
 
         } catch (Exception e) {
@@ -94,40 +94,22 @@ public class PaymentEventConsumer {
     /**
      * 펀딩 완료 이벤트 발행 (Reward 서비스로 QR 생성 요청)
      */
-    private void publishFundingCompletedEvent(PaymentSuccessEvent event, Funding funding) {
-        outboxService.publishSuccessEvent(
-                "FUNDING",
-                funding.getId(),
-                FUNDING_COMPLETED,
-                Map.of(
-                        "fundingId", funding.getId(),
-                        "userId", funding.getUserId(),
-                        "projectId", funding.getProjectId(),
-                        "reservationId", funding.getReservationIds(),
-                        "amount", funding.getAmount()
-                )
+    private void publishFundingCompletedEvent(Funding funding) {
+        outboxService.publishFundingCompletedEvent(
+                FundingCompletedEvent.from(funding)
         );
 
-        log.info("펀딩 완료 이벤트 발행 완료 - fundingId: {}", event.fundingId());
+        log.info("펀딩 완료 이벤트 발행 완료 - fundingId: {}", funding.getId());
     }
 
     /**
      * 펀딩 실패 이벤트 발행 (Reward 재고 복구)
      */
-    private void publishFundingFailedEvent(PaymentFailureEvent event, Funding funding) {
-        outboxService.publishCompensationEvent(
-                "FUNDING",
-                event.fundingId(),
-                FUNDING_FAILED,
-                Map.of(
-                        "fundingId", event.fundingId(),
-                        "projectId", funding.getProjectId(),
-                        "userId", funding.getUserId(),
-                        "reservationIds", funding.getReservationIds()
-                )
+    private void publishFundingFailedEvent(UUID fundingId) {
+        outboxService.publishFundingFailedEvent(
+                FundingFailedEvent.from(fundingId)
         );
 
-        log.info("펀딩 실패 보상 이벤트 발행 완료 - fundingId: {}, reservationIds: {}",
-                event.fundingId(), funding.getReservationIds());
+        log.info("펀딩 실패 보상 이벤트 발행 완료 - fundingId: {}", fundingId);
     }
 }

@@ -1,0 +1,49 @@
+package com.nowayback.funding.application.fundingProjectStatistics.dto.event;
+
+import com.nowayback.funding.application.fundingProjectStatistics.dto.event.payload.ProjectFundingSuccessPayload;
+import com.nowayback.funding.domain.event.EventType;
+import com.nowayback.funding.domain.event.OutboxEventMetadata;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record ProjectFundingSuccessEvent(
+        UUID eventId,
+        EventType eventType,
+        LocalDateTime timestamp,
+        ProjectFundingSuccessPayload payload
+) implements OutboxEventMetadata {
+
+    @Override
+    public String getAggregateType() {
+        return "FUNDING_PROJECT";
+    }
+
+    @Override
+    public UUID getAggregateId() {
+        return payload.projectId();
+    }
+
+    @Override
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    @Override
+    public Object getPayload() {
+        return payload;
+    }
+
+    public static ProjectFundingSuccessEvent of(
+            UUID projectId,
+            Long finalAmount,
+            Long participantCount
+    ) {
+        return new ProjectFundingSuccessEvent(
+                UUID.randomUUID(),
+                EventType.PROJECT_FUNDING_SUCCESS,
+                LocalDateTime.now(),
+                new ProjectFundingSuccessPayload(projectId, finalAmount, participantCount)
+        );
+    }
+}

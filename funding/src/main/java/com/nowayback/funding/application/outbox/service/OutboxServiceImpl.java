@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.nowayback.funding.application.funding.dto.event.FundingCompletedEvent;
+import com.nowayback.funding.application.funding.dto.event.FundingFailedEvent;
+import com.nowayback.funding.application.funding.dto.event.FundingRefundEvent;
+import com.nowayback.funding.domain.event.EventType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -79,7 +83,7 @@ public class OutboxServiceImpl implements OutboxService {
 	public void publishSuccessEvent(
 		String aggregateType,
 		UUID aggregateId,
-		String eventType,
+		EventType eventType,
 		Map<String, Object> payload
 	) {
 		Outbox event = Outbox.createOutbox(
@@ -101,7 +105,7 @@ public class OutboxServiceImpl implements OutboxService {
 	public void publishCompensationEvent(
 		String aggregateType,
 		UUID aggregateId,
-		String eventType,
+		EventType eventType,
 		Map<String, Object> payload
 	) {
 		Outbox event = Outbox.createOutbox(
@@ -116,6 +120,57 @@ public class OutboxServiceImpl implements OutboxService {
 
 		log.info("보상 트랜잭션 이벤트 발행 - aggregateType: {}, aggregateId: {}, eventType: {}",
 			aggregateType, aggregateId, eventType);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void publishFundingCompletedEvent(FundingCompletedEvent event) {
+		Outbox outbox = Outbox.createOutbox(
+				"FUNDING",
+				event.payload().fundingId(),
+				event.eventType(),
+				event
+		);
+
+		Outbox savedOutbox = outboxRepository.save(outbox);
+		eventPublisher.publishEvent(new OutboxEventCreated(savedOutbox.getId()));
+
+		log.info("펀딩 완료 이벤트 발행 - fundingId: {}, eventType: {}",
+				event.payload().fundingId(), event.eventType());
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void publishFundingFailedEvent(FundingFailedEvent event) {
+		Outbox outbox = Outbox.createOutbox(
+				"FUNDING",
+				event.payload().fundingId(),
+				event.eventType(),
+				event
+		);
+
+		Outbox savedOutbox = outboxRepository.save(outbox);
+		eventPublisher.publishEvent(new OutboxEventCreated(savedOutbox.getId()));
+
+		log.info("펀딩 실패 보상 이벤트 발행 - fundingId: {}, eventType: {}",
+				event.payload().fundingId(), event.eventType());
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void publishFundingRefundEvent(FundingRefundEvent event) {
+		Outbox outbox = Outbox.createOutbox(
+				"FUNDING",
+				event.payload().fundingId(),
+				event.eventType(),
+				event
+		);
+
+		Outbox savedOutbox = outboxRepository.save(outbox);
+		eventPublisher.publishEvent(new OutboxEventCreated(savedOutbox.getId()));
+
+		log.info("펀딩 환불 이벤트 발행 - fundingId: {}, eventType: {}",
+				event.payload().fundingId(), event.eventType());
 	}
 
 	@Override

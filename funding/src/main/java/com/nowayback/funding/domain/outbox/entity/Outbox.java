@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.nowayback.funding.domain.event.EventType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,8 +38,9 @@ public class Outbox {
 	@Column(name = "aggregate_id", nullable = false)
 	private UUID aggregateId;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "event_type", nullable = false, length = 100)
-	private String eventType;
+	private EventType eventType;
 
 	@Column(name = "payload", nullable = false, columnDefinition = "TEXT")
 	private String payload;
@@ -55,12 +59,12 @@ public class Outbox {
 	private LocalDateTime publishedAt;
 
 	private Outbox(String aggregateType,
-		UUID aggregateId,
-		String eventType,
-		String payload,
-		OutboxStatus status,
-		Integer retryCount,
-		LocalDateTime createdAt) {
+				   UUID aggregateId,
+				   EventType eventType,
+				   String payload,
+				   OutboxStatus status,
+				   Integer retryCount,
+				   LocalDateTime createdAt) {
 		this.aggregateType = aggregateType;
 		this.aggregateId = aggregateId;
 		this.eventType = eventType;
@@ -71,17 +75,17 @@ public class Outbox {
 	}
 
 	public static Outbox createOutbox(String aggregateType,
-		UUID aggregateId,
-		String eventType,
-		Object payload) {
+									  UUID aggregateId,
+									  EventType eventType,
+									  Object payload) {
 		return new Outbox(
-			aggregateType,
-			aggregateId != null ? aggregateId : UUID.randomUUID(),
-			eventType,
-			toJson(payload),
-			OutboxStatus.PENDING,
-			0,
-			LocalDateTime.now()
+				aggregateType,
+				aggregateId != null ? aggregateId : UUID.randomUUID(),
+				eventType,
+				toJson(payload),
+				OutboxStatus.PENDING,
+				0,
+				LocalDateTime.now()
 		);
 	}
 
@@ -100,7 +104,10 @@ public class Outbox {
 
 	private static String toJson(Object obj) {
 		try {
-			return new ObjectMapper().writeValueAsString(obj);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.registerModule(new JavaTimeModule());
+			mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+			return mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("Outbox 직렬화에 실패했습니다.", e);
 		}

@@ -1,11 +1,11 @@
 package com.nowayback.funding.service.funding;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
-import static org.mockito.BDDMockito.*;
-
-import java.util.Arrays;
-import java.util.UUID;
-
+import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
+import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
+import com.nowayback.funding.application.funding.service.FundingServiceImpl;
+import com.nowayback.funding.domain.funding.entity.Funding;
+import com.nowayback.funding.domain.funding.entity.FundingStatus;
+import com.nowayback.funding.domain.funding.repository.FundingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,12 +17,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
-import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
-import com.nowayback.funding.application.funding.service.FundingServiceImpl;
-import com.nowayback.funding.domain.funding.entity.Funding;
-import com.nowayback.funding.domain.funding.entity.FundingStatus;
-import com.nowayback.funding.domain.funding.repository.FundingRepository;
+import java.util.Arrays;
+import java.util.UUID;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FundingService - 내 후원 내역 조회 테스트")

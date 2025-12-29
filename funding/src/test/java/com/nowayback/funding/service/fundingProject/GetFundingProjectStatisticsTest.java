@@ -1,13 +1,10 @@
 package com.nowayback.funding.service.fundingProject;
 
-import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.nowayback.funding.application.fundingProjectStatistics.dto.result.FundingProjectStatisticsResult;
+import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsServiceImpl;
+import com.nowayback.funding.domain.exception.FundingException;
+import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
+import com.nowayback.funding.domain.fundingProjectStatistics.repository.FundingProjectStatisticsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,11 +13,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.nowayback.funding.application.fundingProjectStatistics.dto.result.FundingProjectStatisticsResult;
-import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsServiceImpl;
-import com.nowayback.funding.domain.exception.FundingException;
-import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
-import com.nowayback.funding.domain.fundingProjectStatistics.repository.FundingProjectStatisticsRepository;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.nowayback.funding.domain.exception.FundingErrorCode.PROJECT_NOT_FOUND;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("프로젝트 통계 조회 테스트")

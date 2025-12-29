@@ -1,6 +1,11 @@
 package com.nowayback.funding.infrastucture.lock;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.nowayback.funding.infrastructure.schedule.FundingProjectStatisticsScheduler;
+import org.junit.jupiter.api.Test;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -8,13 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.jupiter.api.Test;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import com.nowayback.funding.infrastructure.schedule.FundingProjectStatisticsScheduler;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class DistributedLockConcurrencyTest {

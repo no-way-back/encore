@@ -1,13 +1,17 @@
 package com.nowayback.funding.service.funding;
 
-import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
-
-import java.util.Optional;
-import java.util.UUID;
-
+import com.nowayback.funding.application.client.payment.PaymentClient;
+import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
+import com.nowayback.funding.application.client.reward.RewardClient;
+import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
+import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
+import com.nowayback.funding.application.funding.service.FundingServiceImpl;
+import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
+import com.nowayback.funding.domain.exception.FundingException;
+import com.nowayback.funding.domain.funding.entity.Funding;
+import com.nowayback.funding.domain.funding.entity.FundingStatus;
+import com.nowayback.funding.domain.funding.repository.FundingRepository;
+import com.nowayback.funding.domain.outbox.repository.OutboxRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,18 +21,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import com.nowayback.funding.application.client.payment.PaymentClient;
-import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
-import com.nowayback.funding.application.client.reward.RewardClient;
-import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
-import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
-import com.nowayback.funding.application.funding.service.FundingServiceImpl;
-import com.nowayback.funding.domain.exception.FundingException;
-import com.nowayback.funding.domain.funding.entity.Funding;
-import com.nowayback.funding.domain.funding.entity.FundingStatus;
-import com.nowayback.funding.domain.funding.repository.FundingRepository;
-import com.nowayback.funding.domain.outbox.repository.OutboxRepository;
-import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FundingService 취소 테스트")

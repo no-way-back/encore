@@ -1,9 +1,9 @@
 package com.nowayback.funding.application.fundingProjectStatistics.service;
 
+import com.nowayback.funding.application.fundingProjectStatistics.dto.result.FundingProjectStatisticsResult;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import com.nowayback.funding.application.fundingProjectStatistics.dto.result.FundingProjectStatisticsResult;
 
 public interface FundingProjectStatisticsService {
 

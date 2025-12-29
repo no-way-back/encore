@@ -1,21 +1,5 @@
 package com.nowayback.funding.application.funding.service;
 
-import static com.nowayback.funding.domain.event.FundingProducerTopics.*;
-import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import com.nowayback.funding.application.funding.dto.event.FundingRefundEvent;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.nowayback.funding.application.client.payment.PaymentClient;
 import com.nowayback.funding.application.client.payment.dto.request.ProcessRefundRequest;
 import com.nowayback.funding.application.client.payment.dto.response.ProcessRefundResponse;
@@ -26,19 +10,28 @@ import com.nowayback.funding.application.funding.dto.command.CancelFundingComman
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
 import com.nowayback.funding.application.funding.dto.command.GetProjectSponsorsCommand;
-import com.nowayback.funding.application.funding.dto.result.CancelFundingResult;
-import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
-import com.nowayback.funding.application.funding.dto.result.FundingDetailResult;
-import com.nowayback.funding.application.funding.dto.result.GetMyFundingsResult;
-import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
-import com.nowayback.funding.application.outbox.service.OutboxService;
+import com.nowayback.funding.application.funding.dto.event.FundingPaymentProcessEvent;
+import com.nowayback.funding.application.funding.dto.event.FundingRefundEvent;
+import com.nowayback.funding.application.funding.dto.result.*;
 import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
+import com.nowayback.funding.application.outbox.service.OutboxService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
 import com.nowayback.funding.domain.funding.repository.FundingRepository;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
 @Service
 @Slf4j
@@ -136,17 +129,14 @@ public class FundingServiceImpl implements FundingService {
 	}
 
 	private void publishPaymentProcessEvent(Funding funding, CreateFundingCommand command) {
-		outboxService.publishSuccessEvent(
-			"FUNDING",
-			funding.getId(),
-			FUNDING_PAYMENT_PROCESS,
-			Map.of(
-				"fundingId", funding.getId(),
-				"projectId", command.projectId(),
-				"userId", command.userId(),
-				"amount", funding.getAmount()
-			)
+		FundingPaymentProcessEvent event = FundingPaymentProcessEvent.of(
+				funding.getId(),
+				command.projectId(),
+				command.userId(),
+				funding.getAmount()
 		);
+
+		outboxService.publish(event);
 	}
 
 	@Override
@@ -194,9 +184,7 @@ public class FundingServiceImpl implements FundingService {
 			return;
 		}
 
-		outboxService.publishFundingRefundEvent(
-				FundingRefundEvent.from(funding.getId())
-		);
+		outboxService.publish(FundingRefundEvent.from(funding.getId()));
 
 		log.info("펀딩 환불 이벤트 발행 완료 - fundingId: {}", funding.getId());
 	}

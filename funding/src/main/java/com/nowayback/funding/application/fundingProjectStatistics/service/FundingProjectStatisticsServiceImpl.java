@@ -1,25 +1,23 @@
 package com.nowayback.funding.application.fundingProjectStatistics.service;
 
-import static com.nowayback.funding.domain.event.FundingProducerTopics.*;
-import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.nowayback.funding.application.client.payment.PaymentClient;
 import com.nowayback.funding.application.client.payment.dto.response.SettlementResponse;
+import com.nowayback.funding.application.fundingProjectStatistics.dto.event.ProjectFundingFailedEvent;
+import com.nowayback.funding.application.fundingProjectStatistics.dto.event.ProjectFundingSuccessEvent;
 import com.nowayback.funding.application.fundingProjectStatistics.dto.result.FundingProjectStatisticsResult;
 import com.nowayback.funding.application.outbox.service.OutboxService;
 import com.nowayback.funding.domain.exception.FundingException;
 import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
 import com.nowayback.funding.domain.fundingProjectStatistics.repository.FundingProjectStatisticsRepository;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
 @Service
 @Slf4j
@@ -163,31 +161,26 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 	}
 
 	private void publishProjectFundingSuccessEvent(FundingProjectStatistics project) {
-		outboxService.publishSuccessEvent(
-			"FUNDING_PROJECT",
-			project.getProjectId(),
-			PROJECT_FUNDING_SUCCESS,
-			Map.of(
-				"projectId", project.getProjectId(),
-				"finalAmount", project.getCurrentAmount(),
-				"participantCount", project.getParticipantCount()
-			)
+		ProjectFundingSuccessEvent event = ProjectFundingSuccessEvent.of(
+				project.getProjectId(),
+				project.getCurrentAmount(),
+				project.getParticipantCount()
 		);
+
+		outboxService.publish(event);
 	}
 
+
 	private void publishProjectFundingFailedEvent(FundingProjectStatistics project) {
-		outboxService.publishSuccessEvent(
-			"FUNDING_PROJECT",
-			project.getProjectId(),
-			PROJECT_FUNDING_FAILED,
-			Map.of(
-				"projectId", project.getProjectId(),
-				"finalAmount", project.getCurrentAmount(),
-				"participantCount", project.getParticipantCount(),
-				"targetAmount", project.getTargetAmount(),
-				"achievementRate", project.getAchievementRate()
-			)
+		ProjectFundingFailedEvent event = ProjectFundingFailedEvent.of(
+				project.getProjectId(),
+				project.getCurrentAmount(),
+				project.getParticipantCount(),
+				project.getTargetAmount(),
+				project.getAchievementRate()
 		);
+
+		outboxService.publish(event);
 	}
 
 	@Override

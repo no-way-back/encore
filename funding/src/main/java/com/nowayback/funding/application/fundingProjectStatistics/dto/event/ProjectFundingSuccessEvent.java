@@ -37,7 +37,7 @@ public record ProjectFundingSuccessEvent(
     public static ProjectFundingSuccessEvent of(
             UUID projectId,
             Long finalAmount,
-            Long participantCount
+            Integer participantCount
     ) {
         return new ProjectFundingSuccessEvent(
                 UUID.randomUUID(),

@@ -1,9 +1,9 @@
 package com.nowayback.funding.application.fundingProjectStatistics.dto.result;
 
+import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
 
 public record FundingProjectStatisticsResult(
 	UUID projectId,

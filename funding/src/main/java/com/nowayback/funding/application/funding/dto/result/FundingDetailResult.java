@@ -1,11 +1,11 @@
 package com.nowayback.funding.application.funding.dto.result;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.domain.funding.entity.FundingReservation;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
+
+import java.util.List;
+import java.util.UUID;
 
 public record FundingDetailResult(
 	UUID fundingId,

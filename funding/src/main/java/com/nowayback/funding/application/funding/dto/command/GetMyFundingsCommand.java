@@ -1,8 +1,8 @@
 package com.nowayback.funding.application.funding.dto.command;
 
-import java.util.UUID;
-
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
+
+import java.util.UUID;
 
 public record GetMyFundingsCommand(
 	UUID userId,

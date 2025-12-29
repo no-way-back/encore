@@ -1,8 +1,8 @@
 package com.nowayback.funding.application.client.payment.dto.request;
 
-import java.util.UUID;
-
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
+
+import java.util.UUID;
 
 public record ProcessPaymentRequest(
 	UUID fundingId,

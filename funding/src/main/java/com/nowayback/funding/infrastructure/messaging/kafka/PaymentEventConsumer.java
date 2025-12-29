@@ -1,11 +1,5 @@
 package com.nowayback.funding.infrastructure.messaging.kafka;
 
-import static com.nowayback.funding.infrastructure.config.KafkaConsumerTopics.*;
-
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nowayback.funding.application.funding.dto.event.FundingCompletedEvent;
 import com.nowayback.funding.application.funding.dto.event.FundingFailedEvent;
@@ -14,11 +8,16 @@ import com.nowayback.funding.application.outbox.service.OutboxService;
 import com.nowayback.funding.domain.funding.entity.Funding;
 import com.nowayback.funding.infrastructure.messaging.kafka.dto.PaymentFailureEvent;
 import com.nowayback.funding.infrastructure.messaging.kafka.dto.PaymentSuccessEvent;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+
+import static com.nowayback.funding.infrastructure.config.KafkaConsumerTopics.PAYMENT_CONFIRM_FAILED;
+import static com.nowayback.funding.infrastructure.config.KafkaConsumerTopics.PAYMENT_CONFIRM_SUCCEEDED;
 
 @Component
 @Slf4j
@@ -95,7 +94,7 @@ public class PaymentEventConsumer {
      * 펀딩 완료 이벤트 발행 (Reward 서비스로 QR 생성 요청)
      */
     private void publishFundingCompletedEvent(Funding funding) {
-        outboxService.publishFundingCompletedEvent(
+        outboxService.publish(
                 FundingCompletedEvent.from(funding)
         );
 
@@ -106,7 +105,7 @@ public class PaymentEventConsumer {
      * 펀딩 실패 이벤트 발행 (Reward 재고 복구)
      */
     private void publishFundingFailedEvent(UUID fundingId) {
-        outboxService.publishFundingFailedEvent(
+        outboxService.publish(
                 FundingFailedEvent.from(fundingId)
         );
 

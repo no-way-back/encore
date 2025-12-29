@@ -37,7 +37,7 @@ public record ProjectFundingFailedEvent(
     public static ProjectFundingFailedEvent of(
             UUID projectId,
             Long finalAmount,
-            Long participantCount,
+            Integer participantCount,
             Long targetAmount,
             Double achievementRate
     ) {

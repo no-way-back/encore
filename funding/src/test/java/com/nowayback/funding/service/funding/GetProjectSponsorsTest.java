@@ -1,12 +1,13 @@
 package com.nowayback.funding.service.funding;
 
-import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
-import static org.mockito.BDDMockito.*;
-
-import java.util.List;
-import java.util.UUID;
-
+import com.nowayback.funding.application.funding.dto.command.GetProjectSponsorsCommand;
+import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
+import com.nowayback.funding.application.funding.service.FundingServiceImpl;
+import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
+import com.nowayback.funding.domain.exception.FundingException;
+import com.nowayback.funding.domain.funding.entity.Funding;
+import com.nowayback.funding.domain.funding.entity.FundingStatus;
+import com.nowayback.funding.domain.funding.repository.FundingRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,14 +19,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import com.nowayback.funding.application.funding.dto.command.GetProjectSponsorsCommand;
-import com.nowayback.funding.application.funding.dto.result.GetProjectSponsorsResult;
-import com.nowayback.funding.application.funding.service.FundingServiceImpl;
-import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
-import com.nowayback.funding.domain.exception.FundingException;
-import com.nowayback.funding.domain.funding.entity.Funding;
-import com.nowayback.funding.domain.funding.entity.FundingStatus;
-import com.nowayback.funding.domain.funding.repository.FundingRepository;
+import java.util.List;
+import java.util.UUID;
+
+import static com.nowayback.funding.domain.exception.FundingErrorCode.FORBIDDEN_PROJECT_ACCESS;
+import static com.nowayback.funding.domain.exception.FundingErrorCode.PROJECT_NOT_FOUND;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThatThrownBy;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("프로젝트별 후원자 조회 테스트")

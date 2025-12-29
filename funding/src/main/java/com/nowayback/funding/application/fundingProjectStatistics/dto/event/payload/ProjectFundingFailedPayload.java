@@ -5,7 +5,7 @@ import java.util.UUID;
 public record ProjectFundingFailedPayload(
         UUID projectId,
         Long finalAmount,
-        Long participantCount,
+        Integer participantCount,
         Long targetAmount,
         Double achievementRate
 ) {}

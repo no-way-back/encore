@@ -1,11 +1,10 @@
 package com.nowayback.funding.presentation.funding.dto.request;
 
-import java.util.UUID;
-
 import com.nowayback.funding.application.funding.dto.command.CancelFundingCommand;
-
-import jakarta.validation.constraints.NotBlank;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+
+import java.util.UUID;
 
 @Schema(description = "후원 취소 요청 DTO")
 public record CancelFundingRequest(

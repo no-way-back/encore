@@ -1,14 +1,10 @@
 package com.nowayback.funding.application.outbox.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import com.nowayback.funding.application.funding.dto.event.FundingCompletedEvent;
-import com.nowayback.funding.application.funding.dto.event.FundingFailedEvent;
-import com.nowayback.funding.application.funding.dto.event.FundingRefundEvent;
-import com.nowayback.funding.domain.event.EventType;
+import com.nowayback.funding.domain.event.OutboxEventMetadata;
 import com.nowayback.funding.domain.outbox.entity.Outbox;
+
+import java.util.List;
+import java.util.UUID;
 
 public interface OutboxService {
 
@@ -34,31 +30,8 @@ public interface OutboxService {
 
 	/**
 	 * 성공 이벤트 발행 (메인 트랜잭션과 함께 커밋)
-	 * 트랜잭션: REQUIRED
-	 *
-	 * @param aggregateType 집합 타입 (FUNDING, FUNDING_PROJECT 등)
-	 * @param aggregateId 집합 ID (fundingId, projectId 등)
-	 * @param eventType 이벤트 타입 (FUNDING_COMPLETED, PROJECT_FUNDING_SUCCESS 등)
-	 * @param payload 이벤트 데이터
 	 */
-	void publishSuccessEvent(String aggregateType, UUID aggregateId, EventType eventType, Map<String, Object> payload);
-
-	/**
-	 * 보상 트랜잭션 이벤트 발행 (메인 트랜잭션 롤백과 독립적으로 커밋)
-	 * 트랜잭션: REQUIRES_NEW
-	 *
-	 * @param aggregateType 집합 타입 (FUNDING 등)
-	 * @param aggregateId 집합 ID (reservationId 등, nullable)
-	 * @param eventType 이벤트 타입 (FUNDING_FAILED 등)
-	 * @param payload 이벤트 데이터
-	 */
-	void publishCompensationEvent(String aggregateType, UUID aggregateId, EventType eventType, Map<String, Object> payload);
-
-	void publishFundingCompletedEvent(FundingCompletedEvent event);
-
-	void publishFundingFailedEvent(FundingFailedEvent event);
-
-	void publishFundingRefundEvent(FundingRefundEvent event);
+	void publish(OutboxEventMetadata event);
 
 	/**
 	 * 재시도 대상 Outbox 이벤트 조회

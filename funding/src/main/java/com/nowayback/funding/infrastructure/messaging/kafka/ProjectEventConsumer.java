@@ -1,21 +1,17 @@
 package com.nowayback.funding.infrastructure.messaging.kafka;
 
-import static com.nowayback.funding.domain.event.FundingProducerTopics.*;
-import static com.nowayback.funding.infrastructure.config.KafkaConsumerTopics.*;
-
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nowayback.funding.application.fundingProjectStatistics.dto.event.ProjectFundingCreationFailedEvent;
+import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
+import com.nowayback.funding.application.outbox.service.OutboxService;
+import com.nowayback.funding.infrastructure.messaging.kafka.dto.ProjectCreatedEvent;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
-import com.nowayback.funding.application.outbox.service.OutboxService;
-import com.nowayback.funding.infrastructure.messaging.kafka.dto.ProjectCreatedEvent;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.nowayback.funding.infrastructure.config.KafkaConsumerTopics.PROJECT_FUNDING_CREATION;
 
 @Component
 @Slf4j
@@ -53,19 +49,15 @@ public class ProjectEventConsumer {
 				e.getMessage(), e);
 
 			if (event != null) {
-				outboxService.publishCompensationEvent(
-					"FUNDING_PROJECT",
-					event.projectId(),
-					PROJECT_FUNDING_CREATED_FAILED,
-					Map.of(
-						"projectId", event.projectId(),
-						"creatorId", event.creatorId(),
-						"targetAmount", event.targetAmount(),
-						"startDate", event.startDate().toString(),
-						"endDate", event.endDate().toString(),
-						"failureReason", e.getMessage()
-					)
+				ProjectFundingCreationFailedEvent failedEvent = ProjectFundingCreationFailedEvent.of(
+						event.projectId(),
+						event.creatorId(),
+						event.targetAmount(),
+						event.startDate(),
+						event.endDate(),
+						e.getMessage()
 				);
+				outboxService.publish(failedEvent);
 
 				log.info("프로젝트 생성 실패 보상 이벤트 발행 - projectId: {}", event.projectId());
 			}

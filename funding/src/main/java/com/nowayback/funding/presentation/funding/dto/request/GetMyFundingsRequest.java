@@ -1,13 +1,12 @@
 package com.nowayback.funding.presentation.funding.dto.request;
 
-import java.util.UUID;
-
 import com.nowayback.funding.application.funding.dto.command.GetMyFundingsCommand;
 import com.nowayback.funding.domain.funding.entity.FundingStatus;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.UUID;
 
 @Schema(description = "내 후원 내역 조회 요청 DTO")
 public record GetMyFundingsRequest(

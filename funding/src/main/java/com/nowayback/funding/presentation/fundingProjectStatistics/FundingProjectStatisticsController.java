@@ -1,16 +1,15 @@
 package com.nowayback.funding.presentation.fundingProjectStatistics;
 
-import java.util.UUID;
-
+import com.nowayback.funding.application.fundingProjectStatistics.dto.result.FundingProjectStatisticsResult;
+import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
+import com.nowayback.funding.presentation.fundingProjectStatistics.dto.response.FundingProjectStatisticsResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nowayback.funding.application.fundingProjectStatistics.dto.result.FundingProjectStatisticsResult;
-import com.nowayback.funding.application.fundingProjectStatistics.service.FundingProjectStatisticsService;
-import com.nowayback.funding.presentation.fundingProjectStatistics.dto.response.FundingProjectStatisticsResponse;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/fundings")

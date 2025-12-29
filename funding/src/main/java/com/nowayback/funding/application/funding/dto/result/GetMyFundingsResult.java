@@ -1,10 +1,10 @@
 package com.nowayback.funding.application.funding.dto.result;
 
+import com.nowayback.funding.domain.funding.entity.Funding;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import com.nowayback.funding.domain.funding.entity.Funding;
 
 public record GetMyFundingsResult(
 	List<FundingHistory> fundings,

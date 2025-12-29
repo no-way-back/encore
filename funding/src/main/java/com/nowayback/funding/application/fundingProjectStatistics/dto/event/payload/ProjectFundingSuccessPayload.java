@@ -5,5 +5,5 @@ import java.util.UUID;
 public record ProjectFundingSuccessPayload(
         UUID projectId,
         Long finalAmount,
-        Long participantCount
+        Integer participantCount
 ) {}

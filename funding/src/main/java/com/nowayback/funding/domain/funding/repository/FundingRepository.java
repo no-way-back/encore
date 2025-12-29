@@ -1,14 +1,13 @@
 package com.nowayback.funding.domain.funding.repository;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.nowayback.funding.domain.funding.entity.Funding;
+import com.nowayback.funding.domain.funding.entity.FundingStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.nowayback.funding.domain.funding.entity.Funding;
-import com.nowayback.funding.domain.funding.entity.FundingStatus;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface FundingRepository {
 

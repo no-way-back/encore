@@ -1,11 +1,11 @@
 package com.nowayback.funding.domain.fundingProjectStatistics.repository;
 
+import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
 
 public interface FundingProjectStatisticsRepository {
 

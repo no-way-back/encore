@@ -1,24 +1,16 @@
 package com.nowayback.funding.domain.fundingProjectStatistics.entity;
 
-import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
+import com.nowayback.funding.domain.exception.FundingException;
+import com.nowayback.funding.domain.shared.BaseEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.nowayback.funding.domain.exception.FundingException;
-import com.nowayback.funding.domain.shared.BaseEntity;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
 @Entity
 @Table(name = "p_funding_project_statistics")

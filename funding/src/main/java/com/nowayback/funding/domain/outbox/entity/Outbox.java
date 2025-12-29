@@ -37,6 +37,9 @@ public class Outbox {
 	@Column(name = "payload", nullable = false, columnDefinition = "TEXT")
 	private String payload;
 
+	@Column(name = "payload_type", nullable = false, length = 500)
+	private String payloadType;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false, length = 20)
 	private OutboxStatus status;
@@ -54,6 +57,7 @@ public class Outbox {
 				   UUID aggregateId,
 				   EventType eventType,
 				   String payload,
+				   String payloadType,
 				   OutboxStatus status,
 				   Integer retryCount,
 				   LocalDateTime createdAt) {
@@ -61,6 +65,7 @@ public class Outbox {
 		this.aggregateId = aggregateId;
 		this.eventType = eventType;
 		this.payload = payload;
+		this.payloadType = payloadType;
 		this.status = status;
 		this.retryCount = retryCount;
 		this.createdAt = createdAt;
@@ -75,6 +80,7 @@ public class Outbox {
 				aggregateId != null ? aggregateId : UUID.randomUUID(),
 				eventType,
 				toJson(payload),
+				payload.getClass().getName(),
 				OutboxStatus.PENDING,
 				0,
 				LocalDateTime.now()

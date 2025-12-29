@@ -1,8 +1,8 @@
 package com.nowayback.funding.presentation.funding.dto.response;
 
-import java.util.UUID;
-
 import com.nowayback.funding.application.funding.dto.result.CreateFundingResult;
+
+import java.util.UUID;
 
 public record CreateFundingResponse(
 	UUID fundingId,

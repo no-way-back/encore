@@ -1,18 +1,16 @@
 package com.nowayback.funding.presentation.funding;
 
-import java.util.UUID;
-
+import com.nowayback.funding.application.funding.dto.result.FundingDetailResult;
+import com.nowayback.funding.application.funding.service.FundingService;
+import com.nowayback.funding.presentation.funding.dto.response.FundingDetailResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nowayback.funding.application.funding.dto.result.FundingDetailResult;
-import com.nowayback.funding.application.funding.service.FundingService;
-import com.nowayback.funding.presentation.funding.dto.response.FundingDetailResponse;
-
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/internal/fundings")

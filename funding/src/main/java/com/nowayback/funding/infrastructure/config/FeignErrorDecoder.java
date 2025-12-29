@@ -1,14 +1,12 @@
 package com.nowayback.funding.infrastructure.config;
 
-import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
-
-import org.springframework.http.HttpStatus;
-
 import com.nowayback.funding.domain.exception.FundingException;
-
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+
+import static com.nowayback.funding.domain.exception.FundingErrorCode.*;
 
 /**
  * Feign 에러 디코더

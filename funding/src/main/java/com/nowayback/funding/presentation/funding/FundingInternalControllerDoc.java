@@ -2,17 +2,16 @@ package com.nowayback.funding.presentation.funding;
 
 import com.nowayback.funding.presentation.exception.FundingExceptionHandler.ErrorResponse;
 import com.nowayback.funding.presentation.funding.dto.response.FundingDetailResponse;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.UUID;
 
 @Tag(name = "Funding Internal API", description = "펀딩 서비스 내부용 API")
 public interface FundingInternalControllerDoc {

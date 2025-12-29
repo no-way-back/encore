@@ -1,17 +1,15 @@
 package com.nowayback.funding.infrastructure.fundingProjectStatistics;
 
+import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
+import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatus;
+import com.nowayback.funding.domain.fundingProjectStatistics.repository.FundingProjectStatisticsRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springframework.stereotype.Repository;
-
-import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatistics;
-import com.nowayback.funding.domain.fundingProjectStatistics.entity.FundingProjectStatus;
-import com.nowayback.funding.domain.fundingProjectStatistics.repository.FundingProjectStatisticsRepository;
-
-import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor

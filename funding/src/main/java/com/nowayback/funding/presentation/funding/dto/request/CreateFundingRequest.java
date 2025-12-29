@@ -1,16 +1,15 @@
 package com.nowayback.funding.presentation.funding.dto.request;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.nowayback.funding.application.funding.dto.command.CreateFundingCommand;
 import com.nowayback.funding.presentation.funding.dto.request.validation.ValidFundingRequest;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.List;
+import java.util.UUID;
 
 @ValidFundingRequest
 @Schema(description = "후원 생성 요청 DTO")

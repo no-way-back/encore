@@ -1,12 +1,11 @@
 package com.nowayback.funding.presentation.funding.dto.request;
 
-import java.util.UUID;
-
 import com.nowayback.funding.application.funding.dto.command.GetProjectSponsorsCommand;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.UUID;
 
 @Schema(description = "프로젝트 후원자 목록 조회 요청 DTO")
 public record GetProjectSponsorsRequest(

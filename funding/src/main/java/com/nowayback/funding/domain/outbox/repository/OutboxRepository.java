@@ -1,10 +1,10 @@
 package com.nowayback.funding.domain.outbox.repository;
 
+import com.nowayback.funding.domain.outbox.entity.Outbox;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.nowayback.funding.domain.outbox.entity.Outbox;
 
 public interface OutboxRepository {
 

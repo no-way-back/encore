@@ -1,16 +1,14 @@
 package com.nowayback.funding.application.client.reward;
 
-import java.util.UUID;
-
+import com.nowayback.funding.application.client.reward.dto.request.StockReserveRequest;
+import com.nowayback.funding.application.client.reward.dto.response.StockReserveResponse;
+import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import com.nowayback.funding.application.client.reward.dto.request.StockReserveRequest;
-import com.nowayback.funding.application.client.reward.dto.response.StockReserveResponse;
-
-import jakarta.validation.Valid;
+import java.util.UUID;
 
 @FeignClient(
 	name = "reward-service",

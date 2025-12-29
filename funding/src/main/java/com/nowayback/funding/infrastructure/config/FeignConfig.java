@@ -1,13 +1,12 @@
 package com.nowayback.funding.infrastructure.config;
 
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import feign.Logger;
 import feign.Retryer;
 import feign.codec.ErrorDecoder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class FeignConfig {

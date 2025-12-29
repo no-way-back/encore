@@ -39,8 +39,8 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		log.info("펀딩 통계 증가 시작 - projectId: {}, amount: {}", projectId, amount);
 
 		FundingProjectStatistics stats = fundingProjectStatisticsRepository
-			.findByProjectIdWithLock(projectId)
-			.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
+				.findByProjectIdWithLock(projectId)
+				.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
 
 		stats.validateProjectStatusForCanFund();
 
@@ -49,9 +49,9 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		FundingProjectStatistics savedStats = fundingProjectStatisticsRepository.save(stats);
 
 		log.info("펀딩 통계 증가 완료 - projectId: {}, currentAmount: {}, participantCount: {}",
-			savedStats.getProjectId(),
-			savedStats.getCurrentAmount(),
-			savedStats.getParticipantCount());
+				savedStats.getProjectId(),
+				savedStats.getCurrentAmount(),
+				savedStats.getParticipantCount());
 	}
 
 	@Override
@@ -60,8 +60,8 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		log.info("펀딩 통계 감소 시작 - projectId: {}, amount: {}", projectId, amount);
 
 		FundingProjectStatistics stats = fundingProjectStatisticsRepository
-			.findByProjectIdWithLock(projectId)
-			.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
+				.findByProjectIdWithLock(projectId)
+				.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
 
 		stats.validateProjectStatusForCanFund();
 
@@ -70,9 +70,9 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		FundingProjectStatistics savedStats = fundingProjectStatisticsRepository.save(stats);
 
 		log.info("펀딩 통계 감소 완료 - projectId: {}, currentAmount: {}, participantCount: {}",
-			savedStats.getProjectId(),
-			savedStats.getCurrentAmount(),
-			savedStats.getParticipantCount());
+				savedStats.getProjectId(),
+				savedStats.getCurrentAmount(),
+				savedStats.getParticipantCount());
 	}
 
 	@Override
@@ -81,8 +81,8 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		log.info("펀딩 현황 조회 - projectId: {}", projectId);
 
 		FundingProjectStatistics stats = fundingProjectStatisticsRepository
-			.findByProjectId(projectId)
-			.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
+				.findByProjectId(projectId)
+				.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
 
 		return FundingProjectStatisticsResult.from(stats);
 	}
@@ -92,7 +92,7 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		log.info("프로젝트 시작 스케줄러 실행");
 
 		List<FundingProjectStatistics> projects =
-			fundingProjectStatisticsRepository.findScheduledProjectsToStart(LocalDateTime.now());
+				fundingProjectStatisticsRepository.findScheduledProjectsToStart(LocalDateTime.now());
 
 		if (projects.isEmpty()) {
 			log.debug("시작할 프로젝트가 없습니다.");
@@ -106,7 +106,7 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 			fundingProjectStatisticsRepository.save(project);
 
 			log.info("프로젝트 시작 완료 - projectId: {}, status: SCHEDULED → PROCESSING",
-				project.getProjectId());
+					project.getProjectId());
 		}
 	}
 
@@ -115,7 +115,7 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		log.info("프로젝트 종료 스케줄러 실행");
 
 		List<FundingProjectStatistics> projects =
-			fundingProjectStatisticsRepository.findProcessingProjectsToClose(LocalDateTime.now());
+				fundingProjectStatisticsRepository.findProcessingProjectsToClose(LocalDateTime.now());
 
 		if (projects.isEmpty()) {
 			log.debug("종료할 프로젝트가 없습니다.");
@@ -126,38 +126,44 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 
 		for (FundingProjectStatistics project : projects) {
 			if (project.isTargetAchieved()) {
-				project.markAsSettlementInProgress();
-				fundingProjectStatisticsRepository.save(project);
-
-				log.info("프로젝트 목표 달성 - 정산 시작 - projectId: {}, 달성률: {}%",
-					project.getProjectId(),
-					String.format("%.2f", project.getAchievementRate()));
-
-				SettlementResponse response =
-					paymentClient.requestSettlement(project.getProjectId());
-
-				log.info("정산 완료 - projectId: {}, settlementId: {}, status: {}",
-					project.getProjectId(), response.settlementId(), response.status());
-
-				project.markAsSuccess();
-				fundingProjectStatisticsRepository.save(project);
-
-				log.info("프로젝트 성공 처리 완료 - projectId: {}, status: SETTLEMENT_IN_PROGRESS → SUCCESS",
-					project.getProjectId());
-
-				publishProjectFundingSuccessEvent(project);
-
+				processSuccessfulProject(project);
 			} else {
-				project.markAsRefundInProgress();
-				fundingProjectStatisticsRepository.save(project);
-
-				log.info("프로젝트 실패 - 환불 진행 시작 - projectId: {}, 달성률: {}%",
-					project.getProjectId(),
-					String.format("%.2f", project.getAchievementRate()));
-
-				publishProjectFundingFailedEvent(project);
+				processFailedProject(project);
 			}
 		}
+	}
+
+	private void processSuccessfulProject(FundingProjectStatistics project) {
+		project.markAsSettlementInProgress();
+		fundingProjectStatisticsRepository.save(project);
+
+		log.info("프로젝트 목표 달성 - 정산 시작 - projectId: {}, 달성률: {}%",
+				project.getProjectId(),
+				String.format("%.2f", project.getAchievementRate()));
+
+		SettlementResponse response = paymentClient.requestSettlement(project.getProjectId());
+
+		log.info("정산 완료 - projectId: {}, settlementId: {}, status: {}",
+				project.getProjectId(), response.settlementId(), response.status());
+
+		project.markAsSuccess();
+		fundingProjectStatisticsRepository.save(project);
+
+		log.info("프로젝트 성공 처리 완료 - projectId: {}, status: SETTLEMENT_IN_PROGRESS → SUCCESS",
+				project.getProjectId());
+
+		publishProjectFundingSuccessEvent(project);
+	}
+
+	private void processFailedProject(FundingProjectStatistics project) {
+		project.markAsRefundInProgress();
+		fundingProjectStatisticsRepository.save(project);
+
+		log.info("프로젝트 실패 - 환불 진행 시작 - projectId: {}, 달성률: {}%",
+				project.getProjectId(),
+				String.format("%.2f", project.getAchievementRate()));
+
+		publishProjectFundingFailedEvent(project);
 	}
 
 	private void publishProjectFundingSuccessEvent(FundingProjectStatistics project) {
@@ -169,7 +175,6 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 
 		outboxService.publish(event);
 	}
-
 
 	private void publishProjectFundingFailedEvent(FundingProjectStatistics project) {
 		ProjectFundingFailedEvent event = ProjectFundingFailedEvent.of(
@@ -189,31 +194,31 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		log.debug("프로젝트 펀딩 가능 여부 검증 - projectId: {}", projectId);
 
 		FundingProjectStatistics stats = fundingProjectStatisticsRepository
-			.findByProjectId(projectId)
-			.orElseThrow(() -> {
-				log.error("프로젝트를 찾을 수 없음 - projectId: {}", projectId);
-				return new FundingException(PROJECT_NOT_FOUND);
-			});
+				.findByProjectId(projectId)
+				.orElseThrow(() -> {
+					log.error("프로젝트를 찾을 수 없음 - projectId: {}", projectId);
+					return new FundingException(PROJECT_NOT_FOUND);
+				});
 
 		stats.validateProjectStatusForCanFund();
 
 		log.debug("프로젝트 검증 완료 - projectId: {}, status: {}",
-			projectId, stats.getStatus());
+				projectId, stats.getStatus());
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public void validateProjectCreator(UUID projectId, UUID creatorId) {
 		log.debug("프로젝트 생성자 권한 검증 - projectId: {}, creatorId: {}",
-			projectId, creatorId);
+				projectId, creatorId);
 
 		FundingProjectStatistics stats = fundingProjectStatisticsRepository
-			.findByProjectId(projectId)
-			.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
+				.findByProjectId(projectId)
+				.orElseThrow(() -> new FundingException(PROJECT_NOT_FOUND));
 
 		if (!stats.isCreator(creatorId)) {
 			log.warn("프로젝트 생성자 권한 없음 - projectId: {}, requestUserId: {}, actualCreatorId: {}",
-				projectId, creatorId, stats.getCreatorId());
+					projectId, creatorId, stats.getCreatorId());
 			throw new FundingException(FORBIDDEN_PROJECT_ACCESS);
 		}
 
@@ -223,11 +228,11 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 	@Override
 	@Transactional
 	public void createProjectStatistics(
-		UUID projectId,
-		UUID creatorId,
-		Long targetAmount,
-		LocalDateTime startDate,
-		LocalDateTime endDate
+			UUID projectId,
+			UUID creatorId,
+			Long targetAmount,
+			LocalDateTime startDate,
+			LocalDateTime endDate
 	) {
 		log.info("프로젝트 통계 생성 시작 - projectId: {}", projectId);
 
@@ -237,11 +242,11 @@ public class FundingProjectStatisticsServiceImpl implements FundingProjectStatis
 		}
 
 		FundingProjectStatistics statistics = FundingProjectStatistics.create(
-			projectId,
-			creatorId,
-			targetAmount,
-			startDate,
-			endDate
+				projectId,
+				creatorId,
+				targetAmount,
+				startDate,
+				endDate
 		);
 
 		fundingProjectStatisticsRepository.save(statistics);

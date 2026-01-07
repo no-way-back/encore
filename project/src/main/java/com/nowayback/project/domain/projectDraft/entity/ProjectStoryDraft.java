@@ -28,7 +28,8 @@ public class ProjectStoryDraft extends BaseEntity {
 
     private String title;
     private String summary;
-    private String category;
+    private UUID categoryId;
+    private UUID rootCategoryId;
 
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
@@ -44,15 +45,17 @@ public class ProjectStoryDraft extends BaseEntity {
     public boolean update(
         String title,
         String summary,
-        String category,
+        UUID categoryId,
+        UUID rootCategoryId,
         String thumbnailUrl,
         String contentJson
     ) {
-        validateBasic(title, summary, category, thumbnailUrl, contentJson);
+        validateBasic(title, summary, categoryId, rootCategoryId, thumbnailUrl, contentJson);
 
         this.title = title;
         this.summary = summary;
-        this.category = category;
+        this.categoryId = categoryId;
+        this.rootCategoryId = rootCategoryId;
         this.thumbnailUrl = thumbnailUrl;
         this.contentJson = contentJson;
 
@@ -62,7 +65,8 @@ public class ProjectStoryDraft extends BaseEntity {
     private void validateBasic(
         String title,
         String summary,
-        String category,
+        UUID categoryId,
+        UUID rootCategoryId,
         String thumbnailUrl,
         String contentJson
     ) {
@@ -72,7 +76,10 @@ public class ProjectStoryDraft extends BaseEntity {
         if (summary != null && summary.isBlank()) {
             throw new ProjectException(ProjectErrorCode.INVALID_STORY_SUMMARY);
         }
-        if (category != null && category.isBlank()) {
+        if (categoryId != null) {
+            throw new ProjectException(ProjectErrorCode.INVALID_STORY_CATEGORY);
+        }
+        if (rootCategoryId != null) {
             throw new ProjectException(ProjectErrorCode.INVALID_STORY_CATEGORY);
         }
         if (thumbnailUrl != null && thumbnailUrl.isBlank()) {
@@ -86,7 +93,8 @@ public class ProjectStoryDraft extends BaseEntity {
     public boolean isCompleted() {
         return title != null
             && summary != null
-            && category != null
+            && categoryId != null
+            && rootCategoryId != null
             && thumbnailUrl != null
             && contentJson != null;
     }
@@ -100,7 +108,7 @@ public class ProjectStoryDraft extends BaseEntity {
         if (summary == null || summary.isBlank()) {
             errors.add(ProjectErrorCode.INVALID_STORY_SUMMARY.getMessage());
         }
-        if (category == null || category.isBlank()) {
+        if (categoryId == null) {
             errors.add(ProjectErrorCode.INVALID_STORY_CATEGORY.getMessage());
         }
         if (thumbnailUrl == null || thumbnailUrl.isBlank()) {

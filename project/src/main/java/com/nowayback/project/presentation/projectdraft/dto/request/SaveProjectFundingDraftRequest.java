@@ -2,9 +2,7 @@ package com.nowayback.project.presentation.projectdraft.dto.request;
 
 import com.nowayback.project.application.projectdraft.command.SaveFundingDraftCommand;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 import java.util.UUID;
 

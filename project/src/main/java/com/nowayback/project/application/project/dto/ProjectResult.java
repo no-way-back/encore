@@ -10,7 +10,8 @@ public record ProjectResult(
     UUID userId,
     String title,
     String summary,
-    String category,
+    UUID categoryId,
+    UUID rootCategoryId,
     String thumbnailUrl,
     String contentHtml,
     Long goalAmount,
@@ -22,15 +23,16 @@ public record ProjectResult(
     public static ProjectResult of(Project project) {
         return new ProjectResult(
             project.getId(),
-            project.getUserId(),
+            project.getUserId().getId(),
             project.getTitle(),
             project.getSummary(),
-            project.getCategory(),
+            project.getCategoryId(),
+            project.getRootCategoryId(),
             project.getThumbnailUrl(),
             project.getContentHtml(),
             project.getGoalAmount(),
-            project.getFundingStartDate(),
-            project.getFundingEndDate(),
+            project.getPeriod().getStartDate(),
+            project.getPeriod().getEndDate(),
             project.getStatus()
         );
     }

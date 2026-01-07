@@ -1,12 +1,15 @@
 package com.nowayback.project.presentation.project;
 
 import com.nowayback.project.application.project.ProjectService;
+import com.nowayback.project.application.project.dto.CategoryCodes;
+import com.nowayback.project.application.project.dto.Cursor;
+import com.nowayback.project.application.project.dto.ProjectCard;
+import com.nowayback.project.application.project.dto.ProjectListState;
 import com.nowayback.project.application.project.dto.ProjectResult;
 import com.nowayback.project.application.project.dto.SettlementResult;
-import com.nowayback.project.domain.project.vo.ProjectStatus;
+import com.nowayback.project.domain.project.vo.ProjectSortType;
 import com.nowayback.project.presentation.project.dto.response.ProjectResponse;
 import com.nowayback.project.presentation.project.dto.response.SettlementResponse;
-import com.nowayback.project.presentation.projectdraft.dto.response.PageResponse;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,18 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectController implements ProjectControllerDoc {
     private final ProjectService projectService;
 
-    @GetMapping("/projects")
-    public ResponseEntity<PageResponse<ProjectResponse>> getAllProjects(
-        @RequestParam(required = false) ProjectStatus status,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        Page<ProjectResult> result = projectService.searchProject(status, page, size);
-
-        return ResponseEntity.ok(
-            PageResponse.fromPage(result.map(ProjectResponse::from))
-        );
-    }
+//    @GetMapping("/projects")
+//    public ResponseEntity<PageResponse<ProjectResponse>> getAllProjects(
+//        @RequestParam(required = false) ProjectStatus status,
+//        @RequestParam(defaultValue = "0") int page,
+//        @RequestParam(defaultValue = "10") int size
+//    ) {
+//        Page<ProjectResult> result = projectService.searchProject(status, page, size);
+//
+//        return ResponseEntity.ok(
+//            PageResponse.fromPage(result.map(ProjectResponse::from))
+//        );
+//    }
 
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<ProjectResponse> getProject(
@@ -52,4 +55,19 @@ public class ProjectController implements ProjectControllerDoc {
         return ResponseEntity.ok(SettlementResponse.from(result));
     }
 
+    @GetMapping("/projects")
+    public Page<ProjectCard> searchProjects(
+        @RequestParam(required = false) String rootCategoryCode,
+        @RequestParam(required = false) String categoryCode,
+        @RequestParam(required = false) ProjectSortType sortType,
+        @RequestParam(required = false) ProjectListState state,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        return projectService.searchProjects(
+            new Cursor(sortType, page, size),
+            new CategoryCodes(rootCategoryCode, categoryCode),
+            state
+        );
+    }
 }

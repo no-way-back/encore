@@ -7,7 +7,8 @@ public record ProjectStoryDraftResult(
     UUID projectDraftId,
     String title,
     String summary,
-    String category,
+    UUID categoryId,
+    UUID rootCategoryId,
     String thumbnailUrl,
     String contentJson
 ) {
@@ -16,7 +17,8 @@ public record ProjectStoryDraftResult(
             projectDraft.getId(),
             projectDraft.getStoryDraft().getTitle(),
             projectDraft.getStoryDraft().getSummary(),
-            projectDraft.getStoryDraft().getCategory(),
+            projectDraft.getStoryDraft().getCategoryId(),
+            projectDraft.getStoryDraft().getRootCategoryId(),
             projectDraft.getStoryDraft().getThumbnailUrl(),
             projectDraft.getStoryDraft().getContentJson()
         );

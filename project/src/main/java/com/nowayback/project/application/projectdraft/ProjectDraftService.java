@@ -67,7 +67,8 @@ public class ProjectDraftService {
         story.update(
             command.title(),
             command.summary(),
-            command.category(),
+            command.categoryId(),
+            command.rootCategoryId(),
             command.thumbnailUrl(),
             command.contentJson()
         );
@@ -232,7 +233,8 @@ public class ProjectDraftService {
                 projectDraft.getId(),
                 projectDraft.getStoryDraft().getTitle(),
                 projectDraft.getStoryDraft().getSummary(),
-                projectDraft.getStoryDraft().getCategory(),
+                projectDraft.getStoryDraft().getCategoryId(),
+                projectDraft.getStoryDraft().getRootCategoryId(),
                 projectDraft.getStoryDraft().getThumbnailUrl(),
                 projectDraft.getStoryDraft().getContentJson(),
                 projectDraft.getFundingDraft().getGoalAmount(),

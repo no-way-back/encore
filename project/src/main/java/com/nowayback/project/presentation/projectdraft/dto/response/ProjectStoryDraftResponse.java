@@ -7,7 +7,8 @@ public record ProjectStoryDraftResponse(
     UUID projectDraftId,
     String title,
     String summary,
-    String category,
+    UUID categoryId,
+    UUID rootCategoryId,
     String thumbnailUrl,
     String contentJson
 ) {
@@ -16,7 +17,8 @@ public record ProjectStoryDraftResponse(
             result.projectDraftId(),
             result.title(),
             result.summary(),
-            result.category(),
+            result.categoryId(),
+            result.rootCategoryId(),
             result.thumbnailUrl(),
             result.contentJson()
         );

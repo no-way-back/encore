@@ -1,16 +1,23 @@
 package com.nowayback.project.application.project;
 
 import com.nowayback.project.application.project.command.CreateProjectCommand;
+import com.nowayback.project.application.project.dto.CategoryCodes;
+import com.nowayback.project.application.project.dto.Cursor;
+import com.nowayback.project.application.project.dto.ProjectCard;
+import com.nowayback.project.application.project.dto.ProjectListState;
 import com.nowayback.project.application.project.dto.ProjectResult;
 import com.nowayback.project.application.project.dto.SettlementResult;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.project.entity.Project;
 import com.nowayback.project.domain.project.repository.ProjectRepository;
-import com.nowayback.project.domain.project.vo.ProjectStatus;
+import com.nowayback.project.domain.project.vo.Period;
+import com.nowayback.project.domain.project.vo.ProjectDraftId;
+import com.nowayback.project.domain.project.vo.UserId;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,16 +30,19 @@ public class ProjectService {
     @Transactional
     public UUID createProject(CreateProjectCommand command) {
         Project project = Project.create(
-            command.userId(),
-            command.projectDraftId(),
+            UserId.create(command.userId()),
+            ProjectDraftId.create(command.projectDraftId()),
             command.title(),
             command.summary(),
-            command.category(),
+            command.categoryId(),
+            command.rootCategoryId(),
             command.thumbnailUrl(),
             command.contentHtml(),
             command.goalAmount(),
-            command.fundingStartDate(),
-            command.fundingEndDate(),
+            Period.create(
+                command.fundingStartDate(),
+                command.fundingEndDate()
+            ),
             command.account()
         );
 
@@ -40,17 +50,18 @@ public class ProjectService {
         return project.getId();
     }
 
-    public Page<ProjectResult> searchProject(
-        ProjectStatus status,
-        int page,
-        int size
+    public Page<ProjectCard> searchProjects(
+        Cursor cursor,
+        CategoryCodes categoryCodes,
+        ProjectListState state
     ) {
-        Page<Project> projectDrafts = projectRepository.searchProjects(
-            status,
-            page,
-            size
+        return projectRepository.searchProjects(
+            categoryCodes.rootCategoryCode(),
+            categoryCodes.categoryCode(),
+            ProjectListState.toProjectStatuses(state),
+            cursor.sortType(),
+            PageRequest.of(cursor.page(), cursor.size())
         );
-        return projectDrafts.map(ProjectResult::of);
     }
 
     public ProjectResult getProject(UUID projectId) {

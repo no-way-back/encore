@@ -3,7 +3,10 @@ package com.nowayback.project.domain.project.entity;
 import com.nowayback.project.domain.exception.ProjectErrorCode;
 import com.nowayback.project.domain.exception.ProjectException;
 import com.nowayback.project.domain.project.vo.Account;
+import com.nowayback.project.domain.project.vo.Period;
+import com.nowayback.project.domain.project.vo.ProjectDraftId;
 import com.nowayback.project.domain.project.vo.ProjectStatus;
+import com.nowayback.project.domain.project.vo.UserId;
 import com.nowayback.project.domain.shard.BaseEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -16,7 +19,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,11 +34,13 @@ public class Project extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID userId;
+    @Embedded
+    @AttributeOverride(name = "id", column = @Column(name = "user_id", updatable = false, nullable = false))
+    private UserId userId;
 
-    @Column(nullable = false)
-    private UUID projectDraftId;
+    @Embedded
+    @AttributeOverride(name = "id", column = @Column(name = "project_draft_id", updatable = false, nullable = false))
+    private ProjectDraftId projectDraftId;
 
     @Column(nullable = false)
     private String title;
@@ -44,8 +48,11 @@ public class Project extends BaseEntity {
     @Column(nullable = false)
     private String summary;
 
-    @Column(nullable = false)
-    private String category;
+    @Column(name = "category_id", nullable = false)
+    private UUID categoryId;
+
+    @Column(name = "root_category_id", nullable = false)
+    private UUID rootCategoryId;
 
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
@@ -56,11 +63,12 @@ public class Project extends BaseEntity {
     @Column(name = "goal_amount", nullable = false)
     private Long goalAmount;
 
-    @Column(name = "funding_start_date", nullable = false)
-    private LocalDate fundingStartDate;
-
-    @Column(name = "funding_end_date", nullable = false)
-    private LocalDate fundingEndDate;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "start_date", column = @Column(name = "start_date", updatable = false, nullable = false)),
+        @AttributeOverride(name = "end_date", column = @Column(name = "end_date", updatable = false, nullable = false))
+    })
+    private Period period;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -79,46 +87,44 @@ public class Project extends BaseEntity {
 
 
     private Project(
-        UUID userId,
-        UUID projectDraftId,
+        UserId userId,
+        ProjectDraftId projectDraftId,
         String title,
         String summary,
-        String category,
+        UUID categoryId,
+        UUID rootCategoryId,
         String thumbnailUrl,
         String contentHtml,
         Long goalAmount,
-        LocalDate fundingStartDate,
-        LocalDate fundingEndDate,
+        Period period,
         Account account
     ) {
-        validateRequired(userId, title, summary, category, contentHtml, goalAmount, fundingStartDate, fundingEndDate);
-        validateFundingPeriod(fundingStartDate, fundingEndDate);
-
+        validateRequired(userId, period, title, summary, categoryId, contentHtml, goalAmount);
         this.userId = userId;
         this.projectDraftId = projectDraftId;
         this.title = title;
         this.summary = summary;
-        this.category = category;
+        this.categoryId = categoryId;
+        this.rootCategoryId = rootCategoryId;
         this.thumbnailUrl = thumbnailUrl;
         this.contentHtml = contentHtml;
         this.goalAmount = goalAmount;
-        this.fundingStartDate = fundingStartDate;
-        this.fundingEndDate = fundingEndDate;
+        this.period = period;
         this.status = ProjectStatus.CREATE_PENDING;
         this.account = account;
     }
 
     public static Project create(
-        UUID userId,
-        UUID  projectDraftId,
+        UserId userId,
+        ProjectDraftId projectDraftId,
         String title,
         String summary,
-        String category,
+        UUID categoryId,
+        UUID rootCategoryId,
         String thumbnailUrl,
         String contentHtml,
         Long goalAmount,
-        LocalDate fundingStartDate,
-        LocalDate fundingEndDate,
+        Period period,
         Account account
     ) {
         return new Project(
@@ -126,42 +132,50 @@ public class Project extends BaseEntity {
             projectDraftId,
             title,
             summary,
-            category,
+            categoryId,
+            rootCategoryId,
             thumbnailUrl,
             contentHtml,
             goalAmount,
-            fundingStartDate,
-            fundingEndDate,
+            period,
             account
         );
     }
 
     private void validateRequired(
-        UUID userId,
+        UserId userId,
+        Period period,
         String title,
         String summary,
-        String category,
+        UUID category,
         String contentHtml,
-        Long goalAmount,
-        LocalDate fundingStartDate,
-        LocalDate fundingEndDate
+        Long goalAmount
     ) {
-        if (userId == null) throw new ProjectException(ProjectErrorCode.NULL_USER_ID);
-        if (title == null || title.isBlank()) throw new ProjectException(ProjectErrorCode.NULL_TITLE);
-        if (summary == null || summary.isBlank()) throw new ProjectException(ProjectErrorCode.NULL_SUMMARY);
-        if (category == null || category.isBlank()) throw new ProjectException(
-            ProjectErrorCode.NULL_CATEGORY);
-        if (contentHtml == null || contentHtml.isBlank()) throw new ProjectException(
-            ProjectErrorCode.NULL_CONTENT);
-        if (goalAmount == null || goalAmount <= 0) throw new ProjectException(
-            ProjectErrorCode.INVALID_GOAL_AMOUNT);
-        if (fundingStartDate == null) throw new ProjectException(ProjectErrorCode.NULL_FUNDING_START);
-        if (fundingEndDate == null) throw new ProjectException(ProjectErrorCode.NULL_FUNDING_END);
-    }
+        if (userId == null) {
+            throw new ProjectException(ProjectErrorCode.NULL_USER_ID);
+        }
 
-    private void validateFundingPeriod(LocalDate start, LocalDate end) {
-        if (!end.isAfter(start)) {
+        if (period == null) {
             throw new ProjectException(ProjectErrorCode.INVALID_FUNDING_PERIOD);
+        }
+
+        if (title == null || title.isBlank()) {
+            throw new ProjectException(ProjectErrorCode.NULL_TITLE);
+        }
+        if (summary == null || summary.isBlank()) {
+            throw new ProjectException(ProjectErrorCode.NULL_SUMMARY);
+        }
+        if (category == null) {
+            throw new ProjectException(
+                ProjectErrorCode.NULL_CATEGORY);
+        }
+        if (contentHtml == null || contentHtml.isBlank()) {
+            throw new ProjectException(
+                ProjectErrorCode.NULL_CONTENT);
+        }
+        if (goalAmount == null || goalAmount <= 0) {
+            throw new ProjectException(
+                ProjectErrorCode.INVALID_GOAL_AMOUNT);
         }
     }
 

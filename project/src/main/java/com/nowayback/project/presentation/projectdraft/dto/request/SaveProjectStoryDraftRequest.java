@@ -14,7 +14,10 @@ public record SaveProjectStoryDraftRequest(
     String summary,
 
     @Schema(description = "카테고리", example = "MUSIC")
-    String category,
+    UUID categoryId,
+
+    @Schema(description = "카테고리", example = "MUSIC")
+    UUID rootCategoryId,
 
     @Schema(description = "썸네일 이미지 URL", example = "https://thumbnail.png")
     String thumbnailUrl,
@@ -29,7 +32,8 @@ public record SaveProjectStoryDraftRequest(
             userId,
             title,
             summary,
-            category,
+            categoryId,
+            rootCategoryId,
             thumbnailUrl,
             contentJson
         );

@@ -7,7 +7,8 @@ public record SaveStoryDraftCommand(
     UUID userId,
     String title,
     String summary,
-    String category,
+    UUID categoryId,
+    UUID rootCategoryId,
     String thumbnailUrl,
     String contentJson
 ) {
@@ -17,7 +18,8 @@ public record SaveStoryDraftCommand(
         UUID userId,
         String title,
         String summary,
-        String category,
+        UUID categoryId,
+        UUID rootCategoryId,
         String thumbnailUrl,
         String contentJson
     ) {
@@ -26,7 +28,8 @@ public record SaveStoryDraftCommand(
             userId,
             title,
             summary,
-            category,
+            categoryId,
+            rootCategoryId,
             thumbnailUrl,
             contentJson
         );

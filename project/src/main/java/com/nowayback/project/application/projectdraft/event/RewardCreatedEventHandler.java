@@ -48,7 +48,7 @@ public class RewardCreatedEventHandler implements EventHandler<RewardCreatedEven
         UUID projectId = payload.getProjectId();
 
         Project project = readProject(projectId);
-        ProjectDraft projectDraft = readProjectDraft(project.getProjectDraftId());
+        ProjectDraft projectDraft = readProjectDraft(project.getProjectDraftId().getId());
         validateFundingDraft(projectDraft);
 
         projectService.markAsUpcoming(projectId);

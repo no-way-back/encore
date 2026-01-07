@@ -41,7 +41,8 @@ public class ProjectDraftFixture {
         story.update(
             "title",
             "summary",
-            "category",
+            UUID.randomUUID(),
+            UUID.randomUUID(),
             "https://thumbnail",
             "{\"content\": \"json\"}"
         );
@@ -84,6 +85,8 @@ public class ProjectDraftFixture {
 
     public static RewardOptionSpec validRewardOptionSpec() {
         return new RewardOptionSpec(
+            "test",
+            true,
             1000,
             10,
             1

@@ -2,7 +2,6 @@ package com.nowayback.project.presentation.projectdraft.dto.request;
 
 import com.nowayback.project.application.projectdraft.command.SaveRewardDraftCommand;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.util.List;
 import java.util.UUID;
 

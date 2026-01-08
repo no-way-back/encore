@@ -2,6 +2,7 @@ package com.nowayback.project.infrastructure.project.persistence;
 
 import static org.springframework.util.StringUtils.hasText;
 
+import com.nowayback.project.application.project.dto.Cursor;
 import com.nowayback.project.application.project.dto.ProjectCard;
 import com.nowayback.project.domain.project.entity.Category;
 import com.nowayback.project.domain.project.entity.QProject;
@@ -20,9 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -33,26 +31,33 @@ public class ProjectQueryRepository {
     private final JPAQueryFactory queryFactory;
     private final CategoryRepository categoryRepository;
 
-    public Page<ProjectCard> searchProjects(
+    public List<ProjectCard> searchProjects(
         String rootCategoryCode,
         String categoryCode,
         Set<ProjectStatus> statuses,
-        ProjectSortType sortType,
-        Pageable pageable
+        Cursor cursor
     ) {
         UUID rootId = resolveCategoryId(rootCategoryCode);
         UUID categoryId = resolveCategoryId(categoryCode);
 
-        List<UUID> ids = buildProjectIds(rootId, categoryId, statuses, sortType)
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
+        List<UUID> ids = buildProjectIds(rootId, categoryId, statuses, cursor.sortType())
+            .offset(cursor.getOffset())
+            .limit(cursor.size())
             .fetch();
 
-        List<ProjectCard> content = buildProjectCardQuery(ids).fetch();
+        return buildProjectCardQuery(ids, cursor.sortType()).fetch();
+    }
 
-        Long total = countProjects(rootId, categoryId, statuses);
+    public Long count(
+        String rootCategoryCode,
+        String categoryCode,
+        Set<ProjectStatus> statuses,
+        Long limit
+    ) {
+        UUID rootId = resolveCategoryId(rootCategoryCode);
+        UUID categoryId = resolveCategoryId(categoryCode);
 
-        return new PageImpl<>(content, pageable, total);
+        return countProjects(rootId, categoryId, statuses, limit);
     }
 
     private JPAQuery<UUID> buildProjectIds(
@@ -65,24 +70,29 @@ public class ProjectQueryRepository {
         QProjectMetrics pm = QProjectMetrics.projectMetrics;
         QProjectRankSnapshot rs = QProjectRankSnapshot.projectRankSnapshot;
 
-        return queryFactory.
-            select(p.id)
+        ProjectSortType sort = (sortType != null) ? sortType : ProjectSortType.RECOMMENDED;
+
+        JPAQuery<UUID> q = queryFactory
+            .select(p.id)
             .from(p)
-            .leftJoin(pm).on(p.id.eq(pm.projectId))
-            .leftJoin(rs).on(p.id.eq(rs.projectId))
             .where(
                 buildStatusFilter(p, statuses),
                 buildCategoryFilter(p.rootCategoryId, rootId),
                 buildCategoryFilter(p.categoryId, categoryId)
-            )
-            .orderBy(
-                resolveOrderBy(sortType, p, pm, rs),
-                p.id.desc()
             );
+
+        if (sort == ProjectSortType.RECOMMENDED || sort == ProjectSortType.POPULAR) {
+            q.leftJoin(rs).on(rs.projectId.eq(p.id));
+        } else if (sort == ProjectSortType.AMOUNT_DESC || sort == ProjectSortType.BACKERS_DESC) {
+            q.leftJoin(pm).on(pm.projectId.eq(p.id));
+        }
+
+        return q.orderBy(resolveOrderBy(sort, p, pm, rs), p.id.desc());
     }
 
     private JPAQuery<ProjectCard> buildProjectCardQuery(
-        List<UUID> ids
+        List<UUID> ids,
+        ProjectSortType sortType
     ) {
         QProject p = QProject.project;
         QProjectMetrics pm = QProjectMetrics.projectMetrics;
@@ -105,23 +115,33 @@ public class ProjectQueryRepository {
             .leftJoin(rs).on(rs.projectId.eq(p.id))
             .where(
                 p.id.in(ids)
+            )
+            .orderBy(
+                resolveOrderBy(sortType, p, pm, rs),
+                p.id.desc()
             );
     }
 
-    private Long countProjects(UUID rootId, UUID categoryId, Set<ProjectStatus> statuses) {
+    private Long countProjects(
+        UUID rootId,
+        UUID categoryId,
+        Set<ProjectStatus> statuses,
+        Long limit
+    ) {
         QProject p = QProject.project;
 
-        Long count = queryFactory
-            .select(p.count())
+        List<UUID> ids = queryFactory
+            .select(p.id)
             .from(p)
             .where(
                 buildStatusFilter(p, statuses),
                 buildCategoryFilter(p.rootCategoryId, rootId),
                 buildCategoryFilter(p.categoryId, categoryId)
             )
-            .fetchOne();
+            .limit(limit)
+            .fetch();
 
-        return count != null ? count : 0L;
+        return (long) ids.size();
     }
 
     private UUID resolveCategoryId(String categoryCode) {

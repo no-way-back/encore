@@ -3,7 +3,7 @@ package com.nowayback.project.presentation.project;
 import com.nowayback.project.application.project.ProjectService;
 import com.nowayback.project.application.project.dto.CategoryCodes;
 import com.nowayback.project.application.project.dto.Cursor;
-import com.nowayback.project.application.project.dto.ProjectCard;
+import com.nowayback.project.application.project.dto.ProjectCardPageResult;
 import com.nowayback.project.application.project.dto.ProjectListState;
 import com.nowayback.project.application.project.dto.ProjectResult;
 import com.nowayback.project.application.project.dto.SettlementResult;
@@ -12,7 +12,6 @@ import com.nowayback.project.presentation.project.dto.response.ProjectResponse;
 import com.nowayback.project.presentation.project.dto.response.SettlementResponse;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,13 +55,13 @@ public class ProjectController implements ProjectControllerDoc {
     }
 
     @GetMapping("/projects")
-    public Page<ProjectCard> searchProjects(
+    public ProjectCardPageResult searchProjects(
         @RequestParam(required = false) String rootCategoryCode,
         @RequestParam(required = false) String categoryCode,
         @RequestParam(required = false) ProjectSortType sortType,
         @RequestParam(required = false) ProjectListState state,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size
+        @RequestParam(defaultValue = "1") Long page,
+        @RequestParam(defaultValue = "20") Long size
     ) {
         return projectService.searchProjects(
             new Cursor(sortType, page, size),

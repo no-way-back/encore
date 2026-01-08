@@ -1,16 +1,15 @@
 package com.nowayback.project.infrastructure.project.persistence;
 
+import com.nowayback.project.application.project.dto.Cursor;
 import com.nowayback.project.application.project.dto.ProjectCard;
 import com.nowayback.project.domain.project.entity.Project;
 import com.nowayback.project.domain.project.repository.ProjectRepository;
-import com.nowayback.project.domain.project.vo.ProjectSortType;
 import com.nowayback.project.domain.project.vo.ProjectStatus;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -32,19 +31,28 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     }
 
     @Override
-    public Page<ProjectCard> searchProjects(
+    public List<ProjectCard> searchProjects(
         String rootCategoryCode,
         String categoryCode,
         Set<ProjectStatus> statuses,
-        ProjectSortType sortType,
-        Pageable pageable
+        Cursor cursor
     ) {
         return projectQueryRepository.searchProjects(
             rootCategoryCode,
             categoryCode,
             statuses,
-            sortType,
-            pageable
+            cursor
         );
     }
+
+    @Override
+    public Long count(
+        String rootCategoryCode,
+        String categoryCode,
+        Set<ProjectStatus> statuses,
+        Long limit
+    ) {
+        return projectQueryRepository.count(rootCategoryCode, categoryCode, statuses, limit);
+    }
+
 }

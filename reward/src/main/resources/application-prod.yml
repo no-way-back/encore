@@ -9,6 +9,14 @@ spring:
     password: ${REWARD_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 10
+      connection-timeout: 3000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: RewardServiceHikariCP
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -75,6 +83,11 @@ qrcode:
   width: ${QRCODE_WIDTH:300}
   height: ${QRCODE_HEIGHT:300}
   base-url: ${QRCODE_BASE_URL}
+
+# Redis
+redisson:
+  connection-pool-size: ${REDISSON_POOL_SIZE:100}
+  connection-minimum-idle-size: ${REDISSON_MIN_IDLE:20}
 
 logging:
   level:

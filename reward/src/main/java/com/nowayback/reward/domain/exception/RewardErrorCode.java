@@ -24,6 +24,8 @@ public enum RewardErrorCode {
     INVALID_STOCK_QUANTITY("RW-110", "재고 수량을 입력해주세요", HttpStatus.BAD_REQUEST),
     NEGATIVE_STOCK_QUANTITY("RW-111", "재고 수량은 0 이상이어야 합니다", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_STOCK("RW-112", "재고가 부족합니다", HttpStatus.CONFLICT),
+    STOCK_LOCK_TIMEOUT("RW-113", "많은 요청이 처리 중입니다. 잠시 후 다시 시도해주세요", HttpStatus.CONFLICT),
+    STOCK_LOCK_INTERRUPTED("RW-114", "재고 처리가 중단되었습니다", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // Value Object - ShippingPolicy
     INVALID_SHIPPING_FEE("RW-120", "배송비를 입력해주세요", HttpStatus.BAD_REQUEST),

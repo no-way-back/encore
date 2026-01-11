@@ -14,8 +14,14 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "p_stock_reservations")
-@Getter
+@Table(
+        name = "p_stock_reservations",
+        indexes = {
+                @Index(name = "idx_stock_reservation_funding_id", columnList = "funding_id"),
+                @Index(name = "idx_stock_reservation_reward_id", columnList = "reward_id"),
+                @Index(name = "idx_stock_reservation_funding_status", columnList = "funding_id, status")
+        }
+)@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StockReservation extends BaseEntity {
 

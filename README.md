@@ -282,18 +282,3 @@ public void retryPendingEvents() {
 ![funding1](.github/image/troubleShooting/schedulerSecondInstance.png)
 
 [![스케줄러 분산락 적용](https://img.shields.io/badge/스케줄러_분산락_적용_문서-4B5CF2?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/teamsparta/2d02dc3ef5148053a7ecebd61a0f1904)
-
----
-
-### 3. Kafka 역직렬화 문제
-
-### **문제 상황**
-- 이벤트 메시지 역직렬화 실패
-
-### **해결 방법**
-- JsonSerializer/JsonDeserializer 설정 최적화
-- Trusted Packages 설정
-
-[![kafka 역직렬화 문제](https://img.shields.io/badge/kafka_역직렬화_문제_문서-4B5CF2?style=for-the-badge&logo=notion&logoColor=white)](https://www.notion.so/teamsparta/kafka-2d02dc3ef5148055b572c5c0a65fc82e)
-
----

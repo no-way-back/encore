@@ -15,6 +15,7 @@ java {
 }
 
 configurations {
+    agent
     compileOnly {
         extendsFrom annotationProcessor
     }
@@ -71,9 +72,18 @@ dependencies {
     // H2 Database (테스트용)
     testRuntimeOnly 'com.h2database:h2'
 
+    // OpenTelemetry Agent
+    agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.10.0'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.register('downloadAgent', Copy) {
+    from configurations.agent.singleFile
+    into projectDir
+    rename 'opentelemetry-javaagent-.*\\.jar', 'opentelemetry-javaagent.jar'
 }
 
 test {

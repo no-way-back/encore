@@ -2,6 +2,11 @@ spring:
   application:
     name: reward-service
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   datasource:
     driver-class-name: org.postgresql.Driver
 

@@ -1,17 +1,14 @@
 package com.nowayback.reward.infrastructure.config;
 
-import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent;
-import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent;
-import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingRefundEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.ProjectFundingSuccessEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -30,14 +27,8 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers;
-
-    @Value("${spring.kafka.consumer.group-id}")
-    private String groupId;
-
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
+    @Autowired
+    private KafkaProperties kafkaProperties;
 
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
@@ -46,20 +37,15 @@ public class KafkaConfig {
 
     /**
      * Kafka Producer 설정
-     * - JSON 직렬화, 전송 보장, 재시도 횟수, 멱등성 설정
+     * - yml 설정 기반으로 생성 (MSK IAM 인증 포함)
+     * - JSON 직렬화 추가 설정
      */
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
-        Map<String, Object> configProps = new HashMap<>();
+        Map<String, Object> configProps = new HashMap<>(kafkaProperties.buildProducerProperties());
 
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        configProps.put(ProducerConfig.ACKS_CONFIG, "all");
-        configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
-        configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
-
-        applyIamAuthIfProd(configProps);
 
         return new DefaultKafkaProducerFactory<>(configProps);
     }
@@ -100,18 +86,12 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, ProjectCreatedEvent> projectCreatedConsumerFactory() {
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+
         JsonDeserializer<ProjectCreatedEvent> valueDeserializer =
                 new JsonDeserializer<>(ProjectCreatedEvent.class);
         valueDeserializer.addTrustedPackages("*");
         valueDeserializer.setUseTypeMapperForKey(false);
-
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-
-        applyIamAuthIfProd(props);
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
@@ -134,13 +114,7 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, String> fundingCompletedConsumerFactory() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-
-        applyIamAuthIfProd(props);
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
@@ -163,13 +137,7 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, String> fundingFailedConsumerFactory() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-
-        applyIamAuthIfProd(props);
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
@@ -192,13 +160,7 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, String> fundingRefundConsumerFactory() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-
-        applyIamAuthIfProd(props);
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
@@ -221,18 +183,12 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, ProjectFundingSuccessEvent> projectFundingSuccessConsumerFactory() {
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+
         JsonDeserializer<ProjectFundingSuccessEvent> valueDeserializer =
                 new JsonDeserializer<>(ProjectFundingSuccessEvent.class);
         valueDeserializer.addTrustedPackages("*");
         valueDeserializer.setUseTypeMapperForKey(false);
-
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-
-        applyIamAuthIfProd(props);
 
         return new DefaultKafkaConsumerFactory<>(
                 props,
@@ -249,24 +205,5 @@ public class KafkaConfig {
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         factory.setCommonErrorHandler(errorHandler);
         return factory;
-    }
-
-    private void applyIamAuthIfProd(Map<String, Object> configProps) {
-        if (!"prod".equals(activeProfile)) {
-            return;
-        }
-
-        log.info("Applying MSK IAM authentication (profile=prod)");
-
-        configProps.put("security.protocol", "SASL_SSL");
-        configProps.put("sasl.mechanism", "AWS_MSK_IAM");
-        configProps.put(
-                "sasl.jaas.config",
-                "software.amazon.msk.auth.iam.IAMLoginModule required;"
-        );
-        configProps.put(
-                "sasl.client.callback.handler.class",
-                "software.amazon.msk.auth.iam.IAMClientCallbackHandler"
-        );
     }
 }

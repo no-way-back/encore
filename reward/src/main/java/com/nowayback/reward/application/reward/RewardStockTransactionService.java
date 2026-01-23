@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 import static com.nowayback.reward.domain.exception.RewardErrorCode.REWARD_NOT_FOUND;
+import static com.nowayback.reward.domain.exception.RewardErrorCode.RESERVATION_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -48,7 +49,10 @@ public class RewardStockTransactionService {
      * 재고 복원 트랜잭션 처리
      */
     @Transactional
-    public void restoreStockForReservation(StockReservation reservation) {
+    public void restoreStockForReservation(UUID reservationId) {
+        StockReservation reservation = stockReservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RewardException(RESERVATION_NOT_FOUND));
+
         Rewards reward = findRewardByIdWithOptions(reservation.getRewardId().getId());
 
         if (reservation.getOptionId() != null) {

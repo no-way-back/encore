@@ -16,7 +16,12 @@ import static com.nowayback.reward.domain.reward.vo.SaleStatus.AVAILABLE;
 import static com.nowayback.reward.domain.reward.vo.SaleStatus.SOLD_OUT;
 
 @Entity
-@Table(name = "p_reward_option")
+@Table(
+        name = "p_reward_option",
+        indexes = {
+                @Index(name = "idx_reward_option_reward_id", columnList = "reward_id")
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RewardOptions extends BaseEntity {

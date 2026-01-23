@@ -10,5 +10,5 @@ public interface RewardRepository {
     Rewards save(Rewards reward);
     Optional<Rewards> findById(UUID rewardId);
     List<Rewards> findAvailableReward(UUID projectId);
-    Optional<Rewards> findByIdWithLock(UUID rewardId);
+    Optional<Rewards> findByIdWithOptions(UUID rewardId);
 }

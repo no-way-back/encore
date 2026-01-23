@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum ReservationStatus {
-    DEDUCTED("차감"),
+    PENDING("임시예약"),
+    CONFIRMED("확정"),
     RESTORED("복원");
 
     private final String description;

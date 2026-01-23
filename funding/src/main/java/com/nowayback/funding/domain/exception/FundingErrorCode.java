@@ -33,6 +33,7 @@ public enum FundingErrorCode implements ErrorCode {
 	REWARD_BAD_REQUEST("FD-INF-RW-002", "리워드 요청이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
 	REWARD_NOT_FOUND("FD-INF-RW-003", "존재하지 않는 리워드입니다.", HttpStatus.NOT_FOUND),
 	REWARD_CONFLICT("FD-INF-RW-004", "리워드 재고가 부족합니다.", HttpStatus.CONFLICT),
+    STOCK_RESERVATION_FAILED("FD-INF-RW-005", "재고 예약에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 	// ================= Infrastructure / External Errors - Payment Service =================
 	PAYMENT_SERVICE_UNAVAILABLE("FD-INF-PM-001", "결제 서비스에 연결할 수 없습니다.", HttpStatus.SERVICE_UNAVAILABLE),

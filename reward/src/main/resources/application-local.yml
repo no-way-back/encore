@@ -9,6 +9,14 @@ spring:
     password: ${REWARD_SPRING_DATASOURCE_PASSWORD:1234}
     driver-class-name: org.postgresql.Driver
 
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 3000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: RewardServiceHikariCP
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -50,12 +58,27 @@ spring:
         bucket: ${AWS_S3_BUCKET}
         base-url: ${AWS_S3_BASE_URL}
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:false}
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 100
+          max-idle: 20
+          min-idle: 10
+
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
     fetch-registry: true
     register-with-eureka: true
+
 feign:
   client:
     config:
@@ -68,12 +91,17 @@ server:
 qrcode:
   base-url: http://localhost:8080
 
+redisson:
+  connection-pool-size: 100
+  connection-minimum-idle-size: 20
+
 logging:
   level:
-    root: INFO
+    root: WARN
     com.nowayback.reward: DEBUG
     org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    com.zaxxer.hikari: WARN
 
 management:
   endpoints:

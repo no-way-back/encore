@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -19,7 +20,8 @@ import java.util.UUID;
         indexes = {
                 @Index(name = "idx_stock_reservation_funding_id", columnList = "funding_id"),
                 @Index(name = "idx_stock_reservation_reward_id", columnList = "reward_id"),
-                @Index(name = "idx_stock_reservation_funding_status", columnList = "funding_id, status")
+                @Index(name = "idx_stock_reservation_funding_status", columnList = "funding_id, status"),
+                @Index(name = "idx_stock_reservation_expires_at", columnList = "expires_at, status")
         }
 )@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,6 +45,8 @@ public class StockReservation extends BaseEntity {
     @Column(nullable = false)
     private Integer quantity;
 
+    private LocalDateTime expiresAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ReservationStatus status;
@@ -63,18 +67,31 @@ public class StockReservation extends BaseEntity {
         reservation.rewardId = RewardId.of(rewardId);
         reservation.optionId = optionId != null ? OptionId.of(optionId) : null;
         reservation.quantity = quantity;
-        reservation.status = ReservationStatus.DEDUCTED;
+        reservation.expiresAt = LocalDateTime.now().plusMinutes(10);
+        reservation.status = ReservationStatus.PENDING;
         return reservation;
     }
 
     /**
-     * 재고 복원 처리
+     * 예약 확정 (펀딩 생성 성공 시)
+     */
+    public void confirm() {
+        if (this.status != ReservationStatus.PENDING) {
+            throw new IllegalStateException("PENDING 상태만 확정할 수 있습니다");
+        }
+        this.status = ReservationStatus.CONFIRMED;
+        this.expiresAt = null;
+    }
+
+    /**
+     * 재고 복원 (펀딩 실패/취소 시)
      */
     public void restore() {
         if (this.status == ReservationStatus.RESTORED) {
             throw new IllegalStateException("이미 복원된 예약입니다");
         }
         this.status = ReservationStatus.RESTORED;
+        this.expiresAt = null;
     }
 
     /**
@@ -82,5 +99,19 @@ public class StockReservation extends BaseEntity {
      */
     public boolean isRestored() {
         return this.status == ReservationStatus.RESTORED;
+    }
+
+    /**
+     * 재고 선점 확인
+     */
+    public boolean isPending() {
+        return this.status == ReservationStatus.PENDING;
+    }
+
+    /**
+     * 선점 만료 시간 확인
+     */
+    public boolean isExpired() {
+        return isPending() && expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
     }
 }

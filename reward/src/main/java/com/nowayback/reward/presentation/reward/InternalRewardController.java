@@ -41,4 +41,22 @@ public class InternalRewardController implements InternalRewardControllerDoc {
 
         return ResponseEntity.ok(StockReserveResponse.from(result));
     }
+
+    @PostMapping("/confirm-reservations/{fundingId}")
+    public ResponseEntity<Void> confirmReservations(
+            @RequestHeader(value = "X-User-Id") UUID userId,
+            @PathVariable UUID fundingId
+    ) {
+        rewardStockService.confirmReservations(fundingId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/restore-stock/{fundingId}")
+    public ResponseEntity<Void> restoreStock(
+            @RequestHeader(value = "X-User-Id") UUID userId,
+            @PathVariable UUID fundingId
+    ) {
+        rewardStockService.restoreStock(fundingId);
+        return ResponseEntity.ok().build();
+    }
 }

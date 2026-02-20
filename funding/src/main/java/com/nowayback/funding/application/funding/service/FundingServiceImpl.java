@@ -53,80 +53,65 @@ public class FundingServiceImpl implements FundingService {
 		this.outboxService = outboxService;
 	}
 
-	@Override
-	@Transactional
-	public CreateFundingResult createFunding(CreateFundingCommand command) {
+    @Override
+    @Transactional
+    public CreateFundingResult createFunding(CreateFundingCommand command) {
+        log.info("펀딩 시작 - projectId: {}, userId: {}", command.projectId(), command.userId());
 
-		log.info("펀딩 시작 - projectId: {}, userId: {}",
-			command.projectId(), command.userId());
+        fundingRepository.findByIdempotencyKey(command.idempotencyKey())
+                .ifPresent(existingFunding -> {
+                    log.warn("중복 요청 감지 - idempotencyKey: {}", command.idempotencyKey());
+                    throw new FundingException(DUPLICATE_REQUEST);
+                });
 
-		fundingRepository.findByIdempotencyKey(command.idempotencyKey())
-			.ifPresent(existingFunding -> {
-				log.warn("중복 요청 감지 - idempotencyKey: {}",
-					command.idempotencyKey());
-				throw new FundingException(DUPLICATE_REQUEST);
-			});
+        fundingProjectStatisticsService.validateProjectForFunding(command.projectId());
 
-		fundingProjectStatisticsService.validateProjectForFunding(command.projectId());
+        boolean alreadyFunded = fundingRepository.existsByUserIdAndProjectIdAndStatus(
+                command.userId(),
+                command.projectId(),
+                FundingStatus.COMPLETED
+        );
 
-		boolean alreadyFunded = fundingRepository.existsByUserIdAndProjectIdAndStatus(
-			command.userId(),
-			command.projectId(),
-			FundingStatus.COMPLETED
-		);
+        if (alreadyFunded) {
+            log.warn("중복 후원 감지 - userId: {}, projectId: {}", command.userId(), command.projectId());
+            throw new FundingException(DUPLICATE_FUNDING);
+        }
 
-		if (alreadyFunded) {
-			log.warn("중복 후원 감지 - userId: {}, projectId: {}",
-				command.userId(), command.projectId());
-			throw new FundingException(DUPLICATE_FUNDING);
-		}
+        Funding funding = Funding.createFunding(
+                command.projectId(),
+                command.userId(),
+                command.idempotencyKey(),
+                command.amount()
+        );
 
-		Funding funding = Funding.createFunding(
-			command.projectId(),
-			command.userId(),
-			command.idempotencyKey(),
-			command.amount()
-		);
+        Funding savedFunding = fundingRepository.save(funding);
+        log.info("Funding 생성 완료 - fundingId: {}", savedFunding.getId());
 
-		Funding savedFunding = fundingRepository.save(funding);
-		log.info("Funding 생성 완료 - funding: {}", savedFunding.getId());
+        if (command.hasRewards()) {
+            try {
+                StockReserveResponse response = reserveStock(command, savedFunding);
 
-		if (command.hasRewards()) {
-			List<StockReserveRequest.StockReserveItem> items = command.rewardItems().stream()
-				.map(item -> new StockReserveRequest.StockReserveItem(
-					item.rewardId(),
-					item.optionId(),
-					item.quantity()
-				))
-				.toList();
+                log.info("재고 예약 완료 - fundingId: {}, reservations: {}, rewardAmount: {}",
+                        savedFunding.getId(), response.reservedItems().size(), response.totalAmount());
 
-			StockReserveRequest stockReserveRequest = new StockReserveRequest(savedFunding.getId(), items);
-			StockReserveResponse response = rewardClient.reserveStock(command.userId(), stockReserveRequest);
+                addReservationsToFunding(funding, response);
+                funding.updateAmount(response.totalAmount() + command.amount());
 
-			log.info("재고 예약 완료 - fundingId: {}, reservations: {}, rewardAmount: {}, totalAmount: {}",
-				savedFunding.getId(), response.reservedItems().size(), response.totalAmount(), response.totalAmount());
+                rewardClient.confirmReservations(command.userId(), savedFunding.getId());
 
-			for (StockReserveResponse.ReservedItem item : response.reservedItems()) {
-				funding.addReservation(
-					item.reservationId(),
-					item.rewardId(),
-					item.optionId(),
-					item.quantity(),
-					item.itemAmount()
-				);
-			}
+                log.info("재고 예약 확정 완료 - fundingId: {}", savedFunding.getId());
 
-			Long totalAmount = response.totalAmount() + command.amount();
+            } catch (Exception e) {
+                log.error("펀딩 생성 실패 - fundingId: {}", savedFunding.getId(), e);
+                throw new FundingException(STOCK_RESERVATION_FAILED);
+            }
+        }
 
-			funding.updateAmount(totalAmount);
-		}
+        publishPaymentProcessEvent(funding, command);
+        log.info("결제 이벤트 발행 완료 - fundingId: {}", savedFunding.getId());
 
-		publishPaymentProcessEvent(funding, command);
-
-		log.info("결제 이벤트 발행 완료 - fundingId: {}", savedFunding.getId());
-
-		return CreateFundingResult.success(savedFunding.getId());
-	}
+        return CreateFundingResult.success(savedFunding.getId());
+    }
 
 	private void publishPaymentProcessEvent(Funding funding, CreateFundingCommand command) {
 		FundingPaymentProcessEvent event = FundingPaymentProcessEvent.of(
@@ -301,6 +286,31 @@ public class FundingServiceImpl implements FundingService {
 
 		return funding;
 	}
+
+    private StockReserveResponse reserveStock(CreateFundingCommand command, Funding funding) {
+        List<StockReserveRequest.StockReserveItem> items = command.rewardItems().stream()
+                .map(item -> new StockReserveRequest.StockReserveItem(
+                        item.rewardId(),
+                        item.optionId(),
+                        item.quantity()
+                ))
+                .toList();
+
+        StockReserveRequest request = new StockReserveRequest(funding.getId(), items);
+        return rewardClient.reserveStock(command.userId(), request);
+    }
+
+    private void addReservationsToFunding(Funding funding, StockReserveResponse response) {
+        for (StockReserveResponse.ReservedItem item : response.reservedItems()) {
+            funding.addReservation(
+                    item.reservationId(),
+                    item.rewardId(),
+                    item.optionId(),
+                    item.quantity(),
+                    item.itemAmount()
+            );
+        }
+    }
 
 	private LocalDateTime calculateStartDate(GetMyFundingsCommand.FundingPeriod period) {
 

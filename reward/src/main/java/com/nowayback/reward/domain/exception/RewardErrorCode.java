@@ -47,6 +47,9 @@ public enum RewardErrorCode {
     QRCODE_ALREADY_USED("RW-401", "이미 사용된 QR 코드입니다", HttpStatus.CONFLICT),
     QRCODE_CANCELLED("RW-402", "취소된 QR 코드입니다", HttpStatus.BAD_REQUEST),
 
+    // StockReservation
+    RESERVATION_NOT_FOUND("RW-115", "존재하지 않는 예약입니다.", HttpStatus.NOT_FOUND),
+
     // Mail
     MAIL_SEND_FAILED("RW-600", "이메일 발송에 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR),
 

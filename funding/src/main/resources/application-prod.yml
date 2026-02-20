@@ -24,9 +24,9 @@ spring:
     hibernate:
       ddl-auto: validate
     properties:
-    hibernate:
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      default_schema: funding_service
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: funding_service
     show-sql: false
 
   flyway:

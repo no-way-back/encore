@@ -27,6 +27,8 @@ spring:
 
   flyway:
     enabled: true                    # Flyway 활성화
+    schemas: funding_service
+    default-schema: funding_service
     locations: classpath:db/migration
     encoding: UTF-8
     validate-on-migrate: true      # 마이그레이션 파일 변경 감지

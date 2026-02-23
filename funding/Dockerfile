@@ -1,6 +1,8 @@
 # Build stage
 FROM amazoncorretto:21-alpine AS build
 
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 COPY gradlew .

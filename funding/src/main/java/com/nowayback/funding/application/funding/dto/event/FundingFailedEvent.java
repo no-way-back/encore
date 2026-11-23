@@ -31,7 +31,7 @@ public record FundingFailedEvent(
 
     @Override
     public Object getPayload() {
-        return payload;
+        return this;
     }
 
     public static FundingFailedEvent from(UUID fundingId) {

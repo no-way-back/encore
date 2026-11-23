@@ -86,18 +86,12 @@ public class Inbox {
     }
 
     /**
-     * 처리 실패 상태로 변경 (DLQ 전송 후 호출)
+     * 처리 실패 상태로 변경
+     * - 비즈니스 트랜잭션과 분리된 트랜잭션에서 호출되어, 본 작업이 롤백돼도 실패 이력이 남는다
      */
     public void markAsFailed(String errorMessage) {
         this.status = InboxStatus.FAILED;
         this.errorMessage = errorMessage;
-        this.retryCount++;
-    }
-
-    /**
-     * 재시도 횟수 증가
-     */
-    public void incrementRetryCount() {
-        this.retryCount++;
+        this.retryCount = (this.retryCount == null ? 0 : this.retryCount) + 1;
     }
 }

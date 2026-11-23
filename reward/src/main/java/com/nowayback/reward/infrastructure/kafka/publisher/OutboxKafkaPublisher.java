@@ -22,6 +22,7 @@ public class OutboxKafkaPublisher implements OutboxPublisher {
 
     private final ObjectMapper objectMapper;
     private final OutboxRepository outboxRepository;
+    private final OutboxStatusUpdater outboxStatusUpdater;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private static final int MAX_RETRY_COUNT = 5;
@@ -31,7 +32,7 @@ public class OutboxKafkaPublisher implements OutboxPublisher {
     public void publishImmediately(Outbox outbox) {
         try {
             sendToKafka(outbox);
-            updatePublishedStatus(outbox);
+            outboxStatusUpdater.markAsPublished(outbox.getId());
 
             log.info("즉시 발행 성공 - outboxId: {}, topic: {}", outbox.getId(), outbox.getDestination().getTopicName());
         } catch (Exception e) {
@@ -71,12 +72,6 @@ public class OutboxKafkaPublisher implements OutboxPublisher {
                     e.getMessage());
             return false;
         }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected void updatePublishedStatus(Outbox outbox) {
-        outbox.markAsPublished();
-        outboxRepository.save(outbox);
     }
 
     private void sendToKafka(Outbox outbox) throws Exception {

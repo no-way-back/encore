@@ -44,7 +44,7 @@ public interface InternalRewardControllerDoc {
                     - 옵션이 있는 경우: 옵션의 재고 차감
                     - 옵션이 없는 경우: 리워드의 재고 차감
                     - 필수 옵션이 있는데 선택하지 않은 경우: 에러
-                    - StockReservation 생성 (DEDUCTED 상태)
+                    - StockReservation 생성 (PENDING 상태, 결제 성공 이벤트로 확정)
                     """
     )
     @ApiResponses({

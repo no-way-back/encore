@@ -31,7 +31,7 @@ public record ProjectFundingSuccessEvent(
 
     @Override
     public Object getPayload() {
-        return payload;
+        return this;
     }
 
     public static ProjectFundingSuccessEvent of(

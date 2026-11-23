@@ -32,7 +32,7 @@ public record FundingCompletedEvent(
 
     @Override
     public Object getPayload() {
-        return payload;
+        return this;
     }
 
     public static FundingCompletedEvent from(Funding funding) {

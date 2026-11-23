@@ -97,10 +97,6 @@ public class FundingServiceImpl implements FundingService {
                 addReservationsToFunding(funding, response);
                 funding.updateAmount(response.totalAmount() + command.amount());
 
-                rewardClient.confirmReservations(command.userId(), savedFunding.getId());
-
-                log.info("재고 예약 확정 완료 - fundingId: {}", savedFunding.getId());
-
             } catch (Exception e) {
                 log.error("펀딩 생성 실패 - fundingId: {}", savedFunding.getId(), e);
                 throw new FundingException(STOCK_RESERVATION_FAILED);

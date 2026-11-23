@@ -27,15 +27,6 @@ public interface RewardClient {
     );
 
     /**
-     * 재고 예약 확정 (펀딩 생성 성공 후)
-     */
-    @PostMapping("/internal/rewards/confirm-reservations/{fundingId}")
-    void confirmReservations(
-            @RequestHeader("X-User-Id") UUID userId,
-            @PathVariable UUID fundingId
-    );
-
-    /**
      * 재고 복원 (펀딩 실패/취소 시)
      */
     @PostMapping("/internal/rewards/restore-stock/{fundingId}")

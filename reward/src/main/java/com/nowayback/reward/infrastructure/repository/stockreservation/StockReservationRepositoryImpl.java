@@ -5,6 +5,7 @@ import com.nowayback.reward.application.stockreservation.repository.StockReserva
 import com.nowayback.reward.domain.stockreservation.vo.ReservationStatus;
 import com.nowayback.reward.domain.vo.FundingId;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +41,19 @@ public class StockReservationRepositoryImpl implements StockReservationRepositor
     }
 
     @Override
-    public List<StockReservation> findExpiredPendingReservations(LocalDateTime now) {
-        return jpaRepository.findExpiredPendingReservations(now);
+    public Optional<StockReservation> findByIdForUpdate(UUID id) {
+        return jpaRepository.findByIdForUpdate(id);
+    }
+
+    @Override
+    public List<StockReservation> findByFundingIdForUpdate(FundingId fundingId) {
+        return jpaRepository.findByFundingIdForUpdate(fundingId);
+    }
+
+    @Override
+    public List<StockReservation> findExpiredPending(LocalDateTime now, int limit) {
+        return jpaRepository.findByStatusAndExpiresAtBefore(
+                ReservationStatus.PENDING, now, PageRequest.of(0, limit)
+        );
     }
 }

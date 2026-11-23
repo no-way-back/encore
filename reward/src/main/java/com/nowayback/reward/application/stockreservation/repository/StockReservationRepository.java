@@ -14,5 +14,11 @@ public interface StockReservationRepository {
     Optional<StockReservation> findById(UUID id);
     List<StockReservation> findByFundingId(FundingId fundingId);
     List<StockReservation> findByFundingIdAndStatus(FundingId fundingId, ReservationStatus status);
-    List<StockReservation> findExpiredPendingReservations(LocalDateTime now);
+
+    /** 예약 행을 잠그고 조회한다 (확정과 만료 복원이 동시에 일어나지 않도록) */
+    Optional<StockReservation> findByIdForUpdate(UUID id);
+    List<StockReservation> findByFundingIdForUpdate(FundingId fundingId);
+
+    /** 만료 시각이 지난 PENDING 예약 (오래된 순, 최대 limit건) */
+    List<StockReservation> findExpiredPending(LocalDateTime now, int limit);
 }

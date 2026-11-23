@@ -31,7 +31,7 @@ public record FundingRefundEvent(
 
     @Override
     public Object getPayload() {
-        return payload;
+        return this;
     }
 
     public static FundingRefundEvent from(UUID fundingId) {

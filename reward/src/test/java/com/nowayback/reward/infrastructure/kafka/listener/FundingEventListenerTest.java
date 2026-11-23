@@ -78,7 +78,6 @@ class FundingEventListenerTest {
             // given
             FundingFailedPayload payload = new FundingFailedPayload(fundingId);
             FundingFailedEvent event = new FundingFailedEvent(eventId, FUNDING_FAILED, LocalDateTime.now(), payload);
-            String message = objectMapper.writeValueAsString(objectMapper.writeValueAsString(event));
 
             doAnswer(invocation -> {
                 Consumer<Object> handler = invocation.getArgument(4);
@@ -87,7 +86,7 @@ class FundingEventListenerTest {
             }).when(inboxProcessor).processEvent(any(), any(), any(), any(), any());
 
             // when
-            assertThatCode(() -> fundingEventListener.consumeFundingFailedEvent(message, acknowledgment))
+            assertThatCode(() -> fundingEventListener.consumeFundingFailedEvent(event, acknowledgment))
                     .doesNotThrowAnyException();
 
             // then
@@ -104,10 +103,9 @@ class FundingEventListenerTest {
             // given
             FundingFailedPayload payload = new FundingFailedPayload(fundingId);
             FundingFailedEvent event = new FundingFailedEvent(eventId, UNSUPPORTED_TYPE, LocalDateTime.now(), payload);
-            String message = objectMapper.writeValueAsString(objectMapper.writeValueAsString(event));
 
             // when
-            assertThatCode(() -> fundingEventListener.consumeFundingFailedEvent(message, acknowledgment))
+            assertThatCode(() -> fundingEventListener.consumeFundingFailedEvent(event, acknowledgment))
                     .doesNotThrowAnyException();
 
             // then
@@ -127,7 +125,6 @@ class FundingEventListenerTest {
             // given
             FundingRefundPayload payload = new FundingRefundPayload(fundingId);
             FundingRefundEvent event = new FundingRefundEvent(eventId, FUNDING_REFUND, LocalDateTime.now(), payload);
-            String message = objectMapper.writeValueAsString(objectMapper.writeValueAsString(event));
 
             doAnswer(invocation -> {
                 Consumer<Object> handler = invocation.getArgument(4);
@@ -136,7 +133,7 @@ class FundingEventListenerTest {
             }).when(inboxProcessor).processEvent(any(), any(), any(), any(), any());
 
             // when
-            assertThatCode(() -> fundingEventListener.consumeFundingRefundEvent(message, acknowledgment))
+            assertThatCode(() -> fundingEventListener.consumeFundingRefundEvent(event, acknowledgment))
                     .doesNotThrowAnyException();
 
             // then
@@ -153,14 +150,13 @@ class FundingEventListenerTest {
     class FundingCompletedEventTest {
 
         @Test
-        @DisplayName("펀딩 완료 이벤트 수신 시 QR 코드 생성 성공")
+        @DisplayName("펀딩 완료 이벤트 수신 시 재고 확정과 QR 코드 생성 성공")
         void consumeFundingCompletedEvent_success() throws Exception {
             // given
             FundingCompletedPayload payload = new FundingCompletedPayload(
                     projectId, fundingId, "test@test.com", List.of()
             );
             FundingCompletedEvent event = new FundingCompletedEvent(eventId, FUNDING_COMPLETED, LocalDateTime.now(), payload);
-            String message = objectMapper.writeValueAsString(objectMapper.writeValueAsString(event));
 
             doAnswer(invocation -> {
                 Consumer<Object> handler = invocation.getArgument(4);
@@ -169,13 +165,14 @@ class FundingEventListenerTest {
             }).when(inboxProcessor).processEvent(any(), any(), any(), any(), any());
 
             // when
-            assertThatCode(() -> fundingEventListener.consumeFundingCompletedEvent(message, acknowledgment))
+            assertThatCode(() -> fundingEventListener.consumeFundingCompletedEvent(event, acknowledgment))
                     .doesNotThrowAnyException();
 
             // then
             verify(inboxProcessor, times(1)).processEvent(
                     eq(eventId), eq(FUNDING_COMPLETED), eq(fundingId), any(), any()
             );
+            verify(rewardStockService, times(1)).confirmReservations(fundingId);
             verify(qrCodeService, times(1)).createQRCode(any());
             verify(acknowledgment, times(1)).acknowledge();
         }
@@ -191,7 +188,6 @@ class FundingEventListenerTest {
             // given
             ProjectFundingSuccessPayload payload = new ProjectFundingSuccessPayload(projectId);
             ProjectFundingSuccessEvent event = new ProjectFundingSuccessEvent(eventId, PROJECT_FUNDING_SUCCESS, payload);
-            String message = objectMapper.writeValueAsString(objectMapper.writeValueAsString(event));
 
             doAnswer(invocation -> {
                 Consumer<Object> handler = invocation.getArgument(4);
@@ -200,7 +196,7 @@ class FundingEventListenerTest {
             }).when(inboxProcessor).processEvent(any(), any(), any(), any(), any());
 
             // when
-            assertThatCode(() -> fundingEventListener.consumeProjectFundingSuccessEvent(message, acknowledgment))
+            assertThatCode(() -> fundingEventListener.consumeProjectFundingSuccessEvent(event, acknowledgment))
                     .doesNotThrowAnyException();
 
             // then
@@ -222,7 +218,6 @@ class FundingEventListenerTest {
             // given
             FundingFailedPayload payload = new FundingFailedPayload(fundingId);
             FundingFailedEvent event = new FundingFailedEvent(eventId, FUNDING_FAILED, LocalDateTime.now(), payload);
-            String message = objectMapper.writeValueAsString(objectMapper.writeValueAsString(event));
 
             doAnswer(invocation -> {
                 Consumer<Object> handler = invocation.getArgument(4);
@@ -234,7 +229,7 @@ class FundingEventListenerTest {
                     .when(rewardStockService).restoreStock(fundingId);
 
             // when & then
-            assertThatThrownBy(() -> fundingEventListener.consumeFundingFailedEvent(message, acknowledgment))
+            assertThatThrownBy(() -> fundingEventListener.consumeFundingFailedEvent(event, acknowledgment))
                     .isInstanceOf(RuntimeException.class);
 
             verify(acknowledgment, never()).acknowledge();

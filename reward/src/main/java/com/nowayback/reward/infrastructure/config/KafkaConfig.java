@@ -1,7 +1,11 @@
 package com.nowayback.reward.infrastructure.config;
 
+import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingCompletedEvent;
+import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingFailedEvent;
+import com.nowayback.reward.infrastructure.kafka.dto.funding.event.FundingRefundEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.funding.event.ProjectFundingSuccessEvent;
 import com.nowayback.reward.infrastructure.kafka.dto.project.event.ProjectCreatedEvent;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
@@ -25,34 +29,24 @@ import java.util.Map;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConfig {
 
-    @Autowired
-    private KafkaProperties kafkaProperties;
+    private final KafkaProperties kafkaProperties;
 
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
-    /**
-     * Kafka Producer 설정
-     * - yml 설정 기반으로 생성 (MSK IAM 인증 포함)
-     * - JSON 직렬화 추가 설정
-     */
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>(kafkaProperties.buildProducerProperties());
-
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
-    /**
-     * DLQ로 전송하는 Recoverer
-     */
     @Bean
     public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer(
             KafkaTemplate<String, Object> kafkaTemplate
@@ -68,11 +62,6 @@ public class KafkaConfig {
         );
     }
 
-    /**
-     * 에러 핸들러 (재시도 정책 + DLQ)
-     * - 1초 간격으로 5회 재시도
-     * - 최종 실패 시 DLQ로 전송
-     */
     @Bean
     public DefaultErrorHandler defaultErrorHandler(
             DeadLetterPublishingRecoverer recoverer
@@ -81,129 +70,89 @@ public class KafkaConfig {
         return new DefaultErrorHandler(recoverer, fixedBackOff);
     }
 
+    // ========== 공통 헬퍼 ==========
 
-    // ========== ProjectCreatedEvent 전용 설정 ==========
+    private <T> ConsumerFactory<String, T> buildConsumerFactory(Class<T> targetType) {
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+        JsonDeserializer<T> valueDeserializer = new JsonDeserializer<>(targetType);
+        valueDeserializer.addTrustedPackages("*");
+        valueDeserializer.setUseTypeMapperForKey(false);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
+    }
+
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> buildListenerFactory(
+            ConsumerFactory<String, T> consumerFactory,
+            DefaultErrorHandler errorHandler
+    ) {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, T>();
+        factory.setConsumerFactory(consumerFactory);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setCommonErrorHandler(errorHandler);
+        return factory;
+    }
+
+    // ========== ProjectCreatedEvent ==========
 
     @Bean
     public ConsumerFactory<String, ProjectCreatedEvent> projectCreatedConsumerFactory() {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-
-        JsonDeserializer<ProjectCreatedEvent> valueDeserializer =
-                new JsonDeserializer<>(ProjectCreatedEvent.class);
-        valueDeserializer.addTrustedPackages("*");
-        valueDeserializer.setUseTypeMapperForKey(false);
-
-        return new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                valueDeserializer
-        );
+        return buildConsumerFactory(ProjectCreatedEvent.class);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ProjectCreatedEvent>
     projectCreatedListenerFactory(DefaultErrorHandler errorHandler) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, ProjectCreatedEvent>();
-        factory.setConsumerFactory(projectCreatedConsumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-        factory.setCommonErrorHandler(errorHandler);
-        return factory;
+        return buildListenerFactory(projectCreatedConsumerFactory(), errorHandler);
     }
 
-    // ========== FundingCompletedEvent 전용 설정 ==========
+    // ========== FundingFailedEvent ==========
 
     @Bean
-    public ConsumerFactory<String, String> fundingCompletedConsumerFactory() {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-
-        return new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                new StringDeserializer()
-        );
+    public ConsumerFactory<String, FundingFailedEvent> fundingFailedConsumerFactory() {
+        return buildConsumerFactory(FundingFailedEvent.class);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String>
-    fundingCompletedListenerFactory(DefaultErrorHandler errorHandler) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
-        factory.setConsumerFactory(fundingCompletedConsumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-        factory.setCommonErrorHandler(errorHandler);
-        return factory;
-    }
-
-    // ========== FundingFailedEvent 전용 설정 ==========
-
-    @Bean
-    public ConsumerFactory<String, String> fundingFailedConsumerFactory() {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-
-        return new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                new StringDeserializer()
-        );
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String>
+    public ConcurrentKafkaListenerContainerFactory<String, FundingFailedEvent>
     fundingFailedListenerFactory(DefaultErrorHandler errorHandler) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
-        factory.setConsumerFactory(fundingFailedConsumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-        factory.setCommonErrorHandler(errorHandler);
-        return factory;
+        return buildListenerFactory(fundingFailedConsumerFactory(), errorHandler);
     }
 
-    // ========== FundingRefundEvent 전용 설정 ==========
+    // ========== FundingRefundEvent ==========
 
     @Bean
-    public ConsumerFactory<String, String> fundingRefundConsumerFactory() {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-
-        return new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                new StringDeserializer()
-        );
+    public ConsumerFactory<String, FundingRefundEvent> fundingRefundConsumerFactory() {
+        return buildConsumerFactory(FundingRefundEvent.class);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String>
+    public ConcurrentKafkaListenerContainerFactory<String, FundingRefundEvent>
     fundingRefundListenerFactory(DefaultErrorHandler errorHandler) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
-        factory.setConsumerFactory(fundingRefundConsumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-        factory.setCommonErrorHandler(errorHandler);
-        return factory;
+        return buildListenerFactory(fundingRefundConsumerFactory(), errorHandler);
     }
 
-    // ========== ProjectFundingSuccessEvent 전용 설정 ==========
+    // ========== FundingCompletedEvent ==========
+
+    @Bean
+    public ConsumerFactory<String, FundingCompletedEvent> fundingCompletedConsumerFactory() {
+        return buildConsumerFactory(FundingCompletedEvent.class);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, FundingCompletedEvent>
+    fundingCompletedListenerFactory(DefaultErrorHandler errorHandler) {
+        return buildListenerFactory(fundingCompletedConsumerFactory(), errorHandler);
+    }
+
+    // ========== ProjectFundingSuccessEvent ==========
 
     @Bean
     public ConsumerFactory<String, ProjectFundingSuccessEvent> projectFundingSuccessConsumerFactory() {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-
-        JsonDeserializer<ProjectFundingSuccessEvent> valueDeserializer =
-                new JsonDeserializer<>(ProjectFundingSuccessEvent.class);
-        valueDeserializer.addTrustedPackages("*");
-        valueDeserializer.setUseTypeMapperForKey(false);
-
-        return new DefaultKafkaConsumerFactory<>(
-                props,
-                new StringDeserializer(),
-                valueDeserializer
-        );
+        return buildConsumerFactory(ProjectFundingSuccessEvent.class);
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ProjectFundingSuccessEvent>
     projectFundingSuccessListenerFactory(DefaultErrorHandler errorHandler) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, ProjectFundingSuccessEvent>();
-        factory.setConsumerFactory(projectFundingSuccessConsumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-        factory.setCommonErrorHandler(errorHandler);
-        return factory;
+        return buildListenerFactory(projectFundingSuccessConsumerFactory(), errorHandler);
     }
 }

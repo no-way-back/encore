@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,6 +30,11 @@ public class OutboxRepositoryImpl implements OutboxRepository {
     @Override
     public void deletePublishedEventsBefore(LocalDateTime threshold) {
         outboxJpaRepository.deletePublishedEventsBefore(threshold);
+    }
+
+    @Override
+    public Optional<Outbox> findById(UUID eventId) {
+        return outboxJpaRepository.findById(eventId);
     }
 
     @Override
